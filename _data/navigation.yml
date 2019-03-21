@@ -1,0 +1,23 @@
+# main links links
+main:
+  - title: "about"
+    url: /about/
+
+  - title: "research"
+    url: /research/
+
+  - title: "publications"
+    url: /publications/
+
+  - title: "talks"
+    url: /talks/    
+
+  - title: "software"
+    url: /software/    
+    
+  - title: "what's new"
+    url: /news/
+    
+  - title: "contact"
+    url: /contact/
+
