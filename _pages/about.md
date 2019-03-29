@@ -6,4 +6,4 @@ redirect_from:
   - /about/
   - /about.html
 ---
-about this page
+under cunstruction: about this page
