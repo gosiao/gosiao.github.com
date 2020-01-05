@@ -1,9 +1,10 @@
 ---
 permalink: /
-title: "about"
+title: "about this page"
 author_profile: true
 redirect_from:
   - /about/
   - /about.html
 ---
-under cunstruction: about this page
+under construction: about this page
+
