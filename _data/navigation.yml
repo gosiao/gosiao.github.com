@@ -9,15 +9,12 @@ main:
   - title: "publications"
     url: /publications/
 
-  - title: "talks"
-    url: /talks/    
-
   - title: "software"
     url: /software/    
     
   - title: "what's new"
     url: /news/
     
-  - title: "contact"
-    url: /contact/
+  - title: "links"
+    url: /links/
 
