@@ -4,4 +4,9 @@ title: "what's new"
 permalink: /news/
 author_profile: false
 ---
-under construction
+
+[//]: # blog posts here
+[//]: # reading, reviews, learning, meetings, technical snippets (add hashtags) - weekly updates!
+
+
+
