@@ -7,9 +7,9 @@
 
 # Site Settings
 locale                   : "en-US"
-title                    : "gosiao website"
+title                    : "Gosia Olejniczak"
 title_separator          : "-"
-name                     : &name "gosiao"
+name                     : &name "Gosia Olejniczak"
 description              : &description "work webpage"
 url                      : https://gosiao.github.io
 baseurl                  : "" # the subpath of your site, e.g. "/blog"
