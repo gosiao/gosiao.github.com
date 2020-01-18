@@ -7,47 +7,21 @@ author_profile: false
 
 [//]: # look for research statement examples online
 
-I am interested in combining data science and computer science with chemistry as a way to improve methods and computational workflows used in quantum chemistry calculations. 
-This is motivated not only by an utilitarian incentives to optimize and facilitate such calculations, but is also led by a curiosity in looking 
-
-[//]:# by search for 
-
-for new ways to understand the behavior of complex molecular systems in complex environments and under various perturbations.
+[//]: # one of the functions of a research plan is to demonstrate your intellectual vision and aspirations. It's also an opportunity to begin to demonstrate the creative and independent thinking required of a successful scientist.
 
 
+I am broadly interested in quantum chemistry and its applications to model properties of molecules, in particular the ones involving heavy elements, responding to various perturbations and interacting with other molecules in the environment.
+
+My primary interests are in combining data science and computer science with chemistry. At the intersection of these domains I am looking for ways to improve the computational quantum chemistry workflows, as well as for new methods contributing to a deeper understanding of the behavior of molecular systems in complex environments and under perturbations.
+
+<br>
 
 
+Current research projects:
 
-
-[//]: #  Reaching a compromise between accuracy and efficiency of calculations is a long-term endeavor in the quantum chemistry community[^fn]. 
-
-
-
-Currently working on:
-
-* [Topological Data Analysis of quantum chemistry data](tda_in_qchem)
-
-[//]: # * [embedding](embedding)
-
-[//]: #  * [molecular properties](molprop)
-
-[//]: # * [bridging data science and quantum chemistry](data_science_in_qchem)
+* [Topological Data Analysis of quantum chemistry data](tda_and_qchem)
+* [Molecules in realistic environments - the Frozen Density Embedding ](fde)
 
 
 
-
-
-[//]: #  The result of computational studies cannot always be compared with experimental observations
-
-[//]: #  learn the limitations of your tools
-
-[//]: #  have the right answer for the right reason
-
-
-
-
-
-[//]: #  **Bibliography**
-
-[//]: #  [^fn]: And the footnote! [paper1](https://pubs.acs.org/doi/10.1021/acs.jpclett.9b00421)
 
