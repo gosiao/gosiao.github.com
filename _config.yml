@@ -80,34 +80,20 @@ analytics:
 
 # Site Author
 author:
-  name             : "Your Sidebar Name"
+  name             : "Contact"
   avatar           : "profile.png"
-  bio              : "Your biography for the left-hand sidebar"
+  bio              : ""
   location         : "Location"
   employer         :
-  pubmed           : "https://www.ncbi.nlm.nih.gov/pubmed/?term=john+snow"
-  googlescholar    : "http://yourfullgooglescholarurl.com"
-  email            :
-  researchgate     :  # example: "https://www.researchgate.net/profile/yourprofile"
-  uri              :
-  bitbucket        :
-  codepen          :
-  dribbble         :
-  flickr           :
-  facebook         :
-  foursquare       :
-  github           : "academicpages"
-  google_plus      :
-  keybase          :
+  googlescholar    : "https://scholar.google.com/citations?user=dkW7eo0AAAAJ&hl=pl"
+  email            : "gosia.olejniczak [at] gmail.com"
+  researchgate     :  "https://www.researchgate.net/profile/Matgorzata_Olejniczak"
+  github           : "gosiao"
   instagram        :
-  lastfm           :
   linkedin         :
-  orcid            : "http://orcid.org/yourorcidurl"
+  orcid            : "https://orcid.org/0000-0002-8370-9570"
   pinterest        :
-  soundcloud       :
   stackoverflow    : # http://stackoverflow.com/users/123456/username
-  steam            :
-  tumblr           :
   twitter          : "replacethistwitterhandle"
   vine             :
   weibo            :
