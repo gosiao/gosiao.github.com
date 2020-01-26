@@ -3,6 +3,7 @@ layout: archive
 title: "A Topological Data Analysis Perspective on Non-Covalent Interactions in Relativistic Calculations"
 permalink: /research/published/tda_rho_ijqc2019/
 author_profile: false
+tags: tda
 ---
 
 <br>
@@ -32,16 +33,12 @@ img {
 
 **About:**
 
+An often used criterion of the existence of non-covalent bonds is the presence of the Bond Critical Point (BCP) between atoms involved in such interaction. This *yes-no* criterion has been questioned in literature on multiple occasions, yet still the presence of BCPs is interpreted as a marker of chemical bond.
 
-An often used criterion of the existence of non-covalent bonds is the presence of the Bond Critical Point (BCP) between atoms involved in such interaction. This yes-no criterion has been questioned in literature on multiple occasions, yet still the presence of BCPs is interpreted as a marker of chemical bond.
+The gold complexes we studied in this project, Au4-S-C6H4-S'-Au'4  and Au-S-CH-CH2,
+are examples of systems in which the presence of BCPs between gold and hydrogen atoms, manifested in the Quantum Theory of Atoms in Molecules (QTAIM) as saddle points of the electron density, leads to false conclusions on the non-covalent interactions between these centers. The Topological Data Analysis (TDA) offers a new perspective to the interpretation of these BCPs: while it extracts the same topological features as QTAIM, it quantifies them by persistence - a real number associated with their importance.
 
-The gold complexes studied in this project, Au<sub>4</sub>-S-C<sub>6</sub>H<sub>4</sub>-S'-Au'<sub>4</sub>  and Au-S-CH-CH<sub>2</sub>, 
-are examples of systems in which the presence of BCPs between gold and hydrogen atoms, manifested in the Quantum Theory of Atoms in Molecules (QTAIM) as saddle points of the electron density, leads to false conclusions on the non-covalent interactions between these centers.
-The Topological Data Analysis (TDA) offers a new perspective to the interpretation of these BCPs. 
-While it extracts the same topological features as QTAIM, it quantifies them by persistence - a real number associated with their importance.
-An interesting observation from these studies is that the persistence of saddle point pairs depends on the accuracy with which the electron density was calculated - more accurate quantum chemical calculations resulted in lower persistence values what led to the conclusion that these BCPs are not important and hence should not be used as an evidence of non-covalent interactions between Au and H atoms in these systems.
-The hypothesis that these interactions are induced by relativistic effects, as stated based on the presence or absence of BCPs in QTAIM studies of relativistic and non-relativistic electron density is therefore disproved. Additionally, this has been confirmed by the analysis of the reduced density gradient, which did not show any quantitative differences between relativistic and non-relativistic cases.
+An interesting observation from these studies is that the persistence of saddle point pairs depends on the accuracy with which the electron density was calculated - more accurate quantum chemical calculations resulted in lower persistence values what led to the conclusion that these BCPs are not important and hence should not be used as an evidence of non-covalent interactions between Au and H atoms in these systems. The hypothesis that these interactions are induced by relativistic effects, as stated based on the presence or absence of BCPs in QTAIM studies of relativistic and non-relativistic electron density is therefore disproved. Additionally, this has been confirmed by the analysis of the reduced density gradient, which did not show any quantitative differences between relativistic and non-relativistic cases.
 
-In my opinion the most interesting outcome of this project is that the persistence of topological feature, which can be used as a measure of the importance of this feature and which is a real number,
-can offer a much deeper insight than a *yes-no* criterion based on the presence or absence of this feature.
+In my opinion, the most interesting outcome of this project is that the persistence of topological feature, which can be used as a measure of importance of this feature and which is represented by a real number, can offer a much deeper insight than a *yes-no* criterion based on the presence or absence of this feature.
 
