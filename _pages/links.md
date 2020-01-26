@@ -1,9 +1,10 @@
 ---
-layout: archive
-title: "links"
 permalink: /links/
+layout: archive
+title: "Links I find useful"
+author_profile: false
 ---
 
-Links I find useful
+under construction
 
 
