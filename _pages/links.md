@@ -1,10 +1,19 @@
 ---
 permalink: /links/
 layout: archive
-title: "Links I find useful"
+title: ""
 author_profile: false
 ---
 
-under construction
+## Local events
+
+* [Comp-sci-tools workshops](link)
+
+
+
+## Links I find useful
+
+
+
 
 
