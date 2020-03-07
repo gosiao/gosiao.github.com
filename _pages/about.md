@@ -11,12 +11,7 @@ redirect_from:
 
 Currently I am a researcher in the Centre of New Technologies at the University of Warsaw and on this website I am writing about [my research interests](/research/research.md), keeping track of [published papers](publications.md) and [software](software.md), and hosting a list of [links](links.md) I find particularly useful in everyday research. 
 
-Occasionally, on the [blog](news.md) I write about:
-
-* events related to quantum chemistry, programming and data analysis
-* comments on books, papers, articles, talks
-* technicalities, little pieces of code, settings I find useful in everyday work
-* lists of ideas and inspirations
-* and various other topics.
+Occasionally, I [blog](news.md) about various scientific initiatives, books and technicalities.
+I organize [hands-on workshops](https://comp-sci-tools.github.io/) on best practices in computational sciences.
 
 
