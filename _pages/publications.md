@@ -7,10 +7,11 @@ author_profile: false
 
 Preprints:
 
-* 2020 *The DIRAC code for relativistic molecular calculations*, T. Saue *et al.*, [arXiv](https://arxiv.org/abs/2002.06121)
 
 
 Papers in refereed journals:
+
+* 2020 *The DIRAC code for relativistic molecular calculations*, T. Saue *et al.*, J. Chem. Phys. 152, 204104, 2020, [arXiv](https://arxiv.org/abs/2002.06121), [J. Chem. Phys.](https://aip.scitation.org/doi/full/10.1063/5.0004844) 
 
 * 2019 *Investigating solvent effects on the magnetic properties of molybdate ions (MoO2-4) with relativistic embedding*, L. Halbert, M. Olejniczak, V. Vallet, A. Severo Pereira Gomes. [arXiv](https://arxiv.org/abs/1912.06192), [IJQC](https://onlinelibrary.wiley.com/doi/abs/10.1002/qua.26207)
 
@@ -20,7 +21,21 @@ Papers in refereed journals:
 
 * 2017 *On the calculation of second-order magnetic properties using subsystem approaches in a relativistic framework*, M. Olejniczak, R. Bast, A. Severo Pereira Gomes, Phys. Chem. Chem. Phys. 19, 8400, 2017, [PCCP](https://pubs.rsc.org/en/content/articlelanding/2017/cp/c6cp08561j/unauth#!divAbstract), [arXiV](https://arxiv.org/abs/1610.04280), data on Zenodo: [link1](https://zenodo.org/deposit/291373), [link2](https://zenodo.org/deposit/179667)
 
+* 2014 *Strong enhancement of parity violation effects in chiral uranium compounds*, M. Wormit, M. Olejniczak, A.-L. Deppenmeier, A. Borschevsky, T. Saue, P. Schwerdtfeger, Phys. Chem. Chem. Phys. 16, 17043, 2014 [PCCP](https://pubs.rsc.org/en/content/articlelanding/cp/2014/c4cp01904k#!divAbstract), [correction](https://pubs.rsc.org/en/content/articlepdf/2014/cp/c4cp90164a)
 
+* 2013 *NMR shielding constants in SeH2 and TeH2*,  M. Olejniczak, M. Jaszuński, Mol. Phys. 111, 1355, 2013, [MP](https://www.tandfonline.com/doi/abs/10.1080/00268976.2013.793839)
+
+* 2012 *A simple scheme for magnetic balance in four-component relativistic Kohn–Sham calculations of nuclear magnetic resonance shielding constants in a Gaussian basis*, M. Olejniczak, R. Bast, T. Saue, M. Pecul, J. Chem. Phys. 136, 014108, 2012, [JCP](https://aip.scitation.org/doi/citedby/10.1063/1.3671390), [correction](https://aip.scitation.org/doi/full/10.1063/1.4725184)
+
+* 2011 *NMR Shielding Constants in PH3, Absolute Shielding Scale, and the Nuclear Magnetic Moment of 31P*, P. Lantto, K. Jackowski, W. Makulski, M. Olejniczak, M. Jaszuński, J. Phys. Chem. A, 115, 10617, 2011, [JPCA](https://pubs.acs.org/doi/abs/10.1021/jp2052739)
+
+* 2011 *4-Component relativistic magnetically induced current density using London atomic orbitals*, D. Sulzer, M. Olejniczak, R. Bast, T. Saue, Phys. Chem. Chem. Phys. 13, 20682 (2011), [PCCP](https://pubs.rsc.org/en/content/articlelanding/2011/cp/c1cp22457c/unauth#!divAbstract)
+
+* 2011 *Ab initio study of NMR shielding constants and spin-rotation constants in N, P and As diatomic molecules*, A. Antušek, M. Jaszuński, M. Olejniczak, Computational and Theoretical Chemistry 970, 54, 2011, [CTC](https://www.sciencedirect.com/science/article/abs/pii/S2210271X11002854)
+
+* 2009 *Spin–Spin Coupling Constants Transmitted through IrH---HN Dihydrogen Bonds*, M. Olejniczak, M. Pecul, ChemPhysChem 10, 1247, 2009, [CPC](https://chemistry-europe.onlinelibrary.wiley.com/doi/abs/10.1002/cphc.200800817)
+
+* 2008 *Theoretical investigation on the linear and nonlinear susceptibilities of urea crystal*, M. Olejniczak, M. Pecul, B. Champagne, E. Botek, J. Chem. Phys. 128, 244713, 2008, [JCP](http://aip.scitation.org/doi/10.1063/1.2938376)
 
 
 [//]: # PAPERS IN CONFERENCE PROCEEDINGS
