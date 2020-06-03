@@ -15,7 +15,7 @@ Papers in refereed journals:
 
 * 2019 *Investigating solvent effects on the magnetic properties of molybdate ions (MoO2-4) with relativistic embedding*, L. Halbert, M. Olejniczak, V. Vallet, A. Severo Pereira Gomes. [arXiv](https://arxiv.org/abs/1912.06192), [IJQC](https://onlinelibrary.wiley.com/doi/abs/10.1002/qua.26207)
 
-* 2019 *A Topological Data Analysis Perspective on Non-Covalent Interactions in Relativistic Calculations*, M. Olejniczak, A. Severo Pereira Gomes, J. Tierny, Int. J. Quantum Chem. 120 (8), e26133 [About](../research/published/tda_rho_ijqc2019), [arXiv](https://arxiv.org/abs/1908.00911), [IJQC](https://onlinelibrary.wiley.com/doi/10.1002/qua.26133),  [data on Zenodo](https://zenodo.org/record/3358788#.XhIEz9-E45k) 
+* 2019 *A Topological Data Analysis Perspective on Non-Covalent Interactions in Relativistic Calculations*, M. Olejniczak, A. Severo Pereira Gomes, J. Tierny, Int. J. Quantum Chem. 120 (8), e26133 [About](../research/published/tda_rho_ijqc2019), [arXiv](https://arxiv.org/abs/1908.00911), [IJQC](https://onlinelibrary.wiley.com/doi/10.1002/qua.26133),  [data on Zenodo](https://zenodo.org/record/3358788#.XhIEz9-E45k) and Int. J. Quantum Chem. 120 (8), e26199 (cover image) [link](https://onlinelibrary.wiley.com/doi/abs/10.1002/qua.26199) 
 
 * 2018 *NMR shielding constants in group 15 trifluorides*, T. E. Field-Theodore, M. Olejniczak, M. Jaszuński, D. J. D. Wilson, Phys. Chem. Chem. Phys. 20, 23025, 2018, [PCCP](https://pubs.rsc.org/en/content/articlelanding/2018/cp/c8cp04056g/unauth#!divAbstract)
 
