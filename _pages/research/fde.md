@@ -34,8 +34,8 @@ Among various applications, this project will consider systems which can be used
 molecule-based materials of desired magnetic properties or as radiopharmaceuticals.
 
 
-The computional studies of such systems are not only run for application purposes,
-but they also provide an invaluable theoretical information, since through the
+The computational studies of such systems are not only run for application purposes,
+but they also provide invaluable theoretical information, since through the
 interactions between molecules and between molecules and external fields, 
 the electronic structure and properties of such systems can be examined and better understood.
 
@@ -63,10 +63,10 @@ FDE is based on the density functional theory (DFT),
 therefore the embedding potential is defined analogously to 
 exchange-correlation potential in Kohn-Sham DFT, 
 nevertheless all the subsystems can either be described with DFT 
-or with wave-funtion theory (WFT) based methods, 
+or with wave-function theory (WFT) based methods, 
 what results in various embedding schemes, termed DFT-in-DFT, WFT-in-DFT, WFT-in-WFT.
 
-Currently available FDE schemes are limitted to non-relativistic or quasi-relativistic Hamiltonians 
+Currently available FDE schemes are limited to non-relativistic or quasi-relativistic Hamiltonians 
 and only to few molecular properties (not higher than of second-order). 
 And the developments in the *fully*-relativistic four-component (4c) 
 framework with the Dirac-Coulomb (DC) Hamiltonian and various DFT and WFT methods 
