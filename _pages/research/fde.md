@@ -47,7 +47,7 @@ should account for the presence of an environment, which may significantly affec
 the geometry, electronic structure and properties of the molecule of interest.
 More advanced quantum chemistry methods which are able to encompass the relativistic 
 and electron correlation effects are computationally very expensive, 
-therefore cannot be used to a molecule and its environment treated as whole system. 
+therefore cannot be used to a molecule and its environment treated as a whole system. 
 
 A promising alternative is to use embedding methods, 
 in which the whole system is divided into subsystems: 
@@ -68,15 +68,14 @@ what results in various embedding schemes, termed DFT-in-DFT, WFT-in-DFT, WFT-in
 
 Currently available FDE schemes are limited to non-relativistic or quasi-relativistic Hamiltonians 
 and only to few molecular properties (not higher than of second-order). 
-And the developments in the *fully*-relativistic four-component (4c) 
+The developments in the *fully*-relativistic four-component (4c) 
 framework with the Dirac-Coulomb (DC) Hamiltonian and various DFT and WFT methods 
 for the wide range of second- and third-order molecular properties are certainly needed.
 
 This extension is essential to systems with heavy atoms and to properties which depend on the 
 electron density near the nucleus - as for them the relativistic effects are expected to be 
 significant - such as the properties observed in nuclear magnetic resonance (NMR) spectroscopy 
-or in the X-ray spectroscopy, however owing to recent advancements in relativistic quantum chemistry, 
-more unexpected examples of significant relativistic effects on valence properties are found.
+or in the X-ray spectroscopy, however recent advancements in relativistic quantum chemistry also show examples of significant relativistic effects on valence properties.
 
 The methodology development in this direction will therefore allow to revisit and calculate various properties, 
 notably in systems with heavy elements, with the relativistic, correlation and environmental effects calculated from the start.
