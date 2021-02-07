@@ -5,12 +5,14 @@
 # For technical reasons, this file is *NOT* reloaded automatically when you use
 # `jekyll serve`. If you change this file, please restart the server process.
 
+# template from academicpages.github.io
+
 # Site Settings
-locale                   : "en-US"
+locale                   : "en-PL"
 title                    : "Gosia Olejniczak"
 title_separator          : "-"
 name                     : &name "Gosia Olejniczak"
-description              : &description "work webpage"
+description              : &description ""
 url                      : https://gosiao.github.io
 baseurl                  : "" # the subpath of your site, e.g. "/blog"
 repository               : "gosiao.github.io"
@@ -80,26 +82,26 @@ analytics:
 
 # Site Author
 author:
-  name             : "Contact"
-  avatar           : "profile.png"
-  bio              : ""
-  location         : "Location"
-  employer         :
+  name             : ""
+  avatar           : "profile.jpg"
+#  bio              : ""
+#  location         : ""
+#  employer         :
   googlescholar    : "https://scholar.google.com/citations?user=dkW7eo0AAAAJ&hl=pl"
   email            : "gosia.olejniczak [at] gmail.com"
   researchgate     :  "https://www.researchgate.net/profile/Matgorzata_Olejniczak"
   github           : "gosiao"
-  instagram        :
-  linkedin         :
+#  instagram        :
+#  linkedin         :
   orcid            : "https://orcid.org/0000-0002-8370-9570"
-  pinterest        :
+#  pinterest        :
   stackoverflow    : # http://stackoverflow.com/users/123456/username
   twitter          : "_gosiao"
-  vine             :
-  weibo            :
-  xing             :
-  youtube          :
-  wikipedia        :
+#  vine             :
+#  weibo            :
+#  xing             :
+#  youtube          :
+#  wikipedia        :
 
 
 # Reading Files
@@ -181,7 +183,7 @@ defaults:
       type: posts
     values:
       layout: single
-      author_profile: true
+      author_profile: false
       read_time: true
       comments: true
       share: true
@@ -239,7 +241,7 @@ sass:
 permalink: /:categories/:title/
 # paginate: 5 # amount of posts to show
 # paginate_path: /page:num/
-timezone: America/Los_Angeles # http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+timezone: Europe/Warsaw # http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 
 
 # Plugins
