@@ -89,14 +89,14 @@ author:
 #  employer         :
   googlescholar    : "https://scholar.google.com/citations?user=dkW7eo0AAAAJ&hl=pl"
   email            : "gosia.olejniczak [at] gmail.com"
-  researchgate     :  "https://www.researchgate.net/profile/Matgorzata_Olejniczak"
+#  researchgate     :  "https://www.researchgate.net/profile/Matgorzata_Olejniczak"
   github           : "gosiao"
 #  instagram        :
 #  linkedin         :
   orcid            : "https://orcid.org/0000-0002-8370-9570"
 #  pinterest        :
-  stackoverflow    : # http://stackoverflow.com/users/123456/username
-  twitter          : "_gosiao"
+#  stackoverflow    : # http://stackoverflow.com/users/123456/username
+#  twitter          : "_gosiao"
 #  vine             :
 #  weibo            :
 #  xing             :
