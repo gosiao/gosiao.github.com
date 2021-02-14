@@ -9,10 +9,7 @@ redirect_from:
 ---
 
 
-Currently I am a researcher in the Centre of New Technologies at the University of Warsaw and on this website I am writing about [my research interests](/research/research.md), keeping track of [published papers](publications.md) and [software](software.md), and hosting a list of [links](links.md) I find particularly useful in everyday research. 
-
-Occasionally, I [blog](news.md) about various scientific initiatives, books and technicalities.
-I organize [hands-on workshops](https://comp-sci-tools.github.io/) on best practices in computational sciences.
+Hi! I'm Gosia and this is my personal website, where I write about my [research](/research/research.md) on the intersection of quantum chemistry and data science, and where I keep track of scientific and non-scientific [projects](projects.md).
 
 
 
