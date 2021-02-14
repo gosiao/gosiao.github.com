@@ -15,7 +15,4 @@ Occasionally, I [blog](news.md) about various scientific initiatives, books and 
 I organize [hands-on workshops](https://comp-sci-tools.github.io/) on best practices in computational sciences.
 
 
-<br>
-
-The material published on this website is available under the [CC0 1.0 Universal licence](https://creativecommons.org/publicdomain/zero/1.0/deed.en).
 
