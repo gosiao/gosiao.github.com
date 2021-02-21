@@ -1,19 +1,15 @@
 ---
 permalink: /links/
 layout: archive
-title: ""
+title: "Links I find useful"
 author_profile: false
 ---
 
-## Local events
+### Science
 
-* [Comp-sci-tools workshops](https://comp-sci-tools.github.io/)
+  * [The periodic table of the elements](https://www.webelements.com/)
 
-
-
-## Links I find useful
-
-* Fortran
+### Fortran
 
   * [A comprehensive list of resources on fortranwiki](http://fortranwiki.org/fortran/show/HomePage)
 
