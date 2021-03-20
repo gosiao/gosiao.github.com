@@ -1,8 +1,5 @@
 # main links links
 main:
-  - title: "about"
-    url: /about/
-
   - title: "research"
     url: /research/
 
@@ -12,8 +9,8 @@ main:
   - title: "software"
     url: /software/    
     
-  - title: "what's new"
-    url: /news/
+  - title: "blog"
+    url: /blog/
     
   - title: "links"
     url: /links/
