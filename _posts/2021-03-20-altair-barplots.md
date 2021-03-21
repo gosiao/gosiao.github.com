@@ -4,6 +4,7 @@ title: 'Discovering Altair - bar plots'
 author_profile: false
 subpage_include: altair-barplots-files/notebook.md
 tags:
+  - toolbox
   - Altair
   - bar plots
   - things I learned this week
