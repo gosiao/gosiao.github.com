@@ -7,7 +7,7 @@ tags:
   - toolbox
   - Altair
   - things I learned this week
-date: 2021-04-10
+date: 2021-05-22
 ---
 
 Diving into data analysis subjects made me realize how little attention we pay to all kinds of bias in quantum chemistry research. Leaving a deeper exploration of this topic for the future, with this post I would like to relate to the "cognitive bias" which inevitably enters the data analysis and data presentation stages of the research process. Some of the questions that are with me for quite some time is how to present research results objectively, yet discuss them (necessarily) in the context of state-of-the-art knowledge, and how to document and discuss the data we collect, including the data that does not "fit" to the desired narrative and does not lead to anticipated conclusions.
