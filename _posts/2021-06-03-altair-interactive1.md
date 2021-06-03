@@ -2,12 +2,13 @@
 layout: post
 title: 'Discovering Altair - interactive plots'
 author_profile: false
-subpage_include: altair-interactive-files/notebook.html
+subpage_include: altair-interactive-files/notebook.md
+######subpage_include: altair-interactive-files/notebook.html
 tags:
   - toolbox
   - Altair
   - things I learned this week
-date: 2021-05-22
+date: 2021-06-03
 ---
 
 Diving into data analysis subjects made me realize how little attention we pay to all kinds of bias in quantum chemistry research. Leaving a deeper exploration of this topic for the future, with this post I would like to relate to the "cognitive bias" which inevitably enters the data analysis and data presentation stages of the research process. Some of the questions that are with me for quite some time is how to present research results objectively, yet discuss them (necessarily) in the context of state-of-the-art knowledge, and how to document and discuss the data we collect, including the data that does not "fit" to the desired narrative and does not lead to anticipated conclusions.
@@ -20,7 +21,9 @@ I think that one way to reduce this bias and make the research more transparent 
  
 Whether as authors we should strive for objectivity in the presentation of our research work is another question, yet I believe that specifying and separating the roles and motivations for using various communication mediums - for instance, allowing a more subjective discussion in scientific publications, and sharing other tools, such as interactive platforms, to allow others to explore and use the data - could set the expectations right.
 
-This is already a rather long introduction to a small technical post, yet I hope to have set the motivation for the exercise I want to dive into. Specifically, I would like to show how to prepare a Jupyter dashboard, that assembles interactive plots prepared with Altair. The data used in this example is taken from [the paper that we recently submitted to IJQC]() and the final result is as follows:
+This is already a rather long introduction to a small technical post, yet I hope to have set the motivation for the exercise I want to dive into. Specifically, I would like to show how to prepare a Jupyter dashboard, that assembles interactive plots prepared with Altair. The data used in this example is taken from [the paper that we recently submitted](https://arxiv.org/abs/2106.00763) and the final result is as follows.
+
+This post can also be viewed as a jupyter notebook - [link](link to nbviewer).
 
 
 {% include_relative {{page.subpage_include}} %}
