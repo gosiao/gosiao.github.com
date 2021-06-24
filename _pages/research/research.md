@@ -1,6 +1,6 @@
 ---
-permalink: /research/
 layout: archive
+permalink: /research/
 title: "Research interests"
 author_profile: false
 ---
