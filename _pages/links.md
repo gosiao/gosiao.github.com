@@ -1,6 +1,6 @@
 ---
-permalink: /links/
 layout: archive
+permalink: /links/
 title: ""
 author_profile: false
 ---

@@ -1,7 +1,7 @@
 ---
 layout: archive
-title: ""
 permalink: /blog/
+title: ""
 author_profile: false
 ---
 
