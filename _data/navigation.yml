@@ -1,13 +1,21 @@
+# main links
+
 main:
-  - title: "about"
-    url: /about/
+  - title: "research"
+    url: /research/
+
+  - title: "publications"
+    url: /publications/
+
+  - title: "software"
+    url: /software/
 
   - title: "projects"
     url: /projects/
 
   - title: "blog"
     url: /blog/
-    
+
   - title: "links"
     url: /links/
 

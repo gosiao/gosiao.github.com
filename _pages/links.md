@@ -1,7 +1,7 @@
 ---
-permalink: /links/
 layout: archive
-title: "Links I find useful"
+permalink: /links/
+title: ""
 author_profile: false
 ---
 

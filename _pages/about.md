@@ -1,15 +1,11 @@
 ---
-permalink: /
 layout: archive
+permalink: /
 title: ""
 author_profile: true
-redirect_from:
-  - /about/
-  - /about.html
 ---
 
+Hi! I'm Gosia and I'm a researcher with interests in quantum chemistry and data science. Here I keep track of scientific and non-scientific projects and occasionally I blog about various scientific initiatives, books, and technicalities.
 
-Hi! I'm Gosia and this is my personal website, where I write about my [research](/research/research.md) on the intersection of quantum chemistry and data science, and where I keep track of scientific and non-scientific [projects](projects.md).
-
-
+### News
 
