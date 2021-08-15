@@ -51,7 +51,7 @@ Papers in refereed journals:
   Phys. Chem. Chem. Phys. 19, 8400, 2017, 
   [arXiV](https://arxiv.org/abs/1610.04280), 
   [Phys. Chem. Chem. Phys.](https://pubs.rsc.org/en/content/articlelanding/2017/cp/c6cp08561j/unauth#!divAbstract), 
-  [data on Zenodo, part1](https://zenodo.org/deposit/291373), [data on Zenodo, part2](https://zenodo.org/deposit/179667)
+  [data on Zenodo:part1](https://zenodo.org/deposit/291373), [data on Zenodo:part2](https://zenodo.org/deposit/179667)
 
 * 2014 
   *Strong enhancement of parity violation effects in chiral uranium compounds*, 
