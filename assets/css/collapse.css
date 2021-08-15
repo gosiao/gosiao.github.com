@@ -10,7 +10,10 @@
     padding: 2px;
     cursor: pointer;
     font-weight: bold;
+    /* text-align: center; */
 }
 .container .content {
     display: none;
     padding : 5px;
+    /* text-align: center; */
+}
