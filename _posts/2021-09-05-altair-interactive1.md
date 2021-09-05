@@ -9,7 +9,7 @@ tags:
   - Altair
   - things I learned this week
   - opinions
-date: 2021-09-04
+date: 2021-09-05
 ---
 
 Diving into data analysis subjects made me realize how little attention we pay to all kinds of bias in quantum chemistry research. Leaving a deeper exploration of this topic for the future, with this post, I would like to relate to the "cognitive bias," which inevitably enters the data analysis and data presentation stages of the research process. Some of the questions I ponder on for quite some time are: how to present research results objectively, yet discuss them (necessarily) in the context of state-of-the-art knowledge, and how to document and discuss the data we collect, including the data that does not fit to the desired narrative and does not lead to anticipated conclusions.
@@ -22,22 +22,18 @@ One way to reduce this bias and make the research more transparent and inviting 
 
 Whether - as authors - we should strive for objectivity in the presentation of our research work is another question. Yet, I believe specifying and separating the roles and motivations for using various communication mediums - for instance, allowing a more subjective discussion in scientific publications while providing interactive platforms to enable others to draw their own conclusions - could set the expectations right. I also feel that this could trigger more empathetic, inclusive, and creative behaviors in research work - it would, for instance, address the fact that we all have different ways to learn, as the authors of the [The "Paper" of the Future](https://www.authorea.com/users/23/articles/8762-the-paper-of-the-future?commit=d4033594de841d252b3220927b39de4314d26409) convey.
 
-This is already a rather long introduction to a small technical post, yet I hope to have motivated the exercise I want to dive into. Specifically, I would like to show how to prepare a Jupyter dashboard that assembles interactive plots designed with [Altair](https://altair-viz.github.io/index.html). The data used in this example is taken from our recently submitted [paper](https://onlinelibrary.wiley.com/doi/10.1002/qua.26789).
+This is already a rather long introduction to a small technical post, yet I hope to have motivated the exercise I want to dive into. Specifically, I would like to show how to prepare a Jupyter dashboard that assembles few simple interactive plots designed with [Altair](https://altair-viz.github.io/index.html). The data used in this example is taken from our recently submitted [paper](https://onlinelibrary.wiley.com/doi/10.1002/qua.26789).
 
 
  
-
-
-
-
-
-This post can also be viewed as a jupyter notebook - [link](link to nbviewer).
+This post can also be viewed as a jupyter notebook - [link](https://nbviewer.jupyter.org/github/gosiao/gosiao.github.com/blob/00461015a3d60dae2dbb52c1d495ed11c86b1f8a/_posts/altair-interactive-files/notebook.ipynb), or - better - opened in jupyter lab and (for instance) rendered with [Voila](https://voila.readthedocs.io/en/stable/).
 
 
 {% include_relative {{page.subpage_include}} %}
 
 
-I am still not entirely convinced of Altair (or maybe just got used to matplotlib+seaborn), but it has many exciting features that help to create interactive presentations. Also, perhaps the example above is not the best to advocate for the interactive plots. Since the data is small, these plots do not necessarily make up for better communication than the static graphs and tables. Yet, I hope it shows another possibility to present research and that it brings some more fun into it.
+I am still not entirely convinced of Altair (or maybe just got used to matplotlib+seaborn), but it has many exciting features that help to create interactive presentations.
+Also, perhaps the example above is not the best to advocate for the interactive plots. Since the data is small, these plots do not necessarily make up for better communication than the static graphs and tables. Yet, I hope it shows another possibility to present research results and that it brings some more fun into it.
 
 
 
