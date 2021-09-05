@@ -26,7 +26,7 @@ This is already a rather long introduction to a small technical post, yet I hope
 
 
  
-This post can also be viewed as a jupyter notebook - [link](https://nbviewer.jupyter.org/github/gosiao/gosiao.github.com/blob/00461015a3d60dae2dbb52c1d495ed11c86b1f8a/_posts/altair-interactive-files/notebook.ipynb), or - better - opened in jupyter lab and (for instance) rendered with [Voila](https://voila.readthedocs.io/en/stable/).
+This post can also be viewed as a jupyter notebook - [link](https://nbviewer.jupyter.org/github/gosiao/gosiao.github.com/blob/44cc74075c88847e0d4f12ea6f987f79e68aab2b/_posts/altair-interactive-files/notebook.ipynb), opened in jupyter lab and (for instance) rendered with [Voila](https://voila.readthedocs.io/en/stable/).
 
 
 {% include_relative {{page.subpage_include}} %}
