@@ -1,7 +1,5 @@
 ### What & why:
 
-In this notebook I explore interactive plots in [Altair](https://altair-viz.github.io/index.html) to present the data we collected in [our recent work](https://arxiv.org/abs/2106.00763).
-
 The data describes the solvent effects on the NMR shielding constant of transition metal nuclei ($\sigma$) in multiple complexes, that were calculated with few models:
 
 * in full solvated complexes ($\sigma_{super}$)
@@ -21,25 +19,20 @@ $\sigma_{super}$ is the most accurate result within the quantum chemistry model 
 
 * *df_dirac* and *df_adf* are dataframes that collect the data obtained from calculations with DIRAC (with the DC Hamiltonian) and ADF (with the SO-ZORA Hamiltonian). The data is read from from dirac_data.csv and adf_data.csv files.
 
-* some definitions used in plots:
+* some definitions used in this notebook:
 
-    * useful to discuss solvent effects estimated by a given model:
-        * $\delta_{isol} = \sigma_{isol} - \sigma_{vac}$
-        * $\delta_{fde0} = \sigma_{fde0} - \sigma_{vac}$
-        * $\delta_{fdeN} = \sigma_{fdeN} - \sigma_{vac}$
-        * $\delta_{super} = \sigma_{super} - \sigma_{vac}$    
+    * $\delta$: useful to discuss solvent effects estimated by a given model:
+        * $\delta1 \equiv \delta_{isol} = \sigma_{isol} - \sigma_{vac}$
+        * $\delta2 \equiv \delta_{fde0} = \sigma_{fde0} - \sigma_{vac}$
+        * $\delta3 \equiv \delta_{fdeN} = \sigma_{fdeN} - \sigma_{vac}$
+        * $\delta4 \equiv \delta_{super} = \sigma_{super} - \sigma_{vac}$     
     
-    * useful to discuss contributions to solvent effects:    
-        * $\Delta_{isol} = \sigma_{isol} - \sigma_{vac} = \delta_{isol}$
-        * $\Delta_{fde0} = \sigma_{fde0} - \sigma_{isol}$
-        * $\Delta_{fdeN} = \sigma_{fdeN} - \sigma_{fde0}$
-        * $\Delta_{super} = \sigma_{super} - \sigma_{fdeN}$       
-
-    * useful for ....statistics....:
-        * $d_{isol}  = (\sigma_{isol}  - \sigma_{super})/|\sigma_{vac}|$
-        * $d_{fde0}  = (\sigma_{fde0}  - \sigma_{super})/|\sigma_{vac}|$
-        * $d_{fdeN}  = (\sigma_{fdeN}  - \sigma_{super})/|\sigma_{vac}|$
-        * $d_{super} = (\sigma_{super} - \sigma_{super})/|\sigma_{vac}|$        
+    * $\Delta$: useful to discuss contributions to solvent effects:    
+        * $\Delta1 \equiv\Delta_{isol} = \sigma_{isol} - \sigma_{vac} = \delta_{isol}$
+        * $\Delta2 \equiv\Delta_{fde0} = \sigma_{fde0} - \sigma_{isol}$
+        * $\Delta3 \equiv\Delta_{fdeN} = \sigma_{fdeN} - \sigma_{fde0}$
+        * $\Delta4 \equiv \Delta_{super} = \sigma_{super} - \sigma_{fdeN}$       
+   
 
 
 ```python
@@ -246,33 +239,42 @@ def prep_adf(df):
 
 
 def prep_dirac(df):
-#TODO    
+    
+    an,cplx,solvent,charge,row=def_molprop()
+ 
     df_se = df[['mol']].copy()
     df_se['x_labels'] = df_se.mol
     df_se['where'] = 'DC'
     df_se['solveff']  = df['supermolecule']-df['isolated_vac']
-    df_se=df_se.drop(['mol'], axis=1)
-    df_se = df_se.melt(id_vars =['x_labels', 'where'])
+    df_se['row'] = df_se['mol'].map(row)
+    df_se['charge'] = df_se['mol'].map(charge)
+    df_se['solvent'] = df_se['mol'].map(solvent)
+    df_se['complex'] = df_se['mol'].map(cplx)
 
-    df_nose = df[['mol']].copy()
-    df_nose['x_labels'] = df.mol
-    df_nose['where'] = 'DC'
-    df_nose['delta1']  = df['isolated_supergeom_supergrid']-df['isolated_vac']
-    df_nose['delta2']  = df['fde_vw11']-df['isolated_vac']
-    df_nose['delta3']  = df['fnt_vw11']-df['isolated_vac']    
-    df_nose['delta4']  = df['supermolecule']-df['isolated_vac']     
-    df_nose['Delta1']  = df['isolated_supergeom_supergrid']-df['isolated_vac']
-    df_nose['Delta2']  = df['fde_vw11']-df['isolated_supergeom_supergrid']
-    df_nose['Delta3']  = df['fnt_vw11']-df['fde_vw11']    
-    df_nose['Delta4']  = df['supermolecule']-df['fnt_vw11'] 
-    df_nose['d1']      = (df['isolated_supergeom_supergrid']-df['supermolecule'])/df['isolated_vac']
-    df_nose['d2']      = (df['fde_vw11']-df['supermolecule'])/df['isolated_vac']
-    df_nose['d3']      = (df['fnt_vw11']-df['supermolecule'])/df['isolated_vac']
-    df_nose['d4']      = (df['supermolecule']-df['supermolecule'])/df['isolated_vac']
-    df_nose=df_nose.drop(['mol'], axis=1)
-    df_nose = df_nose.melt(id_vars =['x_labels', 'where'])
+    df_delta = df[['mol']].copy()
+    df_delta['delta1']  = df['isolated_supergeom_supergrid']-df['isolated_vac']
+    df_delta['delta2']  = df['fde_vw11']-df['isolated_vac']
+    df_delta['delta3']  = df['fnt_vw11']-df['isolated_vac'] 
+    df_delta['delta4']  = df['supermolecule']-df['isolated_vac']     
+    df_delta=df_delta.drop(['mol'], axis=1)
+    
+    df_Delta = df[['mol']].copy()
+    df_Delta['Delta1']  = df['isolated_supergeom_supergrid']-df['isolated_vac']
+    df_Delta['Delta2']  = df['fde_vw11']-df['isolated_supergeom_supergrid']
+    df_Delta['Delta3']  = df['fnt_vw11']-df['fde_vw11']
+    df_Delta['Delta4']  = df['supermolecule']-df['fnt_vw11'] 
+    df_Delta=df_Delta.drop(['mol'], axis=1)
 
-    return df_nose, df_se
+    df_d = df[['mol']].copy() 
+    df_d['d1']      = (df['isolated_supergeom_supergrid']-df['supermolecule'])/df['isolated_vac']
+    df_d['d2']      = (df['fde_vw11']-df['supermolecule'])/df['isolated_vac']
+    df_d['d3']      = (df['fnt_vw11']-df['supermolecule'])/df['isolated_vac']
+    df_d['d4']      = (df['supermolecule']-df['supermolecule'])/df['isolated_vac']
+    df_d=df_d.drop(['mol'], axis=1)
+    
+    df_all = pd.concat([df_se, df_delta, df_Delta, df_d],axis=1,sort=False)
+    
+    return df_all, df_se, df_delta, df_Delta, df_d
 ```
 
 
@@ -283,2748 +285,122 @@ df_adf_all, df_adf_se, df_adf_delta, df_adf_Delta, df_adf_d = prep_adf(df2)
 
 
 ```python
-df_adf_all
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>mol</th>
-      <th>x_labels</th>
-      <th>where</th>
-      <th>solveff</th>
-      <th>row</th>
-      <th>charge</th>
-      <th>solvent</th>
-      <th>complex</th>
-      <th>delta1</th>
-      <th>delta2</th>
-      <th>delta3</th>
-      <th>delta4</th>
-      <th>Delta1</th>
-      <th>Delta2</th>
-      <th>Delta3</th>
-      <th>Delta4</th>
-      <th>d1</th>
-      <th>d2</th>
-      <th>d3</th>
-      <th>d4</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>Ti</td>
-      <td>Ti</td>
-      <td>SO-ZORA</td>
-      <td>4.30</td>
-      <td>4</td>
-      <td>0</td>
-      <td>12TiCl₄</td>
-      <td>TiCl₄ + 12TiCl₄</td>
-      <td>22.18</td>
-      <td>21.68</td>
-      <td>21.85</td>
-      <td>4.30</td>
-      <td>22.18</td>
-      <td>-0.50</td>
-      <td>0.17</td>
-      <td>-17.55</td>
-      <td>-2.18e-02</td>
-      <td>-2.12e-02</td>
-      <td>-2.14e-02</td>
-      <td>-0.0</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>V</td>
-      <td>V</td>
-      <td>SO-ZORA</td>
-      <td>-25.33</td>
-      <td>4</td>
-      <td>0</td>
-      <td>6C₆H₆</td>
-      <td>VOCl₃ + 6C₆H₆</td>
-      <td>2.81</td>
-      <td>1.02</td>
-      <td>-0.11</td>
-      <td>-25.33</td>
-      <td>2.81</td>
-      <td>-1.80</td>
-      <td>-1.12</td>
-      <td>-25.23</td>
-      <td>-1.51e-02</td>
-      <td>-1.42e-02</td>
-      <td>-1.36e-02</td>
-      <td>-0.0</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>Cr</td>
-      <td>Cr</td>
-      <td>SO-ZORA</td>
-      <td>63.86</td>
-      <td>4</td>
-      <td>-2</td>
-      <td>12H₂O</td>
-      <td>CrO₄²⁻ + 12H₂O</td>
-      <td>123.04</td>
-      <td>104.04</td>
-      <td>76.65</td>
-      <td>63.86</td>
-      <td>123.04</td>
-      <td>-19.01</td>
-      <td>-27.38</td>
-      <td>-12.80</td>
-      <td>-2.17e-02</td>
-      <td>-1.47e-02</td>
-      <td>-4.69e-03</td>
-      <td>-0.0</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>Mn</td>
-      <td>Mn</td>
-      <td>SO-ZORA</td>
-      <td>-7.24</td>
-      <td>4</td>
-      <td>-1</td>
-      <td>12H₂O</td>
-      <td>MnO₄⁻ + 12H₂O</td>
-      <td>35.49</td>
-      <td>29.14</td>
-      <td>15.23</td>
-      <td>-7.24</td>
-      <td>35.49</td>
-      <td>-6.35</td>
-      <td>-13.91</td>
-      <td>-22.47</td>
-      <td>-1.09e-02</td>
-      <td>-9.25e-03</td>
-      <td>-5.71e-03</td>
-      <td>-0.0</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>Fe</td>
-      <td>Fe</td>
-      <td>SO-ZORA</td>
-      <td>47.11</td>
-      <td>4</td>
-      <td>0</td>
-      <td>6C₆H₆</td>
-      <td>Fe(CO)₅ + 6C₆H₆</td>
-      <td>67.43</td>
-      <td>65.41</td>
-      <td>64.57</td>
-      <td>47.11</td>
-      <td>67.43</td>
-      <td>-2.02</td>
-      <td>-0.84</td>
-      <td>-17.46</td>
-      <td>-8.72e-03</td>
-      <td>-7.85e-03</td>
-      <td>-7.49e-03</td>
-      <td>-0.0</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>Co</td>
-      <td>Co</td>
-      <td>SO-ZORA</td>
-      <td>1097.37</td>
-      <td>4</td>
-      <td>-3</td>
-      <td>12H₂O</td>
-      <td>Co(CN)₆³⁻ + 12H₂O</td>
-      <td>1098.32</td>
-      <td>1127.60</td>
-      <td>1124.48</td>
-      <td>1097.37</td>
-      <td>1098.32</td>
-      <td>29.28</td>
-      <td>-3.12</td>
-      <td>-27.11</td>
-      <td>-1.65e-04</td>
-      <td>-5.23e-03</td>
-      <td>-4.69e-03</td>
-      <td>-0.0</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>Ni</td>
-      <td>Ni</td>
-      <td>SO-ZORA</td>
-      <td>-27.54</td>
-      <td>4</td>
-      <td>0</td>
-      <td>6C₆H₆</td>
-      <td>Ni(CO)₄ + 6C₆H₆</td>
-      <td>-9.36</td>
-      <td>-17.95</td>
-      <td>-21.46</td>
-      <td>-27.54</td>
-      <td>-9.36</td>
-      <td>-8.59</td>
-      <td>-3.51</td>
-      <td>-6.09</td>
-      <td>-1.12e-02</td>
-      <td>-5.89e-03</td>
-      <td>-3.73e-03</td>
-      <td>-0.0</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>Cu</td>
-      <td>Cu</td>
-      <td>SO-ZORA</td>
-      <td>-53.46</td>
-      <td>4</td>
-      <td>1</td>
-      <td>12CH₃CN</td>
-      <td>Cu(CH₃CN)₄⁺ + 12CH₃CN</td>
-      <td>-23.30</td>
-      <td>-44.89</td>
-      <td>-47.87</td>
-      <td>-53.46</td>
-      <td>-23.30</td>
-      <td>-21.59</td>
-      <td>-2.98</td>
-      <td>-5.59</td>
-      <td>6.32e-02</td>
-      <td>1.80e-02</td>
-      <td>1.17e-02</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>Zn</td>
-      <td>Zn</td>
-      <td>SO-ZORA</td>
-      <td>-43.15</td>
-      <td>4</td>
-      <td>2</td>
-      <td>12H₂O</td>
-      <td>Zn(H₂O)₆²⁺ + 12H₂O</td>
-      <td>-29.68</td>
-      <td>-30.29</td>
-      <td>-30.12</td>
-      <td>-43.15</td>
-      <td>-29.68</td>
-      <td>-0.61</td>
-      <td>0.17</td>
-      <td>-13.02</td>
-      <td>7.03e-03</td>
-      <td>6.72e-03</td>
-      <td>6.80e-03</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>Nb</td>
-      <td>Nb</td>
-      <td>SO-ZORA</td>
-      <td>-19.51</td>
-      <td>5</td>
-      <td>-1</td>
-      <td>12CH₃CN</td>
-      <td>NbCl₆⁻ + 12CH₃CN</td>
-      <td>15.89</td>
-      <td>3.21</td>
-      <td>0.18</td>
-      <td>-19.51</td>
-      <td>15.89</td>
-      <td>-12.68</td>
-      <td>-3.03</td>
-      <td>-19.69</td>
-      <td>-1.11e-01</td>
-      <td>-7.15e-02</td>
-      <td>-6.19e-02</td>
-      <td>-0.0</td>
-    </tr>
-    <tr>
-      <th>10</th>
-      <td>Mo</td>
-      <td>Mo</td>
-      <td>SO-ZORA</td>
-      <td>16.26</td>
-      <td>5</td>
-      <td>-2</td>
-      <td>12H₂O</td>
-      <td>MoO₄²⁻ + 12H₂O</td>
-      <td>69.50</td>
-      <td>57.48</td>
-      <td>38.01</td>
-      <td>16.26</td>
-      <td>69.50</td>
-      <td>-12.02</td>
-      <td>-19.47</td>
-      <td>-21.75</td>
-      <td>-9.52e-02</td>
-      <td>-7.37e-02</td>
-      <td>-3.89e-02</td>
-      <td>-0.0</td>
-    </tr>
-    <tr>
-      <th>11</th>
-      <td>Tc</td>
-      <td>Tc</td>
-      <td>SO-ZORA</td>
-      <td>26.99</td>
-      <td>5</td>
-      <td>-1</td>
-      <td>12H₂O</td>
-      <td>TcO₄⁻ + 12H₂O</td>
-      <td>22.69</td>
-      <td>28.88</td>
-      <td>23.90</td>
-      <td>26.99</td>
-      <td>22.69</td>
-      <td>6.18</td>
-      <td>-4.98</td>
-      <td>3.09</td>
-      <td>3.03e-03</td>
-      <td>-1.33e-03</td>
-      <td>2.18e-03</td>
-      <td>-0.0</td>
-    </tr>
-    <tr>
-      <th>12</th>
-      <td>Ru</td>
-      <td>Ru</td>
-      <td>SO-ZORA</td>
-      <td>787.76</td>
-      <td>5</td>
-      <td>-4</td>
-      <td>12H₂O</td>
-      <td>Ru(CN)₆⁴⁻ + 12H₂O</td>
-      <td>828.13</td>
-      <td>831.76</td>
-      <td>834.18</td>
-      <td>787.76</td>
-      <td>828.13</td>
-      <td>3.64</td>
-      <td>2.41</td>
-      <td>-46.41</td>
-      <td>-4.97e-02</td>
-      <td>-5.42e-02</td>
-      <td>-5.72e-02</td>
-      <td>-0.0</td>
-    </tr>
-    <tr>
-      <th>13</th>
-      <td>Pd</td>
-      <td>Pd</td>
-      <td>SO-ZORA</td>
-      <td>270.97</td>
-      <td>5</td>
-      <td>-2</td>
-      <td>12H₂O</td>
-      <td>PdCl₆²⁻ + 12H₂O</td>
-      <td>202.93</td>
-      <td>238.60</td>
-      <td>270.48</td>
-      <td>270.97</td>
-      <td>202.93</td>
-      <td>35.67</td>
-      <td>31.89</td>
-      <td>0.49</td>
-      <td>4.30e-02</td>
-      <td>2.05e-02</td>
-      <td>3.07e-04</td>
-      <td>-0.0</td>
-    </tr>
-    <tr>
-      <th>14</th>
-      <td>Ag</td>
-      <td>Ag</td>
-      <td>SO-ZORA</td>
-      <td>-210.17</td>
-      <td>5</td>
-      <td>1</td>
-      <td>12H₂O</td>
-      <td>Ag(H₂O)₄⁺ + 12H₂O</td>
-      <td>-175.04</td>
-      <td>-174.27</td>
-      <td>-173.43</td>
-      <td>-210.17</td>
-      <td>-175.04</td>
-      <td>0.77</td>
-      <td>0.84</td>
-      <td>-36.73</td>
-      <td>8.14e-03</td>
-      <td>8.32e-03</td>
-      <td>8.51e-03</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>15</th>
-      <td>Cd</td>
-      <td>Cd</td>
-      <td>SO-ZORA</td>
-      <td>54.90</td>
-      <td>5</td>
-      <td>0</td>
-      <td>6Cd(CH₃)₂</td>
-      <td>Cd(CH₃)₂ + 6Cd(CH₃)₂</td>
-      <td>6.98</td>
-      <td>22.72</td>
-      <td>46.82</td>
-      <td>54.90</td>
-      <td>6.98</td>
-      <td>15.73</td>
-      <td>24.10</td>
-      <td>8.08</td>
-      <td>-1.39e-02</td>
-      <td>-9.31e-03</td>
-      <td>-2.34e-03</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>16</th>
-      <td>Ta</td>
-      <td>Ta</td>
-      <td>SO-ZORA</td>
-      <td>30.64</td>
-      <td>6</td>
-      <td>-1</td>
-      <td>12CH₃CN</td>
-      <td>TaCl₆⁻ + 12CH₃CN</td>
-      <td>11.59</td>
-      <td>-6.85</td>
-      <td>-11.60</td>
-      <td>30.64</td>
-      <td>11.59</td>
-      <td>-18.44</td>
-      <td>-4.75</td>
-      <td>42.23</td>
-      <td>-5.58e-03</td>
-      <td>-1.10e-02</td>
-      <td>-1.24e-02</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>17</th>
-      <td>W</td>
-      <td>W</td>
-      <td>SO-ZORA</td>
-      <td>-74.40</td>
-      <td>6</td>
-      <td>-2</td>
-      <td>12H₂O</td>
-      <td>WO₄²⁻ + 12H₂O</td>
-      <td>85.21</td>
-      <td>52.39</td>
-      <td>25.10</td>
-      <td>-74.40</td>
-      <td>85.21</td>
-      <td>-32.82</td>
-      <td>-27.30</td>
-      <td>-99.50</td>
-      <td>5.32e-02</td>
-      <td>4.22e-02</td>
-      <td>3.31e-02</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>18</th>
-      <td>Re</td>
-      <td>Re</td>
-      <td>SO-ZORA</td>
-      <td>-52.82</td>
-      <td>6</td>
-      <td>-1</td>
-      <td>12H₂O</td>
-      <td>ReO₄⁻ + 12H₂O</td>
-      <td>21.60</td>
-      <td>11.56</td>
-      <td>2.74</td>
-      <td>-52.82</td>
-      <td>21.60</td>
-      <td>-10.05</td>
-      <td>-8.82</td>
-      <td>-55.56</td>
-      <td>3.93e-02</td>
-      <td>3.40e-02</td>
-      <td>2.94e-02</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>19</th>
-      <td>Os</td>
-      <td>Os</td>
-      <td>SO-ZORA</td>
-      <td>121.18</td>
-      <td>6</td>
-      <td>0</td>
-      <td>12CCl₄</td>
-      <td>OsO₄ + 12CCl₄</td>
-      <td>132.73</td>
-      <td>135.56</td>
-      <td>137.59</td>
-      <td>121.18</td>
-      <td>132.73</td>
-      <td>2.83</td>
-      <td>2.03</td>
-      <td>-16.41</td>
-      <td>9.49e-03</td>
-      <td>1.18e-02</td>
-      <td>1.35e-02</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>20</th>
-      <td>Pt</td>
-      <td>Pt</td>
-      <td>SO-ZORA</td>
-      <td>498.49</td>
-      <td>6</td>
-      <td>-2</td>
-      <td>12H₂O</td>
-      <td>PtCl₆²⁻ + 12H₂O</td>
-      <td>292.29</td>
-      <td>371.16</td>
-      <td>428.06</td>
-      <td>498.49</td>
-      <td>292.29</td>
-      <td>78.86</td>
-      <td>56.90</td>
-      <td>70.43</td>
-      <td>-1.09e-01</td>
-      <td>-6.75e-02</td>
-      <td>-3.74e-02</td>
-      <td>0.0</td>
-    </tr>
-    <tr>
-      <th>21</th>
-      <td>Hg</td>
-      <td>Hg</td>
-      <td>SO-ZORA</td>
-      <td>40.08</td>
-      <td>6</td>
-      <td>0</td>
-      <td>6Hg(CH₃)₂</td>
-      <td>Hg(CH₃)₂ + 6Hg(CH₃)₂</td>
-      <td>31.95</td>
-      <td>67.20</td>
-      <td>95.47</td>
-      <td>40.08</td>
-      <td>31.95</td>
-      <td>35.25</td>
-      <td>28.28</td>
-      <td>-55.39</td>
-      <td>-9.15e-04</td>
-      <td>3.05e-03</td>
-      <td>6.24e-03</td>
-      <td>0.0</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-
-```python
 df_adf_all_melted=df_adf_all.melt(id_vars =['mol','x_labels', 'where', 'row', 'charge', 'solvent', 'complex'])
 df_adf_all_melted_delta=df_adf_all.melt(id_vars =['mol','x_labels', 'where', 'row', 'charge', 'solvent', 'complex',
                                                  'Delta1','Delta2', 'Delta3', 'Delta4',
                                                  'd1', 'd2', 'd3', 'd4',
                                                  'solveff'])
-df_adf_all_melted_delta
 ```
 
 
+```python
+
+df_dirac_all, df_dirac_se, df_dirac_delta, df_dirac_Delta, df_dirac_d = prep_dirac(df1)
+```
 
 
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>mol</th>
-      <th>x_labels</th>
-      <th>where</th>
-      <th>row</th>
-      <th>charge</th>
-      <th>solvent</th>
-      <th>complex</th>
-      <th>Delta1</th>
-      <th>Delta2</th>
-      <th>Delta3</th>
-      <th>Delta4</th>
-      <th>d1</th>
-      <th>d2</th>
-      <th>d3</th>
-      <th>d4</th>
-      <th>solveff</th>
-      <th>variable</th>
-      <th>value</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>Ti</td>
-      <td>Ti</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>0</td>
-      <td>12TiCl₄</td>
-      <td>TiCl₄ + 12TiCl₄</td>
-      <td>22.18</td>
-      <td>-0.50</td>
-      <td>0.17</td>
-      <td>-17.55</td>
-      <td>-2.18e-02</td>
-      <td>-2.12e-02</td>
-      <td>-2.14e-02</td>
-      <td>-0.0</td>
-      <td>4.30</td>
-      <td>delta1</td>
-      <td>22.18</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>V</td>
-      <td>V</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>0</td>
-      <td>6C₆H₆</td>
-      <td>VOCl₃ + 6C₆H₆</td>
-      <td>2.81</td>
-      <td>-1.80</td>
-      <td>-1.12</td>
-      <td>-25.23</td>
-      <td>-1.51e-02</td>
-      <td>-1.42e-02</td>
-      <td>-1.36e-02</td>
-      <td>-0.0</td>
-      <td>-25.33</td>
-      <td>delta1</td>
-      <td>2.81</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>Cr</td>
-      <td>Cr</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>-2</td>
-      <td>12H₂O</td>
-      <td>CrO₄²⁻ + 12H₂O</td>
-      <td>123.04</td>
-      <td>-19.01</td>
-      <td>-27.38</td>
-      <td>-12.80</td>
-      <td>-2.17e-02</td>
-      <td>-1.47e-02</td>
-      <td>-4.69e-03</td>
-      <td>-0.0</td>
-      <td>63.86</td>
-      <td>delta1</td>
-      <td>123.04</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>Mn</td>
-      <td>Mn</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>-1</td>
-      <td>12H₂O</td>
-      <td>MnO₄⁻ + 12H₂O</td>
-      <td>35.49</td>
-      <td>-6.35</td>
-      <td>-13.91</td>
-      <td>-22.47</td>
-      <td>-1.09e-02</td>
-      <td>-9.25e-03</td>
-      <td>-5.71e-03</td>
-      <td>-0.0</td>
-      <td>-7.24</td>
-      <td>delta1</td>
-      <td>35.49</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>Fe</td>
-      <td>Fe</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>0</td>
-      <td>6C₆H₆</td>
-      <td>Fe(CO)₅ + 6C₆H₆</td>
-      <td>67.43</td>
-      <td>-2.02</td>
-      <td>-0.84</td>
-      <td>-17.46</td>
-      <td>-8.72e-03</td>
-      <td>-7.85e-03</td>
-      <td>-7.49e-03</td>
-      <td>-0.0</td>
-      <td>47.11</td>
-      <td>delta1</td>
-      <td>67.43</td>
-    </tr>
-    <tr>
-      <th>5</th>
-      <td>Co</td>
-      <td>Co</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>-3</td>
-      <td>12H₂O</td>
-      <td>Co(CN)₆³⁻ + 12H₂O</td>
-      <td>1098.32</td>
-      <td>29.28</td>
-      <td>-3.12</td>
-      <td>-27.11</td>
-      <td>-1.65e-04</td>
-      <td>-5.23e-03</td>
-      <td>-4.69e-03</td>
-      <td>-0.0</td>
-      <td>1097.37</td>
-      <td>delta1</td>
-      <td>1098.32</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>Ni</td>
-      <td>Ni</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>0</td>
-      <td>6C₆H₆</td>
-      <td>Ni(CO)₄ + 6C₆H₆</td>
-      <td>-9.36</td>
-      <td>-8.59</td>
-      <td>-3.51</td>
-      <td>-6.09</td>
-      <td>-1.12e-02</td>
-      <td>-5.89e-03</td>
-      <td>-3.73e-03</td>
-      <td>-0.0</td>
-      <td>-27.54</td>
-      <td>delta1</td>
-      <td>-9.36</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>Cu</td>
-      <td>Cu</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>1</td>
-      <td>12CH₃CN</td>
-      <td>Cu(CH₃CN)₄⁺ + 12CH₃CN</td>
-      <td>-23.30</td>
-      <td>-21.59</td>
-      <td>-2.98</td>
-      <td>-5.59</td>
-      <td>6.32e-02</td>
-      <td>1.80e-02</td>
-      <td>1.17e-02</td>
-      <td>0.0</td>
-      <td>-53.46</td>
-      <td>delta1</td>
-      <td>-23.30</td>
-    </tr>
-    <tr>
-      <th>8</th>
-      <td>Zn</td>
-      <td>Zn</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>2</td>
-      <td>12H₂O</td>
-      <td>Zn(H₂O)₆²⁺ + 12H₂O</td>
-      <td>-29.68</td>
-      <td>-0.61</td>
-      <td>0.17</td>
-      <td>-13.02</td>
-      <td>7.03e-03</td>
-      <td>6.72e-03</td>
-      <td>6.80e-03</td>
-      <td>0.0</td>
-      <td>-43.15</td>
-      <td>delta1</td>
-      <td>-29.68</td>
-    </tr>
-    <tr>
-      <th>9</th>
-      <td>Nb</td>
-      <td>Nb</td>
-      <td>SO-ZORA</td>
-      <td>5</td>
-      <td>-1</td>
-      <td>12CH₃CN</td>
-      <td>NbCl₆⁻ + 12CH₃CN</td>
-      <td>15.89</td>
-      <td>-12.68</td>
-      <td>-3.03</td>
-      <td>-19.69</td>
-      <td>-1.11e-01</td>
-      <td>-7.15e-02</td>
-      <td>-6.19e-02</td>
-      <td>-0.0</td>
-      <td>-19.51</td>
-      <td>delta1</td>
-      <td>15.89</td>
-    </tr>
-    <tr>
-      <th>10</th>
-      <td>Mo</td>
-      <td>Mo</td>
-      <td>SO-ZORA</td>
-      <td>5</td>
-      <td>-2</td>
-      <td>12H₂O</td>
-      <td>MoO₄²⁻ + 12H₂O</td>
-      <td>69.50</td>
-      <td>-12.02</td>
-      <td>-19.47</td>
-      <td>-21.75</td>
-      <td>-9.52e-02</td>
-      <td>-7.37e-02</td>
-      <td>-3.89e-02</td>
-      <td>-0.0</td>
-      <td>16.26</td>
-      <td>delta1</td>
-      <td>69.50</td>
-    </tr>
-    <tr>
-      <th>11</th>
-      <td>Tc</td>
-      <td>Tc</td>
-      <td>SO-ZORA</td>
-      <td>5</td>
-      <td>-1</td>
-      <td>12H₂O</td>
-      <td>TcO₄⁻ + 12H₂O</td>
-      <td>22.69</td>
-      <td>6.18</td>
-      <td>-4.98</td>
-      <td>3.09</td>
-      <td>3.03e-03</td>
-      <td>-1.33e-03</td>
-      <td>2.18e-03</td>
-      <td>-0.0</td>
-      <td>26.99</td>
-      <td>delta1</td>
-      <td>22.69</td>
-    </tr>
-    <tr>
-      <th>12</th>
-      <td>Ru</td>
-      <td>Ru</td>
-      <td>SO-ZORA</td>
-      <td>5</td>
-      <td>-4</td>
-      <td>12H₂O</td>
-      <td>Ru(CN)₆⁴⁻ + 12H₂O</td>
-      <td>828.13</td>
-      <td>3.64</td>
-      <td>2.41</td>
-      <td>-46.41</td>
-      <td>-4.97e-02</td>
-      <td>-5.42e-02</td>
-      <td>-5.72e-02</td>
-      <td>-0.0</td>
-      <td>787.76</td>
-      <td>delta1</td>
-      <td>828.13</td>
-    </tr>
-    <tr>
-      <th>13</th>
-      <td>Pd</td>
-      <td>Pd</td>
-      <td>SO-ZORA</td>
-      <td>5</td>
-      <td>-2</td>
-      <td>12H₂O</td>
-      <td>PdCl₆²⁻ + 12H₂O</td>
-      <td>202.93</td>
-      <td>35.67</td>
-      <td>31.89</td>
-      <td>0.49</td>
-      <td>4.30e-02</td>
-      <td>2.05e-02</td>
-      <td>3.07e-04</td>
-      <td>-0.0</td>
-      <td>270.97</td>
-      <td>delta1</td>
-      <td>202.93</td>
-    </tr>
-    <tr>
-      <th>14</th>
-      <td>Ag</td>
-      <td>Ag</td>
-      <td>SO-ZORA</td>
-      <td>5</td>
-      <td>1</td>
-      <td>12H₂O</td>
-      <td>Ag(H₂O)₄⁺ + 12H₂O</td>
-      <td>-175.04</td>
-      <td>0.77</td>
-      <td>0.84</td>
-      <td>-36.73</td>
-      <td>8.14e-03</td>
-      <td>8.32e-03</td>
-      <td>8.51e-03</td>
-      <td>0.0</td>
-      <td>-210.17</td>
-      <td>delta1</td>
-      <td>-175.04</td>
-    </tr>
-    <tr>
-      <th>15</th>
-      <td>Cd</td>
-      <td>Cd</td>
-      <td>SO-ZORA</td>
-      <td>5</td>
-      <td>0</td>
-      <td>6Cd(CH₃)₂</td>
-      <td>Cd(CH₃)₂ + 6Cd(CH₃)₂</td>
-      <td>6.98</td>
-      <td>15.73</td>
-      <td>24.10</td>
-      <td>8.08</td>
-      <td>-1.39e-02</td>
-      <td>-9.31e-03</td>
-      <td>-2.34e-03</td>
-      <td>0.0</td>
-      <td>54.90</td>
-      <td>delta1</td>
-      <td>6.98</td>
-    </tr>
-    <tr>
-      <th>16</th>
-      <td>Ta</td>
-      <td>Ta</td>
-      <td>SO-ZORA</td>
-      <td>6</td>
-      <td>-1</td>
-      <td>12CH₃CN</td>
-      <td>TaCl₆⁻ + 12CH₃CN</td>
-      <td>11.59</td>
-      <td>-18.44</td>
-      <td>-4.75</td>
-      <td>42.23</td>
-      <td>-5.58e-03</td>
-      <td>-1.10e-02</td>
-      <td>-1.24e-02</td>
-      <td>0.0</td>
-      <td>30.64</td>
-      <td>delta1</td>
-      <td>11.59</td>
-    </tr>
-    <tr>
-      <th>17</th>
-      <td>W</td>
-      <td>W</td>
-      <td>SO-ZORA</td>
-      <td>6</td>
-      <td>-2</td>
-      <td>12H₂O</td>
-      <td>WO₄²⁻ + 12H₂O</td>
-      <td>85.21</td>
-      <td>-32.82</td>
-      <td>-27.30</td>
-      <td>-99.50</td>
-      <td>5.32e-02</td>
-      <td>4.22e-02</td>
-      <td>3.31e-02</td>
-      <td>0.0</td>
-      <td>-74.40</td>
-      <td>delta1</td>
-      <td>85.21</td>
-    </tr>
-    <tr>
-      <th>18</th>
-      <td>Re</td>
-      <td>Re</td>
-      <td>SO-ZORA</td>
-      <td>6</td>
-      <td>-1</td>
-      <td>12H₂O</td>
-      <td>ReO₄⁻ + 12H₂O</td>
-      <td>21.60</td>
-      <td>-10.05</td>
-      <td>-8.82</td>
-      <td>-55.56</td>
-      <td>3.93e-02</td>
-      <td>3.40e-02</td>
-      <td>2.94e-02</td>
-      <td>0.0</td>
-      <td>-52.82</td>
-      <td>delta1</td>
-      <td>21.60</td>
-    </tr>
-    <tr>
-      <th>19</th>
-      <td>Os</td>
-      <td>Os</td>
-      <td>SO-ZORA</td>
-      <td>6</td>
-      <td>0</td>
-      <td>12CCl₄</td>
-      <td>OsO₄ + 12CCl₄</td>
-      <td>132.73</td>
-      <td>2.83</td>
-      <td>2.03</td>
-      <td>-16.41</td>
-      <td>9.49e-03</td>
-      <td>1.18e-02</td>
-      <td>1.35e-02</td>
-      <td>0.0</td>
-      <td>121.18</td>
-      <td>delta1</td>
-      <td>132.73</td>
-    </tr>
-    <tr>
-      <th>20</th>
-      <td>Pt</td>
-      <td>Pt</td>
-      <td>SO-ZORA</td>
-      <td>6</td>
-      <td>-2</td>
-      <td>12H₂O</td>
-      <td>PtCl₆²⁻ + 12H₂O</td>
-      <td>292.29</td>
-      <td>78.86</td>
-      <td>56.90</td>
-      <td>70.43</td>
-      <td>-1.09e-01</td>
-      <td>-6.75e-02</td>
-      <td>-3.74e-02</td>
-      <td>0.0</td>
-      <td>498.49</td>
-      <td>delta1</td>
-      <td>292.29</td>
-    </tr>
-    <tr>
-      <th>21</th>
-      <td>Hg</td>
-      <td>Hg</td>
-      <td>SO-ZORA</td>
-      <td>6</td>
-      <td>0</td>
-      <td>6Hg(CH₃)₂</td>
-      <td>Hg(CH₃)₂ + 6Hg(CH₃)₂</td>
-      <td>31.95</td>
-      <td>35.25</td>
-      <td>28.28</td>
-      <td>-55.39</td>
-      <td>-9.15e-04</td>
-      <td>3.05e-03</td>
-      <td>6.24e-03</td>
-      <td>0.0</td>
-      <td>40.08</td>
-      <td>delta1</td>
-      <td>31.95</td>
-    </tr>
-    <tr>
-      <th>22</th>
-      <td>Ti</td>
-      <td>Ti</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>0</td>
-      <td>12TiCl₄</td>
-      <td>TiCl₄ + 12TiCl₄</td>
-      <td>22.18</td>
-      <td>-0.50</td>
-      <td>0.17</td>
-      <td>-17.55</td>
-      <td>-2.18e-02</td>
-      <td>-2.12e-02</td>
-      <td>-2.14e-02</td>
-      <td>-0.0</td>
-      <td>4.30</td>
-      <td>delta2</td>
-      <td>21.68</td>
-    </tr>
-    <tr>
-      <th>23</th>
-      <td>V</td>
-      <td>V</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>0</td>
-      <td>6C₆H₆</td>
-      <td>VOCl₃ + 6C₆H₆</td>
-      <td>2.81</td>
-      <td>-1.80</td>
-      <td>-1.12</td>
-      <td>-25.23</td>
-      <td>-1.51e-02</td>
-      <td>-1.42e-02</td>
-      <td>-1.36e-02</td>
-      <td>-0.0</td>
-      <td>-25.33</td>
-      <td>delta2</td>
-      <td>1.02</td>
-    </tr>
-    <tr>
-      <th>24</th>
-      <td>Cr</td>
-      <td>Cr</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>-2</td>
-      <td>12H₂O</td>
-      <td>CrO₄²⁻ + 12H₂O</td>
-      <td>123.04</td>
-      <td>-19.01</td>
-      <td>-27.38</td>
-      <td>-12.80</td>
-      <td>-2.17e-02</td>
-      <td>-1.47e-02</td>
-      <td>-4.69e-03</td>
-      <td>-0.0</td>
-      <td>63.86</td>
-      <td>delta2</td>
-      <td>104.04</td>
-    </tr>
-    <tr>
-      <th>25</th>
-      <td>Mn</td>
-      <td>Mn</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>-1</td>
-      <td>12H₂O</td>
-      <td>MnO₄⁻ + 12H₂O</td>
-      <td>35.49</td>
-      <td>-6.35</td>
-      <td>-13.91</td>
-      <td>-22.47</td>
-      <td>-1.09e-02</td>
-      <td>-9.25e-03</td>
-      <td>-5.71e-03</td>
-      <td>-0.0</td>
-      <td>-7.24</td>
-      <td>delta2</td>
-      <td>29.14</td>
-    </tr>
-    <tr>
-      <th>26</th>
-      <td>Fe</td>
-      <td>Fe</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>0</td>
-      <td>6C₆H₆</td>
-      <td>Fe(CO)₅ + 6C₆H₆</td>
-      <td>67.43</td>
-      <td>-2.02</td>
-      <td>-0.84</td>
-      <td>-17.46</td>
-      <td>-8.72e-03</td>
-      <td>-7.85e-03</td>
-      <td>-7.49e-03</td>
-      <td>-0.0</td>
-      <td>47.11</td>
-      <td>delta2</td>
-      <td>65.41</td>
-    </tr>
-    <tr>
-      <th>27</th>
-      <td>Co</td>
-      <td>Co</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>-3</td>
-      <td>12H₂O</td>
-      <td>Co(CN)₆³⁻ + 12H₂O</td>
-      <td>1098.32</td>
-      <td>29.28</td>
-      <td>-3.12</td>
-      <td>-27.11</td>
-      <td>-1.65e-04</td>
-      <td>-5.23e-03</td>
-      <td>-4.69e-03</td>
-      <td>-0.0</td>
-      <td>1097.37</td>
-      <td>delta2</td>
-      <td>1127.60</td>
-    </tr>
-    <tr>
-      <th>28</th>
-      <td>Ni</td>
-      <td>Ni</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>0</td>
-      <td>6C₆H₆</td>
-      <td>Ni(CO)₄ + 6C₆H₆</td>
-      <td>-9.36</td>
-      <td>-8.59</td>
-      <td>-3.51</td>
-      <td>-6.09</td>
-      <td>-1.12e-02</td>
-      <td>-5.89e-03</td>
-      <td>-3.73e-03</td>
-      <td>-0.0</td>
-      <td>-27.54</td>
-      <td>delta2</td>
-      <td>-17.95</td>
-    </tr>
-    <tr>
-      <th>29</th>
-      <td>Cu</td>
-      <td>Cu</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>1</td>
-      <td>12CH₃CN</td>
-      <td>Cu(CH₃CN)₄⁺ + 12CH₃CN</td>
-      <td>-23.30</td>
-      <td>-21.59</td>
-      <td>-2.98</td>
-      <td>-5.59</td>
-      <td>6.32e-02</td>
-      <td>1.80e-02</td>
-      <td>1.17e-02</td>
-      <td>0.0</td>
-      <td>-53.46</td>
-      <td>delta2</td>
-      <td>-44.89</td>
-    </tr>
-    <tr>
-      <th>30</th>
-      <td>Zn</td>
-      <td>Zn</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>2</td>
-      <td>12H₂O</td>
-      <td>Zn(H₂O)₆²⁺ + 12H₂O</td>
-      <td>-29.68</td>
-      <td>-0.61</td>
-      <td>0.17</td>
-      <td>-13.02</td>
-      <td>7.03e-03</td>
-      <td>6.72e-03</td>
-      <td>6.80e-03</td>
-      <td>0.0</td>
-      <td>-43.15</td>
-      <td>delta2</td>
-      <td>-30.29</td>
-    </tr>
-    <tr>
-      <th>31</th>
-      <td>Nb</td>
-      <td>Nb</td>
-      <td>SO-ZORA</td>
-      <td>5</td>
-      <td>-1</td>
-      <td>12CH₃CN</td>
-      <td>NbCl₆⁻ + 12CH₃CN</td>
-      <td>15.89</td>
-      <td>-12.68</td>
-      <td>-3.03</td>
-      <td>-19.69</td>
-      <td>-1.11e-01</td>
-      <td>-7.15e-02</td>
-      <td>-6.19e-02</td>
-      <td>-0.0</td>
-      <td>-19.51</td>
-      <td>delta2</td>
-      <td>3.21</td>
-    </tr>
-    <tr>
-      <th>32</th>
-      <td>Mo</td>
-      <td>Mo</td>
-      <td>SO-ZORA</td>
-      <td>5</td>
-      <td>-2</td>
-      <td>12H₂O</td>
-      <td>MoO₄²⁻ + 12H₂O</td>
-      <td>69.50</td>
-      <td>-12.02</td>
-      <td>-19.47</td>
-      <td>-21.75</td>
-      <td>-9.52e-02</td>
-      <td>-7.37e-02</td>
-      <td>-3.89e-02</td>
-      <td>-0.0</td>
-      <td>16.26</td>
-      <td>delta2</td>
-      <td>57.48</td>
-    </tr>
-    <tr>
-      <th>33</th>
-      <td>Tc</td>
-      <td>Tc</td>
-      <td>SO-ZORA</td>
-      <td>5</td>
-      <td>-1</td>
-      <td>12H₂O</td>
-      <td>TcO₄⁻ + 12H₂O</td>
-      <td>22.69</td>
-      <td>6.18</td>
-      <td>-4.98</td>
-      <td>3.09</td>
-      <td>3.03e-03</td>
-      <td>-1.33e-03</td>
-      <td>2.18e-03</td>
-      <td>-0.0</td>
-      <td>26.99</td>
-      <td>delta2</td>
-      <td>28.88</td>
-    </tr>
-    <tr>
-      <th>34</th>
-      <td>Ru</td>
-      <td>Ru</td>
-      <td>SO-ZORA</td>
-      <td>5</td>
-      <td>-4</td>
-      <td>12H₂O</td>
-      <td>Ru(CN)₆⁴⁻ + 12H₂O</td>
-      <td>828.13</td>
-      <td>3.64</td>
-      <td>2.41</td>
-      <td>-46.41</td>
-      <td>-4.97e-02</td>
-      <td>-5.42e-02</td>
-      <td>-5.72e-02</td>
-      <td>-0.0</td>
-      <td>787.76</td>
-      <td>delta2</td>
-      <td>831.76</td>
-    </tr>
-    <tr>
-      <th>35</th>
-      <td>Pd</td>
-      <td>Pd</td>
-      <td>SO-ZORA</td>
-      <td>5</td>
-      <td>-2</td>
-      <td>12H₂O</td>
-      <td>PdCl₆²⁻ + 12H₂O</td>
-      <td>202.93</td>
-      <td>35.67</td>
-      <td>31.89</td>
-      <td>0.49</td>
-      <td>4.30e-02</td>
-      <td>2.05e-02</td>
-      <td>3.07e-04</td>
-      <td>-0.0</td>
-      <td>270.97</td>
-      <td>delta2</td>
-      <td>238.60</td>
-    </tr>
-    <tr>
-      <th>36</th>
-      <td>Ag</td>
-      <td>Ag</td>
-      <td>SO-ZORA</td>
-      <td>5</td>
-      <td>1</td>
-      <td>12H₂O</td>
-      <td>Ag(H₂O)₄⁺ + 12H₂O</td>
-      <td>-175.04</td>
-      <td>0.77</td>
-      <td>0.84</td>
-      <td>-36.73</td>
-      <td>8.14e-03</td>
-      <td>8.32e-03</td>
-      <td>8.51e-03</td>
-      <td>0.0</td>
-      <td>-210.17</td>
-      <td>delta2</td>
-      <td>-174.27</td>
-    </tr>
-    <tr>
-      <th>37</th>
-      <td>Cd</td>
-      <td>Cd</td>
-      <td>SO-ZORA</td>
-      <td>5</td>
-      <td>0</td>
-      <td>6Cd(CH₃)₂</td>
-      <td>Cd(CH₃)₂ + 6Cd(CH₃)₂</td>
-      <td>6.98</td>
-      <td>15.73</td>
-      <td>24.10</td>
-      <td>8.08</td>
-      <td>-1.39e-02</td>
-      <td>-9.31e-03</td>
-      <td>-2.34e-03</td>
-      <td>0.0</td>
-      <td>54.90</td>
-      <td>delta2</td>
-      <td>22.72</td>
-    </tr>
-    <tr>
-      <th>38</th>
-      <td>Ta</td>
-      <td>Ta</td>
-      <td>SO-ZORA</td>
-      <td>6</td>
-      <td>-1</td>
-      <td>12CH₃CN</td>
-      <td>TaCl₆⁻ + 12CH₃CN</td>
-      <td>11.59</td>
-      <td>-18.44</td>
-      <td>-4.75</td>
-      <td>42.23</td>
-      <td>-5.58e-03</td>
-      <td>-1.10e-02</td>
-      <td>-1.24e-02</td>
-      <td>0.0</td>
-      <td>30.64</td>
-      <td>delta2</td>
-      <td>-6.85</td>
-    </tr>
-    <tr>
-      <th>39</th>
-      <td>W</td>
-      <td>W</td>
-      <td>SO-ZORA</td>
-      <td>6</td>
-      <td>-2</td>
-      <td>12H₂O</td>
-      <td>WO₄²⁻ + 12H₂O</td>
-      <td>85.21</td>
-      <td>-32.82</td>
-      <td>-27.30</td>
-      <td>-99.50</td>
-      <td>5.32e-02</td>
-      <td>4.22e-02</td>
-      <td>3.31e-02</td>
-      <td>0.0</td>
-      <td>-74.40</td>
-      <td>delta2</td>
-      <td>52.39</td>
-    </tr>
-    <tr>
-      <th>40</th>
-      <td>Re</td>
-      <td>Re</td>
-      <td>SO-ZORA</td>
-      <td>6</td>
-      <td>-1</td>
-      <td>12H₂O</td>
-      <td>ReO₄⁻ + 12H₂O</td>
-      <td>21.60</td>
-      <td>-10.05</td>
-      <td>-8.82</td>
-      <td>-55.56</td>
-      <td>3.93e-02</td>
-      <td>3.40e-02</td>
-      <td>2.94e-02</td>
-      <td>0.0</td>
-      <td>-52.82</td>
-      <td>delta2</td>
-      <td>11.56</td>
-    </tr>
-    <tr>
-      <th>41</th>
-      <td>Os</td>
-      <td>Os</td>
-      <td>SO-ZORA</td>
-      <td>6</td>
-      <td>0</td>
-      <td>12CCl₄</td>
-      <td>OsO₄ + 12CCl₄</td>
-      <td>132.73</td>
-      <td>2.83</td>
-      <td>2.03</td>
-      <td>-16.41</td>
-      <td>9.49e-03</td>
-      <td>1.18e-02</td>
-      <td>1.35e-02</td>
-      <td>0.0</td>
-      <td>121.18</td>
-      <td>delta2</td>
-      <td>135.56</td>
-    </tr>
-    <tr>
-      <th>42</th>
-      <td>Pt</td>
-      <td>Pt</td>
-      <td>SO-ZORA</td>
-      <td>6</td>
-      <td>-2</td>
-      <td>12H₂O</td>
-      <td>PtCl₆²⁻ + 12H₂O</td>
-      <td>292.29</td>
-      <td>78.86</td>
-      <td>56.90</td>
-      <td>70.43</td>
-      <td>-1.09e-01</td>
-      <td>-6.75e-02</td>
-      <td>-3.74e-02</td>
-      <td>0.0</td>
-      <td>498.49</td>
-      <td>delta2</td>
-      <td>371.16</td>
-    </tr>
-    <tr>
-      <th>43</th>
-      <td>Hg</td>
-      <td>Hg</td>
-      <td>SO-ZORA</td>
-      <td>6</td>
-      <td>0</td>
-      <td>6Hg(CH₃)₂</td>
-      <td>Hg(CH₃)₂ + 6Hg(CH₃)₂</td>
-      <td>31.95</td>
-      <td>35.25</td>
-      <td>28.28</td>
-      <td>-55.39</td>
-      <td>-9.15e-04</td>
-      <td>3.05e-03</td>
-      <td>6.24e-03</td>
-      <td>0.0</td>
-      <td>40.08</td>
-      <td>delta2</td>
-      <td>67.20</td>
-    </tr>
-    <tr>
-      <th>44</th>
-      <td>Ti</td>
-      <td>Ti</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>0</td>
-      <td>12TiCl₄</td>
-      <td>TiCl₄ + 12TiCl₄</td>
-      <td>22.18</td>
-      <td>-0.50</td>
-      <td>0.17</td>
-      <td>-17.55</td>
-      <td>-2.18e-02</td>
-      <td>-2.12e-02</td>
-      <td>-2.14e-02</td>
-      <td>-0.0</td>
-      <td>4.30</td>
-      <td>delta3</td>
-      <td>21.85</td>
-    </tr>
-    <tr>
-      <th>45</th>
-      <td>V</td>
-      <td>V</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>0</td>
-      <td>6C₆H₆</td>
-      <td>VOCl₃ + 6C₆H₆</td>
-      <td>2.81</td>
-      <td>-1.80</td>
-      <td>-1.12</td>
-      <td>-25.23</td>
-      <td>-1.51e-02</td>
-      <td>-1.42e-02</td>
-      <td>-1.36e-02</td>
-      <td>-0.0</td>
-      <td>-25.33</td>
-      <td>delta3</td>
-      <td>-0.11</td>
-    </tr>
-    <tr>
-      <th>46</th>
-      <td>Cr</td>
-      <td>Cr</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>-2</td>
-      <td>12H₂O</td>
-      <td>CrO₄²⁻ + 12H₂O</td>
-      <td>123.04</td>
-      <td>-19.01</td>
-      <td>-27.38</td>
-      <td>-12.80</td>
-      <td>-2.17e-02</td>
-      <td>-1.47e-02</td>
-      <td>-4.69e-03</td>
-      <td>-0.0</td>
-      <td>63.86</td>
-      <td>delta3</td>
-      <td>76.65</td>
-    </tr>
-    <tr>
-      <th>47</th>
-      <td>Mn</td>
-      <td>Mn</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>-1</td>
-      <td>12H₂O</td>
-      <td>MnO₄⁻ + 12H₂O</td>
-      <td>35.49</td>
-      <td>-6.35</td>
-      <td>-13.91</td>
-      <td>-22.47</td>
-      <td>-1.09e-02</td>
-      <td>-9.25e-03</td>
-      <td>-5.71e-03</td>
-      <td>-0.0</td>
-      <td>-7.24</td>
-      <td>delta3</td>
-      <td>15.23</td>
-    </tr>
-    <tr>
-      <th>48</th>
-      <td>Fe</td>
-      <td>Fe</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>0</td>
-      <td>6C₆H₆</td>
-      <td>Fe(CO)₅ + 6C₆H₆</td>
-      <td>67.43</td>
-      <td>-2.02</td>
-      <td>-0.84</td>
-      <td>-17.46</td>
-      <td>-8.72e-03</td>
-      <td>-7.85e-03</td>
-      <td>-7.49e-03</td>
-      <td>-0.0</td>
-      <td>47.11</td>
-      <td>delta3</td>
-      <td>64.57</td>
-    </tr>
-    <tr>
-      <th>49</th>
-      <td>Co</td>
-      <td>Co</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>-3</td>
-      <td>12H₂O</td>
-      <td>Co(CN)₆³⁻ + 12H₂O</td>
-      <td>1098.32</td>
-      <td>29.28</td>
-      <td>-3.12</td>
-      <td>-27.11</td>
-      <td>-1.65e-04</td>
-      <td>-5.23e-03</td>
-      <td>-4.69e-03</td>
-      <td>-0.0</td>
-      <td>1097.37</td>
-      <td>delta3</td>
-      <td>1124.48</td>
-    </tr>
-    <tr>
-      <th>50</th>
-      <td>Ni</td>
-      <td>Ni</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>0</td>
-      <td>6C₆H₆</td>
-      <td>Ni(CO)₄ + 6C₆H₆</td>
-      <td>-9.36</td>
-      <td>-8.59</td>
-      <td>-3.51</td>
-      <td>-6.09</td>
-      <td>-1.12e-02</td>
-      <td>-5.89e-03</td>
-      <td>-3.73e-03</td>
-      <td>-0.0</td>
-      <td>-27.54</td>
-      <td>delta3</td>
-      <td>-21.46</td>
-    </tr>
-    <tr>
-      <th>51</th>
-      <td>Cu</td>
-      <td>Cu</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>1</td>
-      <td>12CH₃CN</td>
-      <td>Cu(CH₃CN)₄⁺ + 12CH₃CN</td>
-      <td>-23.30</td>
-      <td>-21.59</td>
-      <td>-2.98</td>
-      <td>-5.59</td>
-      <td>6.32e-02</td>
-      <td>1.80e-02</td>
-      <td>1.17e-02</td>
-      <td>0.0</td>
-      <td>-53.46</td>
-      <td>delta3</td>
-      <td>-47.87</td>
-    </tr>
-    <tr>
-      <th>52</th>
-      <td>Zn</td>
-      <td>Zn</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>2</td>
-      <td>12H₂O</td>
-      <td>Zn(H₂O)₆²⁺ + 12H₂O</td>
-      <td>-29.68</td>
-      <td>-0.61</td>
-      <td>0.17</td>
-      <td>-13.02</td>
-      <td>7.03e-03</td>
-      <td>6.72e-03</td>
-      <td>6.80e-03</td>
-      <td>0.0</td>
-      <td>-43.15</td>
-      <td>delta3</td>
-      <td>-30.12</td>
-    </tr>
-    <tr>
-      <th>53</th>
-      <td>Nb</td>
-      <td>Nb</td>
-      <td>SO-ZORA</td>
-      <td>5</td>
-      <td>-1</td>
-      <td>12CH₃CN</td>
-      <td>NbCl₆⁻ + 12CH₃CN</td>
-      <td>15.89</td>
-      <td>-12.68</td>
-      <td>-3.03</td>
-      <td>-19.69</td>
-      <td>-1.11e-01</td>
-      <td>-7.15e-02</td>
-      <td>-6.19e-02</td>
-      <td>-0.0</td>
-      <td>-19.51</td>
-      <td>delta3</td>
-      <td>0.18</td>
-    </tr>
-    <tr>
-      <th>54</th>
-      <td>Mo</td>
-      <td>Mo</td>
-      <td>SO-ZORA</td>
-      <td>5</td>
-      <td>-2</td>
-      <td>12H₂O</td>
-      <td>MoO₄²⁻ + 12H₂O</td>
-      <td>69.50</td>
-      <td>-12.02</td>
-      <td>-19.47</td>
-      <td>-21.75</td>
-      <td>-9.52e-02</td>
-      <td>-7.37e-02</td>
-      <td>-3.89e-02</td>
-      <td>-0.0</td>
-      <td>16.26</td>
-      <td>delta3</td>
-      <td>38.01</td>
-    </tr>
-    <tr>
-      <th>55</th>
-      <td>Tc</td>
-      <td>Tc</td>
-      <td>SO-ZORA</td>
-      <td>5</td>
-      <td>-1</td>
-      <td>12H₂O</td>
-      <td>TcO₄⁻ + 12H₂O</td>
-      <td>22.69</td>
-      <td>6.18</td>
-      <td>-4.98</td>
-      <td>3.09</td>
-      <td>3.03e-03</td>
-      <td>-1.33e-03</td>
-      <td>2.18e-03</td>
-      <td>-0.0</td>
-      <td>26.99</td>
-      <td>delta3</td>
-      <td>23.90</td>
-    </tr>
-    <tr>
-      <th>56</th>
-      <td>Ru</td>
-      <td>Ru</td>
-      <td>SO-ZORA</td>
-      <td>5</td>
-      <td>-4</td>
-      <td>12H₂O</td>
-      <td>Ru(CN)₆⁴⁻ + 12H₂O</td>
-      <td>828.13</td>
-      <td>3.64</td>
-      <td>2.41</td>
-      <td>-46.41</td>
-      <td>-4.97e-02</td>
-      <td>-5.42e-02</td>
-      <td>-5.72e-02</td>
-      <td>-0.0</td>
-      <td>787.76</td>
-      <td>delta3</td>
-      <td>834.18</td>
-    </tr>
-    <tr>
-      <th>57</th>
-      <td>Pd</td>
-      <td>Pd</td>
-      <td>SO-ZORA</td>
-      <td>5</td>
-      <td>-2</td>
-      <td>12H₂O</td>
-      <td>PdCl₆²⁻ + 12H₂O</td>
-      <td>202.93</td>
-      <td>35.67</td>
-      <td>31.89</td>
-      <td>0.49</td>
-      <td>4.30e-02</td>
-      <td>2.05e-02</td>
-      <td>3.07e-04</td>
-      <td>-0.0</td>
-      <td>270.97</td>
-      <td>delta3</td>
-      <td>270.48</td>
-    </tr>
-    <tr>
-      <th>58</th>
-      <td>Ag</td>
-      <td>Ag</td>
-      <td>SO-ZORA</td>
-      <td>5</td>
-      <td>1</td>
-      <td>12H₂O</td>
-      <td>Ag(H₂O)₄⁺ + 12H₂O</td>
-      <td>-175.04</td>
-      <td>0.77</td>
-      <td>0.84</td>
-      <td>-36.73</td>
-      <td>8.14e-03</td>
-      <td>8.32e-03</td>
-      <td>8.51e-03</td>
-      <td>0.0</td>
-      <td>-210.17</td>
-      <td>delta3</td>
-      <td>-173.43</td>
-    </tr>
-    <tr>
-      <th>59</th>
-      <td>Cd</td>
-      <td>Cd</td>
-      <td>SO-ZORA</td>
-      <td>5</td>
-      <td>0</td>
-      <td>6Cd(CH₃)₂</td>
-      <td>Cd(CH₃)₂ + 6Cd(CH₃)₂</td>
-      <td>6.98</td>
-      <td>15.73</td>
-      <td>24.10</td>
-      <td>8.08</td>
-      <td>-1.39e-02</td>
-      <td>-9.31e-03</td>
-      <td>-2.34e-03</td>
-      <td>0.0</td>
-      <td>54.90</td>
-      <td>delta3</td>
-      <td>46.82</td>
-    </tr>
-    <tr>
-      <th>60</th>
-      <td>Ta</td>
-      <td>Ta</td>
-      <td>SO-ZORA</td>
-      <td>6</td>
-      <td>-1</td>
-      <td>12CH₃CN</td>
-      <td>TaCl₆⁻ + 12CH₃CN</td>
-      <td>11.59</td>
-      <td>-18.44</td>
-      <td>-4.75</td>
-      <td>42.23</td>
-      <td>-5.58e-03</td>
-      <td>-1.10e-02</td>
-      <td>-1.24e-02</td>
-      <td>0.0</td>
-      <td>30.64</td>
-      <td>delta3</td>
-      <td>-11.60</td>
-    </tr>
-    <tr>
-      <th>61</th>
-      <td>W</td>
-      <td>W</td>
-      <td>SO-ZORA</td>
-      <td>6</td>
-      <td>-2</td>
-      <td>12H₂O</td>
-      <td>WO₄²⁻ + 12H₂O</td>
-      <td>85.21</td>
-      <td>-32.82</td>
-      <td>-27.30</td>
-      <td>-99.50</td>
-      <td>5.32e-02</td>
-      <td>4.22e-02</td>
-      <td>3.31e-02</td>
-      <td>0.0</td>
-      <td>-74.40</td>
-      <td>delta3</td>
-      <td>25.10</td>
-    </tr>
-    <tr>
-      <th>62</th>
-      <td>Re</td>
-      <td>Re</td>
-      <td>SO-ZORA</td>
-      <td>6</td>
-      <td>-1</td>
-      <td>12H₂O</td>
-      <td>ReO₄⁻ + 12H₂O</td>
-      <td>21.60</td>
-      <td>-10.05</td>
-      <td>-8.82</td>
-      <td>-55.56</td>
-      <td>3.93e-02</td>
-      <td>3.40e-02</td>
-      <td>2.94e-02</td>
-      <td>0.0</td>
-      <td>-52.82</td>
-      <td>delta3</td>
-      <td>2.74</td>
-    </tr>
-    <tr>
-      <th>63</th>
-      <td>Os</td>
-      <td>Os</td>
-      <td>SO-ZORA</td>
-      <td>6</td>
-      <td>0</td>
-      <td>12CCl₄</td>
-      <td>OsO₄ + 12CCl₄</td>
-      <td>132.73</td>
-      <td>2.83</td>
-      <td>2.03</td>
-      <td>-16.41</td>
-      <td>9.49e-03</td>
-      <td>1.18e-02</td>
-      <td>1.35e-02</td>
-      <td>0.0</td>
-      <td>121.18</td>
-      <td>delta3</td>
-      <td>137.59</td>
-    </tr>
-    <tr>
-      <th>64</th>
-      <td>Pt</td>
-      <td>Pt</td>
-      <td>SO-ZORA</td>
-      <td>6</td>
-      <td>-2</td>
-      <td>12H₂O</td>
-      <td>PtCl₆²⁻ + 12H₂O</td>
-      <td>292.29</td>
-      <td>78.86</td>
-      <td>56.90</td>
-      <td>70.43</td>
-      <td>-1.09e-01</td>
-      <td>-6.75e-02</td>
-      <td>-3.74e-02</td>
-      <td>0.0</td>
-      <td>498.49</td>
-      <td>delta3</td>
-      <td>428.06</td>
-    </tr>
-    <tr>
-      <th>65</th>
-      <td>Hg</td>
-      <td>Hg</td>
-      <td>SO-ZORA</td>
-      <td>6</td>
-      <td>0</td>
-      <td>6Hg(CH₃)₂</td>
-      <td>Hg(CH₃)₂ + 6Hg(CH₃)₂</td>
-      <td>31.95</td>
-      <td>35.25</td>
-      <td>28.28</td>
-      <td>-55.39</td>
-      <td>-9.15e-04</td>
-      <td>3.05e-03</td>
-      <td>6.24e-03</td>
-      <td>0.0</td>
-      <td>40.08</td>
-      <td>delta3</td>
-      <td>95.47</td>
-    </tr>
-    <tr>
-      <th>66</th>
-      <td>Ti</td>
-      <td>Ti</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>0</td>
-      <td>12TiCl₄</td>
-      <td>TiCl₄ + 12TiCl₄</td>
-      <td>22.18</td>
-      <td>-0.50</td>
-      <td>0.17</td>
-      <td>-17.55</td>
-      <td>-2.18e-02</td>
-      <td>-2.12e-02</td>
-      <td>-2.14e-02</td>
-      <td>-0.0</td>
-      <td>4.30</td>
-      <td>delta4</td>
-      <td>4.30</td>
-    </tr>
-    <tr>
-      <th>67</th>
-      <td>V</td>
-      <td>V</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>0</td>
-      <td>6C₆H₆</td>
-      <td>VOCl₃ + 6C₆H₆</td>
-      <td>2.81</td>
-      <td>-1.80</td>
-      <td>-1.12</td>
-      <td>-25.23</td>
-      <td>-1.51e-02</td>
-      <td>-1.42e-02</td>
-      <td>-1.36e-02</td>
-      <td>-0.0</td>
-      <td>-25.33</td>
-      <td>delta4</td>
-      <td>-25.33</td>
-    </tr>
-    <tr>
-      <th>68</th>
-      <td>Cr</td>
-      <td>Cr</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>-2</td>
-      <td>12H₂O</td>
-      <td>CrO₄²⁻ + 12H₂O</td>
-      <td>123.04</td>
-      <td>-19.01</td>
-      <td>-27.38</td>
-      <td>-12.80</td>
-      <td>-2.17e-02</td>
-      <td>-1.47e-02</td>
-      <td>-4.69e-03</td>
-      <td>-0.0</td>
-      <td>63.86</td>
-      <td>delta4</td>
-      <td>63.86</td>
-    </tr>
-    <tr>
-      <th>69</th>
-      <td>Mn</td>
-      <td>Mn</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>-1</td>
-      <td>12H₂O</td>
-      <td>MnO₄⁻ + 12H₂O</td>
-      <td>35.49</td>
-      <td>-6.35</td>
-      <td>-13.91</td>
-      <td>-22.47</td>
-      <td>-1.09e-02</td>
-      <td>-9.25e-03</td>
-      <td>-5.71e-03</td>
-      <td>-0.0</td>
-      <td>-7.24</td>
-      <td>delta4</td>
-      <td>-7.24</td>
-    </tr>
-    <tr>
-      <th>70</th>
-      <td>Fe</td>
-      <td>Fe</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>0</td>
-      <td>6C₆H₆</td>
-      <td>Fe(CO)₅ + 6C₆H₆</td>
-      <td>67.43</td>
-      <td>-2.02</td>
-      <td>-0.84</td>
-      <td>-17.46</td>
-      <td>-8.72e-03</td>
-      <td>-7.85e-03</td>
-      <td>-7.49e-03</td>
-      <td>-0.0</td>
-      <td>47.11</td>
-      <td>delta4</td>
-      <td>47.11</td>
-    </tr>
-    <tr>
-      <th>71</th>
-      <td>Co</td>
-      <td>Co</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>-3</td>
-      <td>12H₂O</td>
-      <td>Co(CN)₆³⁻ + 12H₂O</td>
-      <td>1098.32</td>
-      <td>29.28</td>
-      <td>-3.12</td>
-      <td>-27.11</td>
-      <td>-1.65e-04</td>
-      <td>-5.23e-03</td>
-      <td>-4.69e-03</td>
-      <td>-0.0</td>
-      <td>1097.37</td>
-      <td>delta4</td>
-      <td>1097.37</td>
-    </tr>
-    <tr>
-      <th>72</th>
-      <td>Ni</td>
-      <td>Ni</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>0</td>
-      <td>6C₆H₆</td>
-      <td>Ni(CO)₄ + 6C₆H₆</td>
-      <td>-9.36</td>
-      <td>-8.59</td>
-      <td>-3.51</td>
-      <td>-6.09</td>
-      <td>-1.12e-02</td>
-      <td>-5.89e-03</td>
-      <td>-3.73e-03</td>
-      <td>-0.0</td>
-      <td>-27.54</td>
-      <td>delta4</td>
-      <td>-27.54</td>
-    </tr>
-    <tr>
-      <th>73</th>
-      <td>Cu</td>
-      <td>Cu</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>1</td>
-      <td>12CH₃CN</td>
-      <td>Cu(CH₃CN)₄⁺ + 12CH₃CN</td>
-      <td>-23.30</td>
-      <td>-21.59</td>
-      <td>-2.98</td>
-      <td>-5.59</td>
-      <td>6.32e-02</td>
-      <td>1.80e-02</td>
-      <td>1.17e-02</td>
-      <td>0.0</td>
-      <td>-53.46</td>
-      <td>delta4</td>
-      <td>-53.46</td>
-    </tr>
-    <tr>
-      <th>74</th>
-      <td>Zn</td>
-      <td>Zn</td>
-      <td>SO-ZORA</td>
-      <td>4</td>
-      <td>2</td>
-      <td>12H₂O</td>
-      <td>Zn(H₂O)₆²⁺ + 12H₂O</td>
-      <td>-29.68</td>
-      <td>-0.61</td>
-      <td>0.17</td>
-      <td>-13.02</td>
-      <td>7.03e-03</td>
-      <td>6.72e-03</td>
-      <td>6.80e-03</td>
-      <td>0.0</td>
-      <td>-43.15</td>
-      <td>delta4</td>
-      <td>-43.15</td>
-    </tr>
-    <tr>
-      <th>75</th>
-      <td>Nb</td>
-      <td>Nb</td>
-      <td>SO-ZORA</td>
-      <td>5</td>
-      <td>-1</td>
-      <td>12CH₃CN</td>
-      <td>NbCl₆⁻ + 12CH₃CN</td>
-      <td>15.89</td>
-      <td>-12.68</td>
-      <td>-3.03</td>
-      <td>-19.69</td>
-      <td>-1.11e-01</td>
-      <td>-7.15e-02</td>
-      <td>-6.19e-02</td>
-      <td>-0.0</td>
-      <td>-19.51</td>
-      <td>delta4</td>
-      <td>-19.51</td>
-    </tr>
-    <tr>
-      <th>76</th>
-      <td>Mo</td>
-      <td>Mo</td>
-      <td>SO-ZORA</td>
-      <td>5</td>
-      <td>-2</td>
-      <td>12H₂O</td>
-      <td>MoO₄²⁻ + 12H₂O</td>
-      <td>69.50</td>
-      <td>-12.02</td>
-      <td>-19.47</td>
-      <td>-21.75</td>
-      <td>-9.52e-02</td>
-      <td>-7.37e-02</td>
-      <td>-3.89e-02</td>
-      <td>-0.0</td>
-      <td>16.26</td>
-      <td>delta4</td>
-      <td>16.26</td>
-    </tr>
-    <tr>
-      <th>77</th>
-      <td>Tc</td>
-      <td>Tc</td>
-      <td>SO-ZORA</td>
-      <td>5</td>
-      <td>-1</td>
-      <td>12H₂O</td>
-      <td>TcO₄⁻ + 12H₂O</td>
-      <td>22.69</td>
-      <td>6.18</td>
-      <td>-4.98</td>
-      <td>3.09</td>
-      <td>3.03e-03</td>
-      <td>-1.33e-03</td>
-      <td>2.18e-03</td>
-      <td>-0.0</td>
-      <td>26.99</td>
-      <td>delta4</td>
-      <td>26.99</td>
-    </tr>
-    <tr>
-      <th>78</th>
-      <td>Ru</td>
-      <td>Ru</td>
-      <td>SO-ZORA</td>
-      <td>5</td>
-      <td>-4</td>
-      <td>12H₂O</td>
-      <td>Ru(CN)₆⁴⁻ + 12H₂O</td>
-      <td>828.13</td>
-      <td>3.64</td>
-      <td>2.41</td>
-      <td>-46.41</td>
-      <td>-4.97e-02</td>
-      <td>-5.42e-02</td>
-      <td>-5.72e-02</td>
-      <td>-0.0</td>
-      <td>787.76</td>
-      <td>delta4</td>
-      <td>787.76</td>
-    </tr>
-    <tr>
-      <th>79</th>
-      <td>Pd</td>
-      <td>Pd</td>
-      <td>SO-ZORA</td>
-      <td>5</td>
-      <td>-2</td>
-      <td>12H₂O</td>
-      <td>PdCl₆²⁻ + 12H₂O</td>
-      <td>202.93</td>
-      <td>35.67</td>
-      <td>31.89</td>
-      <td>0.49</td>
-      <td>4.30e-02</td>
-      <td>2.05e-02</td>
-      <td>3.07e-04</td>
-      <td>-0.0</td>
-      <td>270.97</td>
-      <td>delta4</td>
-      <td>270.97</td>
-    </tr>
-    <tr>
-      <th>80</th>
-      <td>Ag</td>
-      <td>Ag</td>
-      <td>SO-ZORA</td>
-      <td>5</td>
-      <td>1</td>
-      <td>12H₂O</td>
-      <td>Ag(H₂O)₄⁺ + 12H₂O</td>
-      <td>-175.04</td>
-      <td>0.77</td>
-      <td>0.84</td>
-      <td>-36.73</td>
-      <td>8.14e-03</td>
-      <td>8.32e-03</td>
-      <td>8.51e-03</td>
-      <td>0.0</td>
-      <td>-210.17</td>
-      <td>delta4</td>
-      <td>-210.17</td>
-    </tr>
-    <tr>
-      <th>81</th>
-      <td>Cd</td>
-      <td>Cd</td>
-      <td>SO-ZORA</td>
-      <td>5</td>
-      <td>0</td>
-      <td>6Cd(CH₃)₂</td>
-      <td>Cd(CH₃)₂ + 6Cd(CH₃)₂</td>
-      <td>6.98</td>
-      <td>15.73</td>
-      <td>24.10</td>
-      <td>8.08</td>
-      <td>-1.39e-02</td>
-      <td>-9.31e-03</td>
-      <td>-2.34e-03</td>
-      <td>0.0</td>
-      <td>54.90</td>
-      <td>delta4</td>
-      <td>54.90</td>
-    </tr>
-    <tr>
-      <th>82</th>
-      <td>Ta</td>
-      <td>Ta</td>
-      <td>SO-ZORA</td>
-      <td>6</td>
-      <td>-1</td>
-      <td>12CH₃CN</td>
-      <td>TaCl₆⁻ + 12CH₃CN</td>
-      <td>11.59</td>
-      <td>-18.44</td>
-      <td>-4.75</td>
-      <td>42.23</td>
-      <td>-5.58e-03</td>
-      <td>-1.10e-02</td>
-      <td>-1.24e-02</td>
-      <td>0.0</td>
-      <td>30.64</td>
-      <td>delta4</td>
-      <td>30.64</td>
-    </tr>
-    <tr>
-      <th>83</th>
-      <td>W</td>
-      <td>W</td>
-      <td>SO-ZORA</td>
-      <td>6</td>
-      <td>-2</td>
-      <td>12H₂O</td>
-      <td>WO₄²⁻ + 12H₂O</td>
-      <td>85.21</td>
-      <td>-32.82</td>
-      <td>-27.30</td>
-      <td>-99.50</td>
-      <td>5.32e-02</td>
-      <td>4.22e-02</td>
-      <td>3.31e-02</td>
-      <td>0.0</td>
-      <td>-74.40</td>
-      <td>delta4</td>
-      <td>-74.40</td>
-    </tr>
-    <tr>
-      <th>84</th>
-      <td>Re</td>
-      <td>Re</td>
-      <td>SO-ZORA</td>
-      <td>6</td>
-      <td>-1</td>
-      <td>12H₂O</td>
-      <td>ReO₄⁻ + 12H₂O</td>
-      <td>21.60</td>
-      <td>-10.05</td>
-      <td>-8.82</td>
-      <td>-55.56</td>
-      <td>3.93e-02</td>
-      <td>3.40e-02</td>
-      <td>2.94e-02</td>
-      <td>0.0</td>
-      <td>-52.82</td>
-      <td>delta4</td>
-      <td>-52.82</td>
-    </tr>
-    <tr>
-      <th>85</th>
-      <td>Os</td>
-      <td>Os</td>
-      <td>SO-ZORA</td>
-      <td>6</td>
-      <td>0</td>
-      <td>12CCl₄</td>
-      <td>OsO₄ + 12CCl₄</td>
-      <td>132.73</td>
-      <td>2.83</td>
-      <td>2.03</td>
-      <td>-16.41</td>
-      <td>9.49e-03</td>
-      <td>1.18e-02</td>
-      <td>1.35e-02</td>
-      <td>0.0</td>
-      <td>121.18</td>
-      <td>delta4</td>
-      <td>121.18</td>
-    </tr>
-    <tr>
-      <th>86</th>
-      <td>Pt</td>
-      <td>Pt</td>
-      <td>SO-ZORA</td>
-      <td>6</td>
-      <td>-2</td>
-      <td>12H₂O</td>
-      <td>PtCl₆²⁻ + 12H₂O</td>
-      <td>292.29</td>
-      <td>78.86</td>
-      <td>56.90</td>
-      <td>70.43</td>
-      <td>-1.09e-01</td>
-      <td>-6.75e-02</td>
-      <td>-3.74e-02</td>
-      <td>0.0</td>
-      <td>498.49</td>
-      <td>delta4</td>
-      <td>498.49</td>
-    </tr>
-    <tr>
-      <th>87</th>
-      <td>Hg</td>
-      <td>Hg</td>
-      <td>SO-ZORA</td>
-      <td>6</td>
-      <td>0</td>
-      <td>6Hg(CH₃)₂</td>
-      <td>Hg(CH₃)₂ + 6Hg(CH₃)₂</td>
-      <td>31.95</td>
-      <td>35.25</td>
-      <td>28.28</td>
-      <td>-55.39</td>
-      <td>-9.15e-04</td>
-      <td>3.05e-03</td>
-      <td>6.24e-03</td>
-      <td>0.0</td>
-      <td>40.08</td>
-      <td>delta4</td>
-      <td>40.08</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
+```python
+df_dirac_all_melted=df_dirac_all.melt(id_vars =['mol','x_labels', 'where', 'row', 'charge', 'solvent', 'complex'])
+df_dirac_all_melted_delta=df_dirac_all.melt(id_vars =['mol','x_labels', 'where', 'row', 'charge', 'solvent', 'complex',
+                                                 'Delta1','Delta2', 'Delta3', 'Delta4',
+                                                 'd1', 'd2', 'd3', 'd4',
+                                                 'solveff'])
+```
 
 ## Total solvent effects:
 
 
-We measure solvent effects at a given approximation by the values of $\delta$. If we want to focus on one approximation, for instance on $\delta_{super}$ (the total solvent effects), we can - for instance - show their dependence on the row of the periodic table to which the nucleus of interest belongs, and on the solvent used:
+We measure solvent effects at a given approximation by $\delta$. If we want to focus on one approximation, for instance on $\delta_{super}$ (the total solvent effects), we can first show the dependence of $\delta_{super}$ on the row of the periodic table to which the nucleus of interest belongs, and on the solvent used. 
+
+Let's try to apply some of the interactive Altair's hover methods ([full gallery](https://altair-viz.github.io/gallery/#interactive-charts)) to the results from ADF.
 
 
 ```python
-def plot_single_delta(df, ydata):
-
-    hover = alt.selection_single(on='mouseover', nearest=True, empty='none')
-
-    base = alt.Chart(df).encode(
-        x=alt.X('mol:O',
-            axis=alt.Axis(title="X",labelAngle=0)
-           ),
-        y=alt.Y('solveff',
-                axis=alt.Axis(title="δ(super) [ppm]", 
-                              format=",.0f")
-               ),
-        color=alt.condition(hover, 'solvent:N', alt.value('lightgray'))
-    ).properties(
-    width=220,
-    height=190,
-    )
-
-    points = base.mark_point().add_selection(
-        hover
-    )
-
-    text = base.mark_text(dy=-5).encode(
-        text = 'complex:N',
-        opacity = alt.condition(hover, alt.value(1), alt.value(0))
-    )
-    return points, text
-
-
-def def_layer(points, text, plot_title):
-    layer=alt.layer(points, text).facet(
-        facet=alt.Facet('row:N', title='row(X)'),
-        spacing=-60,
-        title=plot_title
-    )
-    return layer
-
-
-delta_points, delta_text=plot_single_delta(df_adf_all, 'value')
-layer=def_layer(delta_points, delta_text, 'Solvent effects on σ(X) [ppm]')
-layer
-```
-
-
-
-
-
-<div id="altair-viz-34aadcae268f4793898dedfd2087216d"></div>
-<script type="text/javascript">
-  (function(spec, embedOpt){
-    let outputDiv = document.currentScript.previousElementSibling;
-    if (outputDiv.id !== "altair-viz-34aadcae268f4793898dedfd2087216d") {
-      outputDiv = document.getElementById("altair-viz-34aadcae268f4793898dedfd2087216d");
-    }
-    const paths = {
-      "vega": "https://cdn.jsdelivr.net/npm//vega@5?noext",
-      "vega-lib": "https://cdn.jsdelivr.net/npm//vega-lib?noext",
-      "vega-lite": "https://cdn.jsdelivr.net/npm//vega-lite@4.8.1?noext",
-      "vega-embed": "https://cdn.jsdelivr.net/npm//vega-embed@6?noext",
-    };
-
-    function loadScript(lib) {
-      return new Promise(function(resolve, reject) {
-        var s = document.createElement('script');
-        s.src = paths[lib];
-        s.async = true;
-        s.onload = () => resolve(paths[lib]);
-        s.onerror = () => reject(`Error loading script: ${paths[lib]}`);
-        document.getElementsByTagName("head")[0].appendChild(s);
-      });
-    }
-
-    function showError(err) {
-      outputDiv.innerHTML = `<div class="error" style="color:red;">${err}</div>`;
-      throw err;
-    }
-
-    function displayChart(vegaEmbed) {
-      vegaEmbed(outputDiv, spec, embedOpt)
-        .catch(err => showError(`Javascript Error: ${err.message}<br>This usually means there's a typo in your chart specification. See the javascript console for the full traceback.`));
-    }
-
-    if(typeof define === "function" && define.amd) {
-      requirejs.config({paths});
-      require(["vega-embed"], displayChart, err => showError(`Error loading script: ${err.message}`));
-    } else if (typeof vegaEmbed === "function") {
-      displayChart(vegaEmbed);
-    } else {
-      loadScript("vega")
-        .then(() => loadScript("vega-lite"))
-        .then(() => loadScript("vega-embed"))
-        .catch(showError)
-        .then(() => displayChart(vegaEmbed));
-    }
-  })({"config": {"view": {"continuousWidth": 400, "continuousHeight": 300}}, "data": {"name": "data-7ad6c731f26a905cfbe8d6bcba28d033"}, "facet": {"type": "nominal", "field": "row", "title": "row(X)"}, "spec": {"layer": [{"mark": "point", "encoding": {"color": {"condition": {"type": "nominal", "field": "solvent", "selection": "selector001"}, "value": "lightgray"}, "x": {"type": "ordinal", "axis": {"labelAngle": 0, "title": "X"}, "field": "mol"}, "y": {"type": "quantitative", "axis": {"format": ",.0f", "title": "\u03b4(super) [ppm]"}, "field": "solveff"}}, "height": 190, "selection": {"selector001": {"type": "single", "on": "mouseover", "nearest": true, "empty": "none"}}, "width": 220}, {"mark": {"type": "text", "dy": -5}, "encoding": {"color": {"condition": {"type": "nominal", "field": "solvent", "selection": "selector001"}, "value": "lightgray"}, "opacity": {"condition": {"value": 1, "selection": "selector001"}, "value": 0}, "text": {"type": "nominal", "field": "complex"}, "x": {"type": "ordinal", "axis": {"labelAngle": 0, "title": "X"}, "field": "mol"}, "y": {"type": "quantitative", "axis": {"format": ",.0f", "title": "\u03b4(super) [ppm]"}, "field": "solveff"}}, "height": 190, "width": 220}]}, "spacing": -60, "title": "Solvent effects on \u03c3(X) [ppm]", "$schema": "https://vega.github.io/schema/vega-lite/v4.8.1.json", "datasets": {"data-7ad6c731f26a905cfbe8d6bcba28d033": [{"mol": "Ti", "x_labels": "Ti", "where": "SO-ZORA", "solveff": 4.2999999999999545, "row": 4, "charge": 0, "solvent": "12TiCl\u2084", "complex": "TiCl\u2084 + 12TiCl\u2084", "delta1": 22.184000000000083, "delta2": 21.684000000000083, "delta3": 21.854000000000042, "delta4": 4.2999999999999545, "Delta1": 22.184000000000083, "Delta2": -0.5, "Delta3": 0.16999999999995907, "Delta4": -17.554000000000087, "d1": -0.021763098138381527, "d2": -0.021154646501768317, "d3": -0.021361520058216756, "d4": -0.0}, {"mol": "V", "x_labels": "V", "where": "SO-ZORA", "solveff": -25.33199999999988, "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "VOCl\u2083 + 6C\u2086H\u2086", "delta1": 2.8140000000003056, "delta2": 1.0170000000000528, "delta3": -0.10500000000001819, "delta4": -25.33199999999988, "Delta1": 2.8140000000003056, "Delta2": -1.7970000000002528, "Delta3": -1.122000000000071, "Delta4": -25.22699999999986, "d1": -0.015131346929647346, "d2": -0.014165276069397935, "d3": -0.013562086584033574, "d4": -0.0}, {"mol": "Cr", "x_labels": "Cr", "where": "SO-ZORA", "solveff": 63.858000000000175, "row": 4, "charge": -2, "solvent": "12H\u2082O", "complex": "CrO\u2084\u00b2\u207b + 12H\u2082O", "delta1": 123.04400000000032, "delta2": 104.03900000000021, "delta3": 76.65400000000045, "delta4": 63.858000000000175, "Delta1": 123.04400000000032, "Delta2": -19.00500000000011, "Delta3": -27.384999999999764, "Delta4": -12.796000000000276, "d1": -0.021712884105380876, "d2": -0.014740739300481661, "d3": -0.004694320701051921, "d4": -0.0}, {"mol": "Mn", "x_labels": "Mn", "where": "SO-ZORA", "solveff": -7.242000000000189, "row": 4, "charge": -1, "solvent": "12H\u2082O", "complex": "MnO\u2084\u207b + 12H\u2082O", "delta1": 35.49200000000019, "delta2": 29.14099999999962, "delta3": 15.230999999999767, "delta4": -7.242000000000189, "Delta1": 35.49200000000019, "Delta2": -6.3510000000005675, "Delta3": -13.909999999999854, "Delta4": -22.472999999999956, "d1": -0.010860140180028253, "d2": -0.009246138441755099, "d3": -0.005711141720077042, "d4": -0.0}, {"mol": "Fe", "x_labels": "Fe", "where": "SO-ZORA", "solveff": 47.11200000000008, "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Fe(CO)\u2085 + 6C\u2086H\u2086", "delta1": 67.43199999999979, "delta2": 65.41499999999996, "delta3": 64.57400000000007, "delta4": 47.11200000000008, "Delta1": 67.43199999999979, "Delta2": -2.0169999999998254, "Delta3": -0.8409999999998945, "Delta4": -17.46199999999999, "d1": -0.008717314895411402, "d2": -0.007852018431629732, "d3": -0.007491227987385629, "d4": -0.0}, {"mol": "Co", "x_labels": "Co", "where": "SO-ZORA", "solveff": 1097.3739999999998, "row": 4, "charge": -3, "solvent": "12H\u2082O", "complex": "Co(CN)\u2086\u00b3\u207b + 12H\u2082O", "delta1": 1098.3239999999996, "delta2": 1127.5999999999995, "delta3": 1124.4809999999998, "delta4": 1097.3739999999998, "Delta1": 1098.3239999999996, "Delta2": 29.27599999999984, "Delta3": -3.118999999999687, "Delta4": -27.10699999999997, "d1": -0.0001645170921136079, "d2": -0.005234414343396641, "d3": -0.004694278753604651, "d4": -0.0}, {"mol": "Ni", "x_labels": "Ni", "where": "SO-ZORA", "solveff": -27.544000000000096, "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Ni(CO)\u2084 + 6C\u2086H\u2086", "delta1": -9.360000000000127, "delta2": -17.95199999999977, "delta3": -21.45699999999988, "delta4": -27.544000000000096, "Delta1": -9.360000000000127, "Delta2": -8.591999999999643, "Delta3": -3.505000000000109, "Delta4": -6.0870000000002165, "d1": -0.011156635879161785, "d2": -0.005885088613777148, "d3": -0.0037346261876627976, "d4": -0.0}, {"mol": "Cu", "x_labels": "Cu", "where": "SO-ZORA", "solveff": -53.464, "row": 4, "charge": 1, "solvent": "12CH\u2083CN", "complex": "Cu(CH\u2083CN)\u2084\u207a + 12CH\u2083CN", "delta1": -23.295999999999992, "delta2": -44.88799999999998, "delta3": -47.87099999999998, "delta4": -53.464, "Delta1": -23.295999999999992, "Delta2": -21.591999999999985, "Delta3": -2.983000000000004, "Delta4": -5.593000000000018, "d1": 0.06319613047294453, "d2": 0.01796506281278088, "d3": 0.01171625423412821, "d4": 0.0}, {"mol": "Zn", "x_labels": "Zn", "where": "SO-ZORA", "solveff": -43.14599999999996, "row": 4, "charge": 2, "solvent": "12H\u2082O", "complex": "Zn(H\u2082O)\u2086\u00b2\u207a + 12H\u2082O", "delta1": -29.68100000000004, "delta2": -30.29199999999969, "delta3": -30.121000000000095, "delta4": -43.14599999999996, "Delta1": -29.68100000000004, "Delta2": -0.6109999999996489, "Delta3": 0.17099999999959437, "Delta4": -13.024999999999864, "d1": 0.007034567861245784, "d2": 0.006715360957182009, "d3": 0.006804697095635049, "d4": 0.0}, {"mol": "Nb", "x_labels": "Nb", "where": "SO-ZORA", "solveff": -19.514999999999986, "row": 5, "charge": -1, "solvent": "12CH\u2083CN", "complex": "NbCl\u2086\u207b + 12CH\u2083CN", "delta1": 15.894000000000005, "delta2": 3.2099999999999795, "delta3": 0.17900000000003047, "delta4": -19.514999999999986, "Delta1": 15.894000000000005, "Delta2": -12.684000000000026, "Delta3": -3.030999999999949, "Delta4": -19.694000000000017, "d1": -0.11137042011203403, "d2": -0.07147597495116977, "d3": -0.061942699700257016, "d4": -0.0}, {"mol": "Mo", "x_labels": "Mo", "where": "SO-ZORA", "solveff": 16.257000000000062, "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "MoO\u2084\u00b2\u207b + 12H\u2082O", "delta1": 69.50000000000006, "delta2": 57.478999999999985, "delta3": 38.01100000000008, "delta4": 16.257000000000062, "Delta1": 69.50000000000006, "Delta2": -12.021000000000072, "Delta3": -19.467999999999904, "Delta4": -21.75400000000002, "d1": -0.09521501751650162, "d2": -0.07371773664266144, "d3": -0.03890290725642767, "d4": -0.0}, {"mol": "Tc", "x_labels": "Tc", "where": "SO-ZORA", "solveff": 26.989000000000033, "row": 5, "charge": -1, "solvent": "12H\u2082O", "complex": "TcO\u2084\u207b + 12H\u2082O", "delta1": 22.694999999999936, "delta2": 28.878999999999905, "delta3": 23.896999999999935, "delta4": 26.989000000000033, "Delta1": 22.694999999999936, "Delta2": 6.183999999999969, "Delta3": -4.981999999999971, "Delta4": 3.0920000000000982, "d1": 0.003025801759954068, "d2": -0.0013318037555455694, "d3": 0.002178802757749899, "d4": -0.0}, {"mol": "Ru", "x_labels": "Ru", "where": "SO-ZORA", "solveff": 787.761, "row": 5, "charge": -4, "solvent": "12H\u2082O", "complex": "Ru(CN)\u2086\u2074\u207b + 12H\u2082O", "delta1": 828.1270000000001, "delta2": 831.764, "delta3": 834.176, "delta4": 787.761, "Delta1": 828.1270000000001, "Delta2": 3.6370000000000005, "Delta3": 2.411999999999999, "Delta4": -46.415, "d1": -0.04974484294377672, "d2": -0.05422688212988671, "d3": -0.057199298549160095, "d4": -0.0}, {"mol": "Pd", "x_labels": "Pd", "where": "SO-ZORA", "solveff": 270.9690000000003, "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "PdCl\u2086\u00b2\u207b + 12H\u2082O", "delta1": 202.92700000000013, "delta2": 238.59600000000023, "delta3": 270.48400000000015, "delta4": 270.9690000000003, "Delta1": 202.92700000000013, "Delta2": 35.669000000000096, "Delta3": 31.88799999999992, "Delta4": 0.48500000000012733, "d1": 0.04304883596306927, "d2": 0.020481760774704455, "d3": 0.0003068499668159965, "d4": -0.0}, {"mol": "Ag", "x_labels": "Ag", "where": "SO-ZORA", "solveff": -210.16699999999946, "row": 5, "charge": 1, "solvent": "12H\u2082O", "complex": "Ag(H\u2082O)\u2084\u207a + 12H\u2082O", "delta1": -175.03999999999996, "delta2": -174.26800000000003, "delta3": -173.433, "delta4": -210.16699999999946, "Delta1": -175.03999999999996, "Delta2": 0.7719999999999345, "Delta3": 0.8350000000000364, "Delta4": -36.73399999999947, "d1": 0.008140764518530916, "d2": 0.008319677326579011, "d3": 0.008513190532175098, "d4": 0.0}, {"mol": "Cd", "x_labels": "Cd", "where": "SO-ZORA", "solveff": 54.89800000000059, "row": 5, "charge": 0, "solvent": "6Cd(CH\u2083)\u2082", "complex": "Cd(CH\u2083)\u2082 + 6Cd(CH\u2083)\u2082", "delta1": 6.982000000000426, "delta2": 22.7170000000001, "delta3": 46.818000000000666, "delta4": 54.89800000000059, "Delta1": 6.982000000000426, "Delta2": 15.734999999999673, "Delta3": 24.101000000000568, "Delta4": 8.079999999999927, "d1": -0.013863777019912954, "d2": -0.009311090414012523, "d3": -0.002337826995594275, "d4": 0.0}, {"mol": "Ta", "x_labels": "Ta", "where": "SO-ZORA", "solveff": 30.63500000000022, "row": 6, "charge": -1, "solvent": "12CH\u2083CN", "complex": "TaCl\u2086\u207b + 12CH\u2083CN", "delta1": 11.592999999999847, "delta2": -6.84900000000016, "delta3": -11.596000000000458, "delta4": 30.63500000000022, "Delta1": 11.592999999999847, "Delta2": -18.442000000000007, "Delta3": -4.747000000000298, "Delta4": 42.23100000000068, "d1": -0.005583268607645744, "d2": -0.010990612356317148, "d3": -0.012382471198901724, "d4": 0.0}, {"mol": "W", "x_labels": "W", "where": "SO-ZORA", "solveff": -74.40099999999984, "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "WO\u2084\u00b2\u207b + 12H\u2082O", "delta1": 85.21000000000004, "delta2": 52.39400000000023, "delta3": 25.09900000000016, "delta4": -74.40099999999984, "Delta1": 85.21000000000004, "Delta2": -32.8159999999998, "Delta3": -27.295000000000073, "Delta4": -99.5, "d1": 0.05316830974068907, "d2": 0.04223691245321864, "d3": 0.03314462549071534, "d4": 0.0}, {"mol": "Re", "x_labels": "Re", "where": "SO-ZORA", "solveff": -52.82300000000032, "row": 6, "charge": -1, "solvent": "12H\u2082O", "complex": "ReO\u2084\u207b + 12H\u2082O", "delta1": 21.60499999999979, "delta2": 11.55600000000004, "delta3": 2.7369999999996253, "delta4": -52.82300000000032, "Delta1": 21.60499999999979, "Delta2": -10.04899999999975, "Delta3": -8.819000000000415, "Delta4": -55.559999999999945, "d1": 0.03932442385502783, "d2": 0.03401498204120556, "d3": 0.02935541717344737, "d4": 0.0}, {"mol": "Os", "x_labels": "Os", "where": "SO-ZORA", "solveff": 121.17599999999993, "row": 6, "charge": 0, "solvent": "12CCl\u2084", "complex": "OsO\u2084 + 12CCl\u2084", "delta1": 132.73399999999992, "delta2": 135.55999999999995, "delta3": 137.587, "delta4": 121.17599999999993, "Delta1": 132.73399999999992, "Delta2": 2.826000000000022, "Delta3": 2.0270000000000437, "Delta4": -16.411000000000058, "d1": 0.009486133567518316, "d2": 0.011805549855959828, "d3": 0.013469193457046525, "d4": 0.0}, {"mol": "Pt", "x_labels": "Pt", "where": "SO-ZORA", "solveff": 498.48800000000006, "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "PtCl\u2086\u00b2\u207b + 12H\u2082O", "delta1": 292.2940000000001, "delta2": 371.1560000000002, "delta3": 428.05899999999997, "delta4": 498.48800000000006, "Delta1": 292.2940000000001, "Delta2": 78.86200000000008, "Delta3": 56.90299999999979, "Delta4": 70.42900000000009, "d1": -0.10937188371234462, "d2": -0.0675409599545101, "d3": -0.0373577911965272, "d4": 0.0}, {"mol": "Hg", "x_labels": "Hg", "where": "SO-ZORA", "solveff": 40.07600000000093, "row": 6, "charge": 0, "solvent": "6Hg(CH\u2083)\u2082", "complex": "Hg(CH\u2083)\u2082 + 6Hg(CH\u2083)\u2082", "delta1": 31.950000000000728, "delta2": 67.19500000000153, "delta3": 95.47099999999955, "delta4": 40.07600000000093, "Delta1": 31.950000000000728, "Delta2": 35.2450000000008, "Delta3": 28.27599999999802, "Delta4": -55.39499999999862, "d1": -0.0009148227516846377, "d2": 0.003053049249684422, "d3": 0.006236353227857244, "d4": 0.0}]}}, {"mode": "vega-lite"});
-</script>
-
-
-
-To make it more readable, we can restrict the X-axis in each plot to the nuclei that actually belong to the actual row, and to sort them by their atomic number. This is easiest to do with new dataframes:
-
-
-```python
-def plot_single_delta(df, ydata):
-
-    hover = alt.selection_single(on='mouseover', nearest=True, empty='none')
-    
-    base = alt.Chart(df).encode(
-        x=alt.X('mol:O',
-            axis=alt.Axis(title="X",labelAngle=0),
-                            scale=alt.Scale(domain=list(df.mol.unique()))
-           ),
-        y=alt.Y('solveff',
-                axis=alt.Axis(title="δ(super) [ppm]", 
-                              format=",.0f")
-               ),
-        color=alt.condition(hover, 'solvent:N', alt.value('lightgray'))
-    ).properties(
-    width=220,
-    height=190,
-    )
-
-    points = base.mark_point().add_selection(
-        hover
-    )
-
-    text = base.mark_text(dy=-5).encode(
-        text = 'complex:N',
-        opacity = alt.condition(hover, alt.value(1), alt.value(0))
-    )
-    return points, text
-
-
-def def_layer(points, text, plot_title):
-    mol_selected=alt.selection_multi(fields=['row'], bind='legend')
-    layer=alt.layer(points, text).facet(
-        facet=alt.Facet('row:N', title='row(X)'),
-        spacing=-60,
-        title=plot_title
-    ).add_selection(mol_selected).transform_filter(mol_selected)
-    return layer
-
-
-delta_points, delta_text=plot_single_delta(df_adf_all, 'value')
-layer=def_layer(delta_points, delta_text, 'Solvent effects on σ(X) [ppm]')
-layer
-```
-
-
-
-
-
-<div id="altair-viz-db0dbd555480400c8bd8c759266030df"></div>
-<script type="text/javascript">
-  (function(spec, embedOpt){
-    let outputDiv = document.currentScript.previousElementSibling;
-    if (outputDiv.id !== "altair-viz-db0dbd555480400c8bd8c759266030df") {
-      outputDiv = document.getElementById("altair-viz-db0dbd555480400c8bd8c759266030df");
-    }
-    const paths = {
-      "vega": "https://cdn.jsdelivr.net/npm//vega@5?noext",
-      "vega-lib": "https://cdn.jsdelivr.net/npm//vega-lib?noext",
-      "vega-lite": "https://cdn.jsdelivr.net/npm//vega-lite@4.8.1?noext",
-      "vega-embed": "https://cdn.jsdelivr.net/npm//vega-embed@6?noext",
-    };
-
-    function loadScript(lib) {
-      return new Promise(function(resolve, reject) {
-        var s = document.createElement('script');
-        s.src = paths[lib];
-        s.async = true;
-        s.onload = () => resolve(paths[lib]);
-        s.onerror = () => reject(`Error loading script: ${paths[lib]}`);
-        document.getElementsByTagName("head")[0].appendChild(s);
-      });
-    }
-
-    function showError(err) {
-      outputDiv.innerHTML = `<div class="error" style="color:red;">${err}</div>`;
-      throw err;
-    }
-
-    function displayChart(vegaEmbed) {
-      vegaEmbed(outputDiv, spec, embedOpt)
-        .catch(err => showError(`Javascript Error: ${err.message}<br>This usually means there's a typo in your chart specification. See the javascript console for the full traceback.`));
-    }
-
-    if(typeof define === "function" && define.amd) {
-      requirejs.config({paths});
-      require(["vega-embed"], displayChart, err => showError(`Error loading script: ${err.message}`));
-    } else if (typeof vegaEmbed === "function") {
-      displayChart(vegaEmbed);
-    } else {
-      loadScript("vega")
-        .then(() => loadScript("vega-lite"))
-        .then(() => loadScript("vega-embed"))
-        .catch(showError)
-        .then(() => displayChart(vegaEmbed));
-    }
-  })({"config": {"view": {"continuousWidth": 400, "continuousHeight": 300}}, "data": {"name": "data-7ad6c731f26a905cfbe8d6bcba28d033"}, "facet": {"type": "nominal", "field": "row", "title": "row(X)"}, "spec": {"layer": [{"mark": "point", "encoding": {"color": {"condition": {"type": "nominal", "field": "solvent", "selection": "selector002"}, "value": "lightgray"}, "x": {"type": "ordinal", "axis": {"labelAngle": 0, "title": "X"}, "field": "mol", "scale": {"domain": ["Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Nb", "Mo", "Tc", "Ru", "Pd", "Ag", "Cd", "Ta", "W", "Re", "Os", "Pt", "Hg"]}}, "y": {"type": "quantitative", "axis": {"format": ",.0f", "title": "\u03b4(super) [ppm]"}, "field": "solveff"}}, "height": 190, "selection": {"selector002": {"type": "single", "on": "mouseover", "nearest": true, "empty": "none"}, "selector003": {"type": "multi", "fields": ["row"], "bind": "legend"}}, "width": 220}, {"mark": {"type": "text", "dy": -5}, "encoding": {"color": {"condition": {"type": "nominal", "field": "solvent", "selection": "selector002"}, "value": "lightgray"}, "opacity": {"condition": {"value": 1, "selection": "selector002"}, "value": 0}, "text": {"type": "nominal", "field": "complex"}, "x": {"type": "ordinal", "axis": {"labelAngle": 0, "title": "X"}, "field": "mol", "scale": {"domain": ["Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Nb", "Mo", "Tc", "Ru", "Pd", "Ag", "Cd", "Ta", "W", "Re", "Os", "Pt", "Hg"]}}, "y": {"type": "quantitative", "axis": {"format": ",.0f", "title": "\u03b4(super) [ppm]"}, "field": "solveff"}}, "height": 190, "width": 220}]}, "spacing": -60, "title": "Solvent effects on \u03c3(X) [ppm]", "transform": [{"filter": {"selection": "selector003"}}], "$schema": "https://vega.github.io/schema/vega-lite/v4.8.1.json", "datasets": {"data-7ad6c731f26a905cfbe8d6bcba28d033": [{"mol": "Ti", "x_labels": "Ti", "where": "SO-ZORA", "solveff": 4.2999999999999545, "row": 4, "charge": 0, "solvent": "12TiCl\u2084", "complex": "TiCl\u2084 + 12TiCl\u2084", "delta1": 22.184000000000083, "delta2": 21.684000000000083, "delta3": 21.854000000000042, "delta4": 4.2999999999999545, "Delta1": 22.184000000000083, "Delta2": -0.5, "Delta3": 0.16999999999995907, "Delta4": -17.554000000000087, "d1": -0.021763098138381527, "d2": -0.021154646501768317, "d3": -0.021361520058216756, "d4": -0.0}, {"mol": "V", "x_labels": "V", "where": "SO-ZORA", "solveff": -25.33199999999988, "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "VOCl\u2083 + 6C\u2086H\u2086", "delta1": 2.8140000000003056, "delta2": 1.0170000000000528, "delta3": -0.10500000000001819, "delta4": -25.33199999999988, "Delta1": 2.8140000000003056, "Delta2": -1.7970000000002528, "Delta3": -1.122000000000071, "Delta4": -25.22699999999986, "d1": -0.015131346929647346, "d2": -0.014165276069397935, "d3": -0.013562086584033574, "d4": -0.0}, {"mol": "Cr", "x_labels": "Cr", "where": "SO-ZORA", "solveff": 63.858000000000175, "row": 4, "charge": -2, "solvent": "12H\u2082O", "complex": "CrO\u2084\u00b2\u207b + 12H\u2082O", "delta1": 123.04400000000032, "delta2": 104.03900000000021, "delta3": 76.65400000000045, "delta4": 63.858000000000175, "Delta1": 123.04400000000032, "Delta2": -19.00500000000011, "Delta3": -27.384999999999764, "Delta4": -12.796000000000276, "d1": -0.021712884105380876, "d2": -0.014740739300481661, "d3": -0.004694320701051921, "d4": -0.0}, {"mol": "Mn", "x_labels": "Mn", "where": "SO-ZORA", "solveff": -7.242000000000189, "row": 4, "charge": -1, "solvent": "12H\u2082O", "complex": "MnO\u2084\u207b + 12H\u2082O", "delta1": 35.49200000000019, "delta2": 29.14099999999962, "delta3": 15.230999999999767, "delta4": -7.242000000000189, "Delta1": 35.49200000000019, "Delta2": -6.3510000000005675, "Delta3": -13.909999999999854, "Delta4": -22.472999999999956, "d1": -0.010860140180028253, "d2": -0.009246138441755099, "d3": -0.005711141720077042, "d4": -0.0}, {"mol": "Fe", "x_labels": "Fe", "where": "SO-ZORA", "solveff": 47.11200000000008, "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Fe(CO)\u2085 + 6C\u2086H\u2086", "delta1": 67.43199999999979, "delta2": 65.41499999999996, "delta3": 64.57400000000007, "delta4": 47.11200000000008, "Delta1": 67.43199999999979, "Delta2": -2.0169999999998254, "Delta3": -0.8409999999998945, "Delta4": -17.46199999999999, "d1": -0.008717314895411402, "d2": -0.007852018431629732, "d3": -0.007491227987385629, "d4": -0.0}, {"mol": "Co", "x_labels": "Co", "where": "SO-ZORA", "solveff": 1097.3739999999998, "row": 4, "charge": -3, "solvent": "12H\u2082O", "complex": "Co(CN)\u2086\u00b3\u207b + 12H\u2082O", "delta1": 1098.3239999999996, "delta2": 1127.5999999999995, "delta3": 1124.4809999999998, "delta4": 1097.3739999999998, "Delta1": 1098.3239999999996, "Delta2": 29.27599999999984, "Delta3": -3.118999999999687, "Delta4": -27.10699999999997, "d1": -0.0001645170921136079, "d2": -0.005234414343396641, "d3": -0.004694278753604651, "d4": -0.0}, {"mol": "Ni", "x_labels": "Ni", "where": "SO-ZORA", "solveff": -27.544000000000096, "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Ni(CO)\u2084 + 6C\u2086H\u2086", "delta1": -9.360000000000127, "delta2": -17.95199999999977, "delta3": -21.45699999999988, "delta4": -27.544000000000096, "Delta1": -9.360000000000127, "Delta2": -8.591999999999643, "Delta3": -3.505000000000109, "Delta4": -6.0870000000002165, "d1": -0.011156635879161785, "d2": -0.005885088613777148, "d3": -0.0037346261876627976, "d4": -0.0}, {"mol": "Cu", "x_labels": "Cu", "where": "SO-ZORA", "solveff": -53.464, "row": 4, "charge": 1, "solvent": "12CH\u2083CN", "complex": "Cu(CH\u2083CN)\u2084\u207a + 12CH\u2083CN", "delta1": -23.295999999999992, "delta2": -44.88799999999998, "delta3": -47.87099999999998, "delta4": -53.464, "Delta1": -23.295999999999992, "Delta2": -21.591999999999985, "Delta3": -2.983000000000004, "Delta4": -5.593000000000018, "d1": 0.06319613047294453, "d2": 0.01796506281278088, "d3": 0.01171625423412821, "d4": 0.0}, {"mol": "Zn", "x_labels": "Zn", "where": "SO-ZORA", "solveff": -43.14599999999996, "row": 4, "charge": 2, "solvent": "12H\u2082O", "complex": "Zn(H\u2082O)\u2086\u00b2\u207a + 12H\u2082O", "delta1": -29.68100000000004, "delta2": -30.29199999999969, "delta3": -30.121000000000095, "delta4": -43.14599999999996, "Delta1": -29.68100000000004, "Delta2": -0.6109999999996489, "Delta3": 0.17099999999959437, "Delta4": -13.024999999999864, "d1": 0.007034567861245784, "d2": 0.006715360957182009, "d3": 0.006804697095635049, "d4": 0.0}, {"mol": "Nb", "x_labels": "Nb", "where": "SO-ZORA", "solveff": -19.514999999999986, "row": 5, "charge": -1, "solvent": "12CH\u2083CN", "complex": "NbCl\u2086\u207b + 12CH\u2083CN", "delta1": 15.894000000000005, "delta2": 3.2099999999999795, "delta3": 0.17900000000003047, "delta4": -19.514999999999986, "Delta1": 15.894000000000005, "Delta2": -12.684000000000026, "Delta3": -3.030999999999949, "Delta4": -19.694000000000017, "d1": -0.11137042011203403, "d2": -0.07147597495116977, "d3": -0.061942699700257016, "d4": -0.0}, {"mol": "Mo", "x_labels": "Mo", "where": "SO-ZORA", "solveff": 16.257000000000062, "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "MoO\u2084\u00b2\u207b + 12H\u2082O", "delta1": 69.50000000000006, "delta2": 57.478999999999985, "delta3": 38.01100000000008, "delta4": 16.257000000000062, "Delta1": 69.50000000000006, "Delta2": -12.021000000000072, "Delta3": -19.467999999999904, "Delta4": -21.75400000000002, "d1": -0.09521501751650162, "d2": -0.07371773664266144, "d3": -0.03890290725642767, "d4": -0.0}, {"mol": "Tc", "x_labels": "Tc", "where": "SO-ZORA", "solveff": 26.989000000000033, "row": 5, "charge": -1, "solvent": "12H\u2082O", "complex": "TcO\u2084\u207b + 12H\u2082O", "delta1": 22.694999999999936, "delta2": 28.878999999999905, "delta3": 23.896999999999935, "delta4": 26.989000000000033, "Delta1": 22.694999999999936, "Delta2": 6.183999999999969, "Delta3": -4.981999999999971, "Delta4": 3.0920000000000982, "d1": 0.003025801759954068, "d2": -0.0013318037555455694, "d3": 0.002178802757749899, "d4": -0.0}, {"mol": "Ru", "x_labels": "Ru", "where": "SO-ZORA", "solveff": 787.761, "row": 5, "charge": -4, "solvent": "12H\u2082O", "complex": "Ru(CN)\u2086\u2074\u207b + 12H\u2082O", "delta1": 828.1270000000001, "delta2": 831.764, "delta3": 834.176, "delta4": 787.761, "Delta1": 828.1270000000001, "Delta2": 3.6370000000000005, "Delta3": 2.411999999999999, "Delta4": -46.415, "d1": -0.04974484294377672, "d2": -0.05422688212988671, "d3": -0.057199298549160095, "d4": -0.0}, {"mol": "Pd", "x_labels": "Pd", "where": "SO-ZORA", "solveff": 270.9690000000003, "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "PdCl\u2086\u00b2\u207b + 12H\u2082O", "delta1": 202.92700000000013, "delta2": 238.59600000000023, "delta3": 270.48400000000015, "delta4": 270.9690000000003, "Delta1": 202.92700000000013, "Delta2": 35.669000000000096, "Delta3": 31.88799999999992, "Delta4": 0.48500000000012733, "d1": 0.04304883596306927, "d2": 0.020481760774704455, "d3": 0.0003068499668159965, "d4": -0.0}, {"mol": "Ag", "x_labels": "Ag", "where": "SO-ZORA", "solveff": -210.16699999999946, "row": 5, "charge": 1, "solvent": "12H\u2082O", "complex": "Ag(H\u2082O)\u2084\u207a + 12H\u2082O", "delta1": -175.03999999999996, "delta2": -174.26800000000003, "delta3": -173.433, "delta4": -210.16699999999946, "Delta1": -175.03999999999996, "Delta2": 0.7719999999999345, "Delta3": 0.8350000000000364, "Delta4": -36.73399999999947, "d1": 0.008140764518530916, "d2": 0.008319677326579011, "d3": 0.008513190532175098, "d4": 0.0}, {"mol": "Cd", "x_labels": "Cd", "where": "SO-ZORA", "solveff": 54.89800000000059, "row": 5, "charge": 0, "solvent": "6Cd(CH\u2083)\u2082", "complex": "Cd(CH\u2083)\u2082 + 6Cd(CH\u2083)\u2082", "delta1": 6.982000000000426, "delta2": 22.7170000000001, "delta3": 46.818000000000666, "delta4": 54.89800000000059, "Delta1": 6.982000000000426, "Delta2": 15.734999999999673, "Delta3": 24.101000000000568, "Delta4": 8.079999999999927, "d1": -0.013863777019912954, "d2": -0.009311090414012523, "d3": -0.002337826995594275, "d4": 0.0}, {"mol": "Ta", "x_labels": "Ta", "where": "SO-ZORA", "solveff": 30.63500000000022, "row": 6, "charge": -1, "solvent": "12CH\u2083CN", "complex": "TaCl\u2086\u207b + 12CH\u2083CN", "delta1": 11.592999999999847, "delta2": -6.84900000000016, "delta3": -11.596000000000458, "delta4": 30.63500000000022, "Delta1": 11.592999999999847, "Delta2": -18.442000000000007, "Delta3": -4.747000000000298, "Delta4": 42.23100000000068, "d1": -0.005583268607645744, "d2": -0.010990612356317148, "d3": -0.012382471198901724, "d4": 0.0}, {"mol": "W", "x_labels": "W", "where": "SO-ZORA", "solveff": -74.40099999999984, "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "WO\u2084\u00b2\u207b + 12H\u2082O", "delta1": 85.21000000000004, "delta2": 52.39400000000023, "delta3": 25.09900000000016, "delta4": -74.40099999999984, "Delta1": 85.21000000000004, "Delta2": -32.8159999999998, "Delta3": -27.295000000000073, "Delta4": -99.5, "d1": 0.05316830974068907, "d2": 0.04223691245321864, "d3": 0.03314462549071534, "d4": 0.0}, {"mol": "Re", "x_labels": "Re", "where": "SO-ZORA", "solveff": -52.82300000000032, "row": 6, "charge": -1, "solvent": "12H\u2082O", "complex": "ReO\u2084\u207b + 12H\u2082O", "delta1": 21.60499999999979, "delta2": 11.55600000000004, "delta3": 2.7369999999996253, "delta4": -52.82300000000032, "Delta1": 21.60499999999979, "Delta2": -10.04899999999975, "Delta3": -8.819000000000415, "Delta4": -55.559999999999945, "d1": 0.03932442385502783, "d2": 0.03401498204120556, "d3": 0.02935541717344737, "d4": 0.0}, {"mol": "Os", "x_labels": "Os", "where": "SO-ZORA", "solveff": 121.17599999999993, "row": 6, "charge": 0, "solvent": "12CCl\u2084", "complex": "OsO\u2084 + 12CCl\u2084", "delta1": 132.73399999999992, "delta2": 135.55999999999995, "delta3": 137.587, "delta4": 121.17599999999993, "Delta1": 132.73399999999992, "Delta2": 2.826000000000022, "Delta3": 2.0270000000000437, "Delta4": -16.411000000000058, "d1": 0.009486133567518316, "d2": 0.011805549855959828, "d3": 0.013469193457046525, "d4": 0.0}, {"mol": "Pt", "x_labels": "Pt", "where": "SO-ZORA", "solveff": 498.48800000000006, "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "PtCl\u2086\u00b2\u207b + 12H\u2082O", "delta1": 292.2940000000001, "delta2": 371.1560000000002, "delta3": 428.05899999999997, "delta4": 498.48800000000006, "Delta1": 292.2940000000001, "Delta2": 78.86200000000008, "Delta3": 56.90299999999979, "Delta4": 70.42900000000009, "d1": -0.10937188371234462, "d2": -0.0675409599545101, "d3": -0.0373577911965272, "d4": 0.0}, {"mol": "Hg", "x_labels": "Hg", "where": "SO-ZORA", "solveff": 40.07600000000093, "row": 6, "charge": 0, "solvent": "6Hg(CH\u2083)\u2082", "complex": "Hg(CH\u2083)\u2082 + 6Hg(CH\u2083)\u2082", "delta1": 31.950000000000728, "delta2": 67.19500000000153, "delta3": 95.47099999999955, "delta4": 40.07600000000093, "Delta1": 31.950000000000728, "Delta2": 35.2450000000008, "Delta3": 28.27599999999802, "Delta4": -55.39499999999862, "d1": -0.0009148227516846377, "d2": 0.003053049249684422, "d3": 0.006236353227857244, "d4": 0.0}]}}, {"mode": "vega-lite"});
-</script>
-
-
-
-
-```python
-def plot_chart(ydata, ydata_title):
+def plot_chart(df, xData, yData, colorData, textData, yDataTitle):
     
     hover = alt.selection_single(on='mouseover', nearest=True, empty='none')
-    #if df_adf_all_melted_delta['value'] == 'delta4':
-    #    bckcolor='lightgray'
-    #else:
-    #    bckcolor='darkgray'
+
     bckcolor='lightgray'
     
-    base = alt.Chart(df_adf_all_melted_delta).encode(
-    x=alt.X('mol:O',
-            axis=alt.Axis(title="X",labelAngle=0)
-           ),
-    y=alt.Y(ydata,
-            axis=alt.Axis(title=ydata_title, 
-                          format=",.0f")
-           ),
-    color=alt.condition(hover, 'solvent:N', alt.value(bckcolor))
-    ).properties(
-        width=240,
-        height=240,
-    )
+    base = alt.Chart(df).encode(
+        x=alt.X(xData,
+                axis=alt.Axis(title="X",labelAngle=0)
+                ),
+        y=alt.Y(yData,
+                axis=alt.Axis(title=yDataTitle, 
+                              format=",.0f")
+                ),
+        color=alt.condition(hover,
+                            colorData,
+                            alt.value(bckcolor)
+                           )
+        ).properties(width=230,
+                     height=190
+                    )
+    
+    points = base.mark_point().add_selection(hover)
 
-    points = base.mark_point().add_selection(
-        hover
-    )
-
-    text = base.mark_text(dy=-5).encode(
-    #text = 'complex:N',
-    text = 'variable:N',
-    opacity = alt.condition(hover, alt.value(1), alt.value(0))
-    )
+    text = base.mark_text(dy=-5).encode(text = textData,
+                                        opacity = alt.condition(hover,
+                                                                alt.value(1),
+                                                                alt.value(0)
+                                                                )
+                                        )
+    
     return points, text
 
 
-def def_layer(points, text):
-    layer=alt.layer(points, text).facet(
-        facet=alt.Facet('row:N', title='row(X)'),
-        spacing=-60,
-        title='Solvent effects on σ(X) [ppm]'
-    )
+def def_layer(points, text, xIndp, yIndp, plotSpacing, plotTitle):
+    
+    selected=alt.selection_multi(fields=['row'], bind='legend')
+    
+    layer=alt.layer(points, text).facet(facet=alt.Facet('row:N', title='row(X)'),
+                                        spacing=plotSpacing,
+                                        title=plotTitle
+                                        )
+    
+    layer=layer.add_selection(selected).transform_filter(selected)
+    
+    if xIndp and yIndp:
+        layer=layer.resolve_scale(x='independent', y='independent')
+    elif xIndp:
+        layer=layer.resolve_scale(x='independent')
+    elif yIndp:
+        layer=layer.resolve_scale(y='independent')
+    
     return layer
+```
+
+In the plot below: we show the total solvent effects for all complexes; when we hover over the point, the color of that point indicates the solvent.
 
 
-delta2_points, delta2_text=plot_chart('value', 'δ(fdeN) [ppm]')
-#delta3_points, delta3_text=choose_y('delta3')
+```python
+delta_points, delta_text=plot_chart(df_adf_all, 
+                                    'mol:O', 
+                                    'solveff', 
+                                    'solvent:N', 
+                                    'complex:N', 
+                                    "δ(super) [ppm]")
+                                          
+layer=def_layer(delta_points, 
+                delta_text,
+                True, False,
+                -30,
+                'Solvent effects on σ(X) [ppm]')
 
-layer2=def_layer(delta2_points, delta2_text)
-layer2
-
-
-
+layer
 ```
 
 
 
 
 
-<div id="altair-viz-c248e28576584acbb369613caa05b7f4"></div>
+<div id="altair-viz-d25ca4e825b2478a852fc716658cba9c"></div>
 <script type="text/javascript">
   (function(spec, embedOpt){
     let outputDiv = document.currentScript.previousElementSibling;
-    if (outputDiv.id !== "altair-viz-c248e28576584acbb369613caa05b7f4") {
-      outputDiv = document.getElementById("altair-viz-c248e28576584acbb369613caa05b7f4");
+    if (outputDiv.id !== "altair-viz-d25ca4e825b2478a852fc716658cba9c") {
+      outputDiv = document.getElementById("altair-viz-d25ca4e825b2478a852fc716658cba9c");
     }
     const paths = {
       "vega": "https://cdn.jsdelivr.net/npm//vega@5?noext",
@@ -3066,45 +442,44 @@ layer2
         .catch(showError)
         .then(() => displayChart(vegaEmbed));
     }
-  })({"config": {"view": {"continuousWidth": 400, "continuousHeight": 300}}, "data": {"name": "data-21f4ad3d50cdd61cd296d2bcd8990264"}, "facet": {"type": "nominal", "field": "row", "title": "row(X)"}, "spec": {"layer": [{"mark": "point", "encoding": {"color": {"condition": {"type": "nominal", "field": "solvent", "selection": "selector004"}, "value": "lightgray"}, "x": {"type": "ordinal", "axis": {"labelAngle": 0, "title": "X"}, "field": "mol"}, "y": {"type": "quantitative", "axis": {"format": ",.0f", "title": "\u03b4(fdeN) [ppm]"}, "field": "value"}}, "height": 240, "selection": {"selector004": {"type": "single", "on": "mouseover", "nearest": true, "empty": "none"}}, "width": 240}, {"mark": {"type": "text", "dy": -5}, "encoding": {"color": {"condition": {"type": "nominal", "field": "solvent", "selection": "selector004"}, "value": "lightgray"}, "opacity": {"condition": {"value": 1, "selection": "selector004"}, "value": 0}, "text": {"type": "nominal", "field": "variable"}, "x": {"type": "ordinal", "axis": {"labelAngle": 0, "title": "X"}, "field": "mol"}, "y": {"type": "quantitative", "axis": {"format": ",.0f", "title": "\u03b4(fdeN) [ppm]"}, "field": "value"}}, "height": 240, "width": 240}]}, "spacing": -60, "title": "Solvent effects on \u03c3(X) [ppm]", "$schema": "https://vega.github.io/schema/vega-lite/v4.8.1.json", "datasets": {"data-21f4ad3d50cdd61cd296d2bcd8990264": [{"mol": "Ti", "x_labels": "Ti", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "12TiCl\u2084", "complex": "TiCl\u2084 + 12TiCl\u2084", "Delta1": 22.184000000000083, "Delta2": -0.5, "Delta3": 0.16999999999995907, "Delta4": -17.554000000000087, "d1": -0.021763098138381527, "d2": -0.021154646501768317, "d3": -0.021361520058216756, "d4": -0.0, "solveff": 4.2999999999999545, "variable": "delta1", "value": 22.184000000000083}, {"mol": "V", "x_labels": "V", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "VOCl\u2083 + 6C\u2086H\u2086", "Delta1": 2.8140000000003056, "Delta2": -1.7970000000002528, "Delta3": -1.122000000000071, "Delta4": -25.22699999999986, "d1": -0.015131346929647346, "d2": -0.014165276069397935, "d3": -0.013562086584033574, "d4": -0.0, "solveff": -25.33199999999988, "variable": "delta1", "value": 2.8140000000003056}, {"mol": "Cr", "x_labels": "Cr", "where": "SO-ZORA", "row": 4, "charge": -2, "solvent": "12H\u2082O", "complex": "CrO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 123.04400000000032, "Delta2": -19.00500000000011, "Delta3": -27.384999999999764, "Delta4": -12.796000000000276, "d1": -0.021712884105380876, "d2": -0.014740739300481661, "d3": -0.004694320701051921, "d4": -0.0, "solveff": 63.858000000000175, "variable": "delta1", "value": 123.04400000000032}, {"mol": "Mn", "x_labels": "Mn", "where": "SO-ZORA", "row": 4, "charge": -1, "solvent": "12H\u2082O", "complex": "MnO\u2084\u207b + 12H\u2082O", "Delta1": 35.49200000000019, "Delta2": -6.3510000000005675, "Delta3": -13.909999999999854, "Delta4": -22.472999999999956, "d1": -0.010860140180028253, "d2": -0.009246138441755099, "d3": -0.005711141720077042, "d4": -0.0, "solveff": -7.242000000000189, "variable": "delta1", "value": 35.49200000000019}, {"mol": "Fe", "x_labels": "Fe", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Fe(CO)\u2085 + 6C\u2086H\u2086", "Delta1": 67.43199999999979, "Delta2": -2.0169999999998254, "Delta3": -0.8409999999998945, "Delta4": -17.46199999999999, "d1": -0.008717314895411402, "d2": -0.007852018431629732, "d3": -0.007491227987385629, "d4": -0.0, "solveff": 47.11200000000008, "variable": "delta1", "value": 67.43199999999979}, {"mol": "Co", "x_labels": "Co", "where": "SO-ZORA", "row": 4, "charge": -3, "solvent": "12H\u2082O", "complex": "Co(CN)\u2086\u00b3\u207b + 12H\u2082O", "Delta1": 1098.3239999999996, "Delta2": 29.27599999999984, "Delta3": -3.118999999999687, "Delta4": -27.10699999999997, "d1": -0.0001645170921136079, "d2": -0.005234414343396641, "d3": -0.004694278753604651, "d4": -0.0, "solveff": 1097.3739999999998, "variable": "delta1", "value": 1098.3239999999996}, {"mol": "Ni", "x_labels": "Ni", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Ni(CO)\u2084 + 6C\u2086H\u2086", "Delta1": -9.360000000000127, "Delta2": -8.591999999999643, "Delta3": -3.505000000000109, "Delta4": -6.0870000000002165, "d1": -0.011156635879161785, "d2": -0.005885088613777148, "d3": -0.0037346261876627976, "d4": -0.0, "solveff": -27.544000000000096, "variable": "delta1", "value": -9.360000000000127}, {"mol": "Cu", "x_labels": "Cu", "where": "SO-ZORA", "row": 4, "charge": 1, "solvent": "12CH\u2083CN", "complex": "Cu(CH\u2083CN)\u2084\u207a + 12CH\u2083CN", "Delta1": -23.295999999999992, "Delta2": -21.591999999999985, "Delta3": -2.983000000000004, "Delta4": -5.593000000000018, "d1": 0.06319613047294453, "d2": 0.01796506281278088, "d3": 0.01171625423412821, "d4": 0.0, "solveff": -53.464, "variable": "delta1", "value": -23.295999999999992}, {"mol": "Zn", "x_labels": "Zn", "where": "SO-ZORA", "row": 4, "charge": 2, "solvent": "12H\u2082O", "complex": "Zn(H\u2082O)\u2086\u00b2\u207a + 12H\u2082O", "Delta1": -29.68100000000004, "Delta2": -0.6109999999996489, "Delta3": 0.17099999999959437, "Delta4": -13.024999999999864, "d1": 0.007034567861245784, "d2": 0.006715360957182009, "d3": 0.006804697095635049, "d4": 0.0, "solveff": -43.14599999999996, "variable": "delta1", "value": -29.68100000000004}, {"mol": "Nb", "x_labels": "Nb", "where": "SO-ZORA", "row": 5, "charge": -1, "solvent": "12CH\u2083CN", "complex": "NbCl\u2086\u207b + 12CH\u2083CN", "Delta1": 15.894000000000005, "Delta2": -12.684000000000026, "Delta3": -3.030999999999949, "Delta4": -19.694000000000017, "d1": -0.11137042011203403, "d2": -0.07147597495116977, "d3": -0.061942699700257016, "d4": -0.0, "solveff": -19.514999999999986, "variable": "delta1", "value": 15.894000000000005}, {"mol": "Mo", "x_labels": "Mo", "where": "SO-ZORA", "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "MoO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 69.50000000000006, "Delta2": -12.021000000000072, "Delta3": -19.467999999999904, "Delta4": -21.75400000000002, "d1": -0.09521501751650162, "d2": -0.07371773664266144, "d3": -0.03890290725642767, "d4": -0.0, "solveff": 16.257000000000062, "variable": "delta1", "value": 69.50000000000006}, {"mol": "Tc", "x_labels": "Tc", "where": "SO-ZORA", "row": 5, "charge": -1, "solvent": "12H\u2082O", "complex": "TcO\u2084\u207b + 12H\u2082O", "Delta1": 22.694999999999936, "Delta2": 6.183999999999969, "Delta3": -4.981999999999971, "Delta4": 3.0920000000000982, "d1": 0.003025801759954068, "d2": -0.0013318037555455694, "d3": 0.002178802757749899, "d4": -0.0, "solveff": 26.989000000000033, "variable": "delta1", "value": 22.694999999999936}, {"mol": "Ru", "x_labels": "Ru", "where": "SO-ZORA", "row": 5, "charge": -4, "solvent": "12H\u2082O", "complex": "Ru(CN)\u2086\u2074\u207b + 12H\u2082O", "Delta1": 828.1270000000001, "Delta2": 3.6370000000000005, "Delta3": 2.411999999999999, "Delta4": -46.415, "d1": -0.04974484294377672, "d2": -0.05422688212988671, "d3": -0.057199298549160095, "d4": -0.0, "solveff": 787.761, "variable": "delta1", "value": 828.1270000000001}, {"mol": "Pd", "x_labels": "Pd", "where": "SO-ZORA", "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "PdCl\u2086\u00b2\u207b + 12H\u2082O", "Delta1": 202.92700000000013, "Delta2": 35.669000000000096, "Delta3": 31.88799999999992, "Delta4": 0.48500000000012733, "d1": 0.04304883596306927, "d2": 0.020481760774704455, "d3": 0.0003068499668159965, "d4": -0.0, "solveff": 270.9690000000003, "variable": "delta1", "value": 202.92700000000013}, {"mol": "Ag", "x_labels": "Ag", "where": "SO-ZORA", "row": 5, "charge": 1, "solvent": "12H\u2082O", "complex": "Ag(H\u2082O)\u2084\u207a + 12H\u2082O", "Delta1": -175.03999999999996, "Delta2": 0.7719999999999345, "Delta3": 0.8350000000000364, "Delta4": -36.73399999999947, "d1": 0.008140764518530916, "d2": 0.008319677326579011, "d3": 0.008513190532175098, "d4": 0.0, "solveff": -210.16699999999946, "variable": "delta1", "value": -175.03999999999996}, {"mol": "Cd", "x_labels": "Cd", "where": "SO-ZORA", "row": 5, "charge": 0, "solvent": "6Cd(CH\u2083)\u2082", "complex": "Cd(CH\u2083)\u2082 + 6Cd(CH\u2083)\u2082", "Delta1": 6.982000000000426, "Delta2": 15.734999999999673, "Delta3": 24.101000000000568, "Delta4": 8.079999999999927, "d1": -0.013863777019912954, "d2": -0.009311090414012523, "d3": -0.002337826995594275, "d4": 0.0, "solveff": 54.89800000000059, "variable": "delta1", "value": 6.982000000000426}, {"mol": "Ta", "x_labels": "Ta", "where": "SO-ZORA", "row": 6, "charge": -1, "solvent": "12CH\u2083CN", "complex": "TaCl\u2086\u207b + 12CH\u2083CN", "Delta1": 11.592999999999847, "Delta2": -18.442000000000007, "Delta3": -4.747000000000298, "Delta4": 42.23100000000068, "d1": -0.005583268607645744, "d2": -0.010990612356317148, "d3": -0.012382471198901724, "d4": 0.0, "solveff": 30.63500000000022, "variable": "delta1", "value": 11.592999999999847}, {"mol": "W", "x_labels": "W", "where": "SO-ZORA", "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "WO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 85.21000000000004, "Delta2": -32.8159999999998, "Delta3": -27.295000000000073, "Delta4": -99.5, "d1": 0.05316830974068907, "d2": 0.04223691245321864, "d3": 0.03314462549071534, "d4": 0.0, "solveff": -74.40099999999984, "variable": "delta1", "value": 85.21000000000004}, {"mol": "Re", "x_labels": "Re", "where": "SO-ZORA", "row": 6, "charge": -1, "solvent": "12H\u2082O", "complex": "ReO\u2084\u207b + 12H\u2082O", "Delta1": 21.60499999999979, "Delta2": -10.04899999999975, "Delta3": -8.819000000000415, "Delta4": -55.559999999999945, "d1": 0.03932442385502783, "d2": 0.03401498204120556, "d3": 0.02935541717344737, "d4": 0.0, "solveff": -52.82300000000032, "variable": "delta1", "value": 21.60499999999979}, {"mol": "Os", "x_labels": "Os", "where": "SO-ZORA", "row": 6, "charge": 0, "solvent": "12CCl\u2084", "complex": "OsO\u2084 + 12CCl\u2084", "Delta1": 132.73399999999992, "Delta2": 2.826000000000022, "Delta3": 2.0270000000000437, "Delta4": -16.411000000000058, "d1": 0.009486133567518316, "d2": 0.011805549855959828, "d3": 0.013469193457046525, "d4": 0.0, "solveff": 121.17599999999993, "variable": "delta1", "value": 132.73399999999992}, {"mol": "Pt", "x_labels": "Pt", "where": "SO-ZORA", "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "PtCl\u2086\u00b2\u207b + 12H\u2082O", "Delta1": 292.2940000000001, "Delta2": 78.86200000000008, "Delta3": 56.90299999999979, "Delta4": 70.42900000000009, "d1": -0.10937188371234462, "d2": -0.0675409599545101, "d3": -0.0373577911965272, "d4": 0.0, "solveff": 498.48800000000006, "variable": "delta1", "value": 292.2940000000001}, {"mol": "Hg", "x_labels": "Hg", "where": "SO-ZORA", "row": 6, "charge": 0, "solvent": "6Hg(CH\u2083)\u2082", "complex": "Hg(CH\u2083)\u2082 + 6Hg(CH\u2083)\u2082", "Delta1": 31.950000000000728, "Delta2": 35.2450000000008, "Delta3": 28.27599999999802, "Delta4": -55.39499999999862, "d1": -0.0009148227516846377, "d2": 0.003053049249684422, "d3": 0.006236353227857244, "d4": 0.0, "solveff": 40.07600000000093, "variable": "delta1", "value": 31.950000000000728}, {"mol": "Ti", "x_labels": "Ti", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "12TiCl\u2084", "complex": "TiCl\u2084 + 12TiCl\u2084", "Delta1": 22.184000000000083, "Delta2": -0.5, "Delta3": 0.16999999999995907, "Delta4": -17.554000000000087, "d1": -0.021763098138381527, "d2": -0.021154646501768317, "d3": -0.021361520058216756, "d4": -0.0, "solveff": 4.2999999999999545, "variable": "delta2", "value": 21.684000000000083}, {"mol": "V", "x_labels": "V", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "VOCl\u2083 + 6C\u2086H\u2086", "Delta1": 2.8140000000003056, "Delta2": -1.7970000000002528, "Delta3": -1.122000000000071, "Delta4": -25.22699999999986, "d1": -0.015131346929647346, "d2": -0.014165276069397935, "d3": -0.013562086584033574, "d4": -0.0, "solveff": -25.33199999999988, "variable": "delta2", "value": 1.0170000000000528}, {"mol": "Cr", "x_labels": "Cr", "where": "SO-ZORA", "row": 4, "charge": -2, "solvent": "12H\u2082O", "complex": "CrO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 123.04400000000032, "Delta2": -19.00500000000011, "Delta3": -27.384999999999764, "Delta4": -12.796000000000276, "d1": -0.021712884105380876, "d2": -0.014740739300481661, "d3": -0.004694320701051921, "d4": -0.0, "solveff": 63.858000000000175, "variable": "delta2", "value": 104.03900000000021}, {"mol": "Mn", "x_labels": "Mn", "where": "SO-ZORA", "row": 4, "charge": -1, "solvent": "12H\u2082O", "complex": "MnO\u2084\u207b + 12H\u2082O", "Delta1": 35.49200000000019, "Delta2": -6.3510000000005675, "Delta3": -13.909999999999854, "Delta4": -22.472999999999956, "d1": -0.010860140180028253, "d2": -0.009246138441755099, "d3": -0.005711141720077042, "d4": -0.0, "solveff": -7.242000000000189, "variable": "delta2", "value": 29.14099999999962}, {"mol": "Fe", "x_labels": "Fe", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Fe(CO)\u2085 + 6C\u2086H\u2086", "Delta1": 67.43199999999979, "Delta2": -2.0169999999998254, "Delta3": -0.8409999999998945, "Delta4": -17.46199999999999, "d1": -0.008717314895411402, "d2": -0.007852018431629732, "d3": -0.007491227987385629, "d4": -0.0, "solveff": 47.11200000000008, "variable": "delta2", "value": 65.41499999999996}, {"mol": "Co", "x_labels": "Co", "where": "SO-ZORA", "row": 4, "charge": -3, "solvent": "12H\u2082O", "complex": "Co(CN)\u2086\u00b3\u207b + 12H\u2082O", "Delta1": 1098.3239999999996, "Delta2": 29.27599999999984, "Delta3": -3.118999999999687, "Delta4": -27.10699999999997, "d1": -0.0001645170921136079, "d2": -0.005234414343396641, "d3": -0.004694278753604651, "d4": -0.0, "solveff": 1097.3739999999998, "variable": "delta2", "value": 1127.5999999999995}, {"mol": "Ni", "x_labels": "Ni", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Ni(CO)\u2084 + 6C\u2086H\u2086", "Delta1": -9.360000000000127, "Delta2": -8.591999999999643, "Delta3": -3.505000000000109, "Delta4": -6.0870000000002165, "d1": -0.011156635879161785, "d2": -0.005885088613777148, "d3": -0.0037346261876627976, "d4": -0.0, "solveff": -27.544000000000096, "variable": "delta2", "value": -17.95199999999977}, {"mol": "Cu", "x_labels": "Cu", "where": "SO-ZORA", "row": 4, "charge": 1, "solvent": "12CH\u2083CN", "complex": "Cu(CH\u2083CN)\u2084\u207a + 12CH\u2083CN", "Delta1": -23.295999999999992, "Delta2": -21.591999999999985, "Delta3": -2.983000000000004, "Delta4": -5.593000000000018, "d1": 0.06319613047294453, "d2": 0.01796506281278088, "d3": 0.01171625423412821, "d4": 0.0, "solveff": -53.464, "variable": "delta2", "value": -44.88799999999998}, {"mol": "Zn", "x_labels": "Zn", "where": "SO-ZORA", "row": 4, "charge": 2, "solvent": "12H\u2082O", "complex": "Zn(H\u2082O)\u2086\u00b2\u207a + 12H\u2082O", "Delta1": -29.68100000000004, "Delta2": -0.6109999999996489, "Delta3": 0.17099999999959437, "Delta4": -13.024999999999864, "d1": 0.007034567861245784, "d2": 0.006715360957182009, "d3": 0.006804697095635049, "d4": 0.0, "solveff": -43.14599999999996, "variable": "delta2", "value": -30.29199999999969}, {"mol": "Nb", "x_labels": "Nb", "where": "SO-ZORA", "row": 5, "charge": -1, "solvent": "12CH\u2083CN", "complex": "NbCl\u2086\u207b + 12CH\u2083CN", "Delta1": 15.894000000000005, "Delta2": -12.684000000000026, "Delta3": -3.030999999999949, "Delta4": -19.694000000000017, "d1": -0.11137042011203403, "d2": -0.07147597495116977, "d3": -0.061942699700257016, "d4": -0.0, "solveff": -19.514999999999986, "variable": "delta2", "value": 3.2099999999999795}, {"mol": "Mo", "x_labels": "Mo", "where": "SO-ZORA", "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "MoO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 69.50000000000006, "Delta2": -12.021000000000072, "Delta3": -19.467999999999904, "Delta4": -21.75400000000002, "d1": -0.09521501751650162, "d2": -0.07371773664266144, "d3": -0.03890290725642767, "d4": -0.0, "solveff": 16.257000000000062, "variable": "delta2", "value": 57.478999999999985}, {"mol": "Tc", "x_labels": "Tc", "where": "SO-ZORA", "row": 5, "charge": -1, "solvent": "12H\u2082O", "complex": "TcO\u2084\u207b + 12H\u2082O", "Delta1": 22.694999999999936, "Delta2": 6.183999999999969, "Delta3": -4.981999999999971, "Delta4": 3.0920000000000982, "d1": 0.003025801759954068, "d2": -0.0013318037555455694, "d3": 0.002178802757749899, "d4": -0.0, "solveff": 26.989000000000033, "variable": "delta2", "value": 28.878999999999905}, {"mol": "Ru", "x_labels": "Ru", "where": "SO-ZORA", "row": 5, "charge": -4, "solvent": "12H\u2082O", "complex": "Ru(CN)\u2086\u2074\u207b + 12H\u2082O", "Delta1": 828.1270000000001, "Delta2": 3.6370000000000005, "Delta3": 2.411999999999999, "Delta4": -46.415, "d1": -0.04974484294377672, "d2": -0.05422688212988671, "d3": -0.057199298549160095, "d4": -0.0, "solveff": 787.761, "variable": "delta2", "value": 831.764}, {"mol": "Pd", "x_labels": "Pd", "where": "SO-ZORA", "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "PdCl\u2086\u00b2\u207b + 12H\u2082O", "Delta1": 202.92700000000013, "Delta2": 35.669000000000096, "Delta3": 31.88799999999992, "Delta4": 0.48500000000012733, "d1": 0.04304883596306927, "d2": 0.020481760774704455, "d3": 0.0003068499668159965, "d4": -0.0, "solveff": 270.9690000000003, "variable": "delta2", "value": 238.59600000000023}, {"mol": "Ag", "x_labels": "Ag", "where": "SO-ZORA", "row": 5, "charge": 1, "solvent": "12H\u2082O", "complex": "Ag(H\u2082O)\u2084\u207a + 12H\u2082O", "Delta1": -175.03999999999996, "Delta2": 0.7719999999999345, "Delta3": 0.8350000000000364, "Delta4": -36.73399999999947, "d1": 0.008140764518530916, "d2": 0.008319677326579011, "d3": 0.008513190532175098, "d4": 0.0, "solveff": -210.16699999999946, "variable": "delta2", "value": -174.26800000000003}, {"mol": "Cd", "x_labels": "Cd", "where": "SO-ZORA", "row": 5, "charge": 0, "solvent": "6Cd(CH\u2083)\u2082", "complex": "Cd(CH\u2083)\u2082 + 6Cd(CH\u2083)\u2082", "Delta1": 6.982000000000426, "Delta2": 15.734999999999673, "Delta3": 24.101000000000568, "Delta4": 8.079999999999927, "d1": -0.013863777019912954, "d2": -0.009311090414012523, "d3": -0.002337826995594275, "d4": 0.0, "solveff": 54.89800000000059, "variable": "delta2", "value": 22.7170000000001}, {"mol": "Ta", "x_labels": "Ta", "where": "SO-ZORA", "row": 6, "charge": -1, "solvent": "12CH\u2083CN", "complex": "TaCl\u2086\u207b + 12CH\u2083CN", "Delta1": 11.592999999999847, "Delta2": -18.442000000000007, "Delta3": -4.747000000000298, "Delta4": 42.23100000000068, "d1": -0.005583268607645744, "d2": -0.010990612356317148, "d3": -0.012382471198901724, "d4": 0.0, "solveff": 30.63500000000022, "variable": "delta2", "value": -6.84900000000016}, {"mol": "W", "x_labels": "W", "where": "SO-ZORA", "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "WO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 85.21000000000004, "Delta2": -32.8159999999998, "Delta3": -27.295000000000073, "Delta4": -99.5, "d1": 0.05316830974068907, "d2": 0.04223691245321864, "d3": 0.03314462549071534, "d4": 0.0, "solveff": -74.40099999999984, "variable": "delta2", "value": 52.39400000000023}, {"mol": "Re", "x_labels": "Re", "where": "SO-ZORA", "row": 6, "charge": -1, "solvent": "12H\u2082O", "complex": "ReO\u2084\u207b + 12H\u2082O", "Delta1": 21.60499999999979, "Delta2": -10.04899999999975, "Delta3": -8.819000000000415, "Delta4": -55.559999999999945, "d1": 0.03932442385502783, "d2": 0.03401498204120556, "d3": 0.02935541717344737, "d4": 0.0, "solveff": -52.82300000000032, "variable": "delta2", "value": 11.55600000000004}, {"mol": "Os", "x_labels": "Os", "where": "SO-ZORA", "row": 6, "charge": 0, "solvent": "12CCl\u2084", "complex": "OsO\u2084 + 12CCl\u2084", "Delta1": 132.73399999999992, "Delta2": 2.826000000000022, "Delta3": 2.0270000000000437, "Delta4": -16.411000000000058, "d1": 0.009486133567518316, "d2": 0.011805549855959828, "d3": 0.013469193457046525, "d4": 0.0, "solveff": 121.17599999999993, "variable": "delta2", "value": 135.55999999999995}, {"mol": "Pt", "x_labels": "Pt", "where": "SO-ZORA", "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "PtCl\u2086\u00b2\u207b + 12H\u2082O", "Delta1": 292.2940000000001, "Delta2": 78.86200000000008, "Delta3": 56.90299999999979, "Delta4": 70.42900000000009, "d1": -0.10937188371234462, "d2": -0.0675409599545101, "d3": -0.0373577911965272, "d4": 0.0, "solveff": 498.48800000000006, "variable": "delta2", "value": 371.1560000000002}, {"mol": "Hg", "x_labels": "Hg", "where": "SO-ZORA", "row": 6, "charge": 0, "solvent": "6Hg(CH\u2083)\u2082", "complex": "Hg(CH\u2083)\u2082 + 6Hg(CH\u2083)\u2082", "Delta1": 31.950000000000728, "Delta2": 35.2450000000008, "Delta3": 28.27599999999802, "Delta4": -55.39499999999862, "d1": -0.0009148227516846377, "d2": 0.003053049249684422, "d3": 0.006236353227857244, "d4": 0.0, "solveff": 40.07600000000093, "variable": "delta2", "value": 67.19500000000153}, {"mol": "Ti", "x_labels": "Ti", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "12TiCl\u2084", "complex": "TiCl\u2084 + 12TiCl\u2084", "Delta1": 22.184000000000083, "Delta2": -0.5, "Delta3": 0.16999999999995907, "Delta4": -17.554000000000087, "d1": -0.021763098138381527, "d2": -0.021154646501768317, "d3": -0.021361520058216756, "d4": -0.0, "solveff": 4.2999999999999545, "variable": "delta3", "value": 21.854000000000042}, {"mol": "V", "x_labels": "V", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "VOCl\u2083 + 6C\u2086H\u2086", "Delta1": 2.8140000000003056, "Delta2": -1.7970000000002528, "Delta3": -1.122000000000071, "Delta4": -25.22699999999986, "d1": -0.015131346929647346, "d2": -0.014165276069397935, "d3": -0.013562086584033574, "d4": -0.0, "solveff": -25.33199999999988, "variable": "delta3", "value": -0.10500000000001819}, {"mol": "Cr", "x_labels": "Cr", "where": "SO-ZORA", "row": 4, "charge": -2, "solvent": "12H\u2082O", "complex": "CrO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 123.04400000000032, "Delta2": -19.00500000000011, "Delta3": -27.384999999999764, "Delta4": -12.796000000000276, "d1": -0.021712884105380876, "d2": -0.014740739300481661, "d3": -0.004694320701051921, "d4": -0.0, "solveff": 63.858000000000175, "variable": "delta3", "value": 76.65400000000045}, {"mol": "Mn", "x_labels": "Mn", "where": "SO-ZORA", "row": 4, "charge": -1, "solvent": "12H\u2082O", "complex": "MnO\u2084\u207b + 12H\u2082O", "Delta1": 35.49200000000019, "Delta2": -6.3510000000005675, "Delta3": -13.909999999999854, "Delta4": -22.472999999999956, "d1": -0.010860140180028253, "d2": -0.009246138441755099, "d3": -0.005711141720077042, "d4": -0.0, "solveff": -7.242000000000189, "variable": "delta3", "value": 15.230999999999767}, {"mol": "Fe", "x_labels": "Fe", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Fe(CO)\u2085 + 6C\u2086H\u2086", "Delta1": 67.43199999999979, "Delta2": -2.0169999999998254, "Delta3": -0.8409999999998945, "Delta4": -17.46199999999999, "d1": -0.008717314895411402, "d2": -0.007852018431629732, "d3": -0.007491227987385629, "d4": -0.0, "solveff": 47.11200000000008, "variable": "delta3", "value": 64.57400000000007}, {"mol": "Co", "x_labels": "Co", "where": "SO-ZORA", "row": 4, "charge": -3, "solvent": "12H\u2082O", "complex": "Co(CN)\u2086\u00b3\u207b + 12H\u2082O", "Delta1": 1098.3239999999996, "Delta2": 29.27599999999984, "Delta3": -3.118999999999687, "Delta4": -27.10699999999997, "d1": -0.0001645170921136079, "d2": -0.005234414343396641, "d3": -0.004694278753604651, "d4": -0.0, "solveff": 1097.3739999999998, "variable": "delta3", "value": 1124.4809999999998}, {"mol": "Ni", "x_labels": "Ni", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Ni(CO)\u2084 + 6C\u2086H\u2086", "Delta1": -9.360000000000127, "Delta2": -8.591999999999643, "Delta3": -3.505000000000109, "Delta4": -6.0870000000002165, "d1": -0.011156635879161785, "d2": -0.005885088613777148, "d3": -0.0037346261876627976, "d4": -0.0, "solveff": -27.544000000000096, "variable": "delta3", "value": -21.45699999999988}, {"mol": "Cu", "x_labels": "Cu", "where": "SO-ZORA", "row": 4, "charge": 1, "solvent": "12CH\u2083CN", "complex": "Cu(CH\u2083CN)\u2084\u207a + 12CH\u2083CN", "Delta1": -23.295999999999992, "Delta2": -21.591999999999985, "Delta3": -2.983000000000004, "Delta4": -5.593000000000018, "d1": 0.06319613047294453, "d2": 0.01796506281278088, "d3": 0.01171625423412821, "d4": 0.0, "solveff": -53.464, "variable": "delta3", "value": -47.87099999999998}, {"mol": "Zn", "x_labels": "Zn", "where": "SO-ZORA", "row": 4, "charge": 2, "solvent": "12H\u2082O", "complex": "Zn(H\u2082O)\u2086\u00b2\u207a + 12H\u2082O", "Delta1": -29.68100000000004, "Delta2": -0.6109999999996489, "Delta3": 0.17099999999959437, "Delta4": -13.024999999999864, "d1": 0.007034567861245784, "d2": 0.006715360957182009, "d3": 0.006804697095635049, "d4": 0.0, "solveff": -43.14599999999996, "variable": "delta3", "value": -30.121000000000095}, {"mol": "Nb", "x_labels": "Nb", "where": "SO-ZORA", "row": 5, "charge": -1, "solvent": "12CH\u2083CN", "complex": "NbCl\u2086\u207b + 12CH\u2083CN", "Delta1": 15.894000000000005, "Delta2": -12.684000000000026, "Delta3": -3.030999999999949, "Delta4": -19.694000000000017, "d1": -0.11137042011203403, "d2": -0.07147597495116977, "d3": -0.061942699700257016, "d4": -0.0, "solveff": -19.514999999999986, "variable": "delta3", "value": 0.17900000000003047}, {"mol": "Mo", "x_labels": "Mo", "where": "SO-ZORA", "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "MoO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 69.50000000000006, "Delta2": -12.021000000000072, "Delta3": -19.467999999999904, "Delta4": -21.75400000000002, "d1": -0.09521501751650162, "d2": -0.07371773664266144, "d3": -0.03890290725642767, "d4": -0.0, "solveff": 16.257000000000062, "variable": "delta3", "value": 38.01100000000008}, {"mol": "Tc", "x_labels": "Tc", "where": "SO-ZORA", "row": 5, "charge": -1, "solvent": "12H\u2082O", "complex": "TcO\u2084\u207b + 12H\u2082O", "Delta1": 22.694999999999936, "Delta2": 6.183999999999969, "Delta3": -4.981999999999971, "Delta4": 3.0920000000000982, "d1": 0.003025801759954068, "d2": -0.0013318037555455694, "d3": 0.002178802757749899, "d4": -0.0, "solveff": 26.989000000000033, "variable": "delta3", "value": 23.896999999999935}, {"mol": "Ru", "x_labels": "Ru", "where": "SO-ZORA", "row": 5, "charge": -4, "solvent": "12H\u2082O", "complex": "Ru(CN)\u2086\u2074\u207b + 12H\u2082O", "Delta1": 828.1270000000001, "Delta2": 3.6370000000000005, "Delta3": 2.411999999999999, "Delta4": -46.415, "d1": -0.04974484294377672, "d2": -0.05422688212988671, "d3": -0.057199298549160095, "d4": -0.0, "solveff": 787.761, "variable": "delta3", "value": 834.176}, {"mol": "Pd", "x_labels": "Pd", "where": "SO-ZORA", "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "PdCl\u2086\u00b2\u207b + 12H\u2082O", "Delta1": 202.92700000000013, "Delta2": 35.669000000000096, "Delta3": 31.88799999999992, "Delta4": 0.48500000000012733, "d1": 0.04304883596306927, "d2": 0.020481760774704455, "d3": 0.0003068499668159965, "d4": -0.0, "solveff": 270.9690000000003, "variable": "delta3", "value": 270.48400000000015}, {"mol": "Ag", "x_labels": "Ag", "where": "SO-ZORA", "row": 5, "charge": 1, "solvent": "12H\u2082O", "complex": "Ag(H\u2082O)\u2084\u207a + 12H\u2082O", "Delta1": -175.03999999999996, "Delta2": 0.7719999999999345, "Delta3": 0.8350000000000364, "Delta4": -36.73399999999947, "d1": 0.008140764518530916, "d2": 0.008319677326579011, "d3": 0.008513190532175098, "d4": 0.0, "solveff": -210.16699999999946, "variable": "delta3", "value": -173.433}, {"mol": "Cd", "x_labels": "Cd", "where": "SO-ZORA", "row": 5, "charge": 0, "solvent": "6Cd(CH\u2083)\u2082", "complex": "Cd(CH\u2083)\u2082 + 6Cd(CH\u2083)\u2082", "Delta1": 6.982000000000426, "Delta2": 15.734999999999673, "Delta3": 24.101000000000568, "Delta4": 8.079999999999927, "d1": -0.013863777019912954, "d2": -0.009311090414012523, "d3": -0.002337826995594275, "d4": 0.0, "solveff": 54.89800000000059, "variable": "delta3", "value": 46.818000000000666}, {"mol": "Ta", "x_labels": "Ta", "where": "SO-ZORA", "row": 6, "charge": -1, "solvent": "12CH\u2083CN", "complex": "TaCl\u2086\u207b + 12CH\u2083CN", "Delta1": 11.592999999999847, "Delta2": -18.442000000000007, "Delta3": -4.747000000000298, "Delta4": 42.23100000000068, "d1": -0.005583268607645744, "d2": -0.010990612356317148, "d3": -0.012382471198901724, "d4": 0.0, "solveff": 30.63500000000022, "variable": "delta3", "value": -11.596000000000458}, {"mol": "W", "x_labels": "W", "where": "SO-ZORA", "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "WO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 85.21000000000004, "Delta2": -32.8159999999998, "Delta3": -27.295000000000073, "Delta4": -99.5, "d1": 0.05316830974068907, "d2": 0.04223691245321864, "d3": 0.03314462549071534, "d4": 0.0, "solveff": -74.40099999999984, "variable": "delta3", "value": 25.09900000000016}, {"mol": "Re", "x_labels": "Re", "where": "SO-ZORA", "row": 6, "charge": -1, "solvent": "12H\u2082O", "complex": "ReO\u2084\u207b + 12H\u2082O", "Delta1": 21.60499999999979, "Delta2": -10.04899999999975, "Delta3": -8.819000000000415, "Delta4": -55.559999999999945, "d1": 0.03932442385502783, "d2": 0.03401498204120556, "d3": 0.02935541717344737, "d4": 0.0, "solveff": -52.82300000000032, "variable": "delta3", "value": 2.7369999999996253}, {"mol": "Os", "x_labels": "Os", "where": "SO-ZORA", "row": 6, "charge": 0, "solvent": "12CCl\u2084", "complex": "OsO\u2084 + 12CCl\u2084", "Delta1": 132.73399999999992, "Delta2": 2.826000000000022, "Delta3": 2.0270000000000437, "Delta4": -16.411000000000058, "d1": 0.009486133567518316, "d2": 0.011805549855959828, "d3": 0.013469193457046525, "d4": 0.0, "solveff": 121.17599999999993, "variable": "delta3", "value": 137.587}, {"mol": "Pt", "x_labels": "Pt", "where": "SO-ZORA", "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "PtCl\u2086\u00b2\u207b + 12H\u2082O", "Delta1": 292.2940000000001, "Delta2": 78.86200000000008, "Delta3": 56.90299999999979, "Delta4": 70.42900000000009, "d1": -0.10937188371234462, "d2": -0.0675409599545101, "d3": -0.0373577911965272, "d4": 0.0, "solveff": 498.48800000000006, "variable": "delta3", "value": 428.05899999999997}, {"mol": "Hg", "x_labels": "Hg", "where": "SO-ZORA", "row": 6, "charge": 0, "solvent": "6Hg(CH\u2083)\u2082", "complex": "Hg(CH\u2083)\u2082 + 6Hg(CH\u2083)\u2082", "Delta1": 31.950000000000728, "Delta2": 35.2450000000008, "Delta3": 28.27599999999802, "Delta4": -55.39499999999862, "d1": -0.0009148227516846377, "d2": 0.003053049249684422, "d3": 0.006236353227857244, "d4": 0.0, "solveff": 40.07600000000093, "variable": "delta3", "value": 95.47099999999955}, {"mol": "Ti", "x_labels": "Ti", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "12TiCl\u2084", "complex": "TiCl\u2084 + 12TiCl\u2084", "Delta1": 22.184000000000083, "Delta2": -0.5, "Delta3": 0.16999999999995907, "Delta4": -17.554000000000087, "d1": -0.021763098138381527, "d2": -0.021154646501768317, "d3": -0.021361520058216756, "d4": -0.0, "solveff": 4.2999999999999545, "variable": "delta4", "value": 4.2999999999999545}, {"mol": "V", "x_labels": "V", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "VOCl\u2083 + 6C\u2086H\u2086", "Delta1": 2.8140000000003056, "Delta2": -1.7970000000002528, "Delta3": -1.122000000000071, "Delta4": -25.22699999999986, "d1": -0.015131346929647346, "d2": -0.014165276069397935, "d3": -0.013562086584033574, "d4": -0.0, "solveff": -25.33199999999988, "variable": "delta4", "value": -25.33199999999988}, {"mol": "Cr", "x_labels": "Cr", "where": "SO-ZORA", "row": 4, "charge": -2, "solvent": "12H\u2082O", "complex": "CrO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 123.04400000000032, "Delta2": -19.00500000000011, "Delta3": -27.384999999999764, "Delta4": -12.796000000000276, "d1": -0.021712884105380876, "d2": -0.014740739300481661, "d3": -0.004694320701051921, "d4": -0.0, "solveff": 63.858000000000175, "variable": "delta4", "value": 63.858000000000175}, {"mol": "Mn", "x_labels": "Mn", "where": "SO-ZORA", "row": 4, "charge": -1, "solvent": "12H\u2082O", "complex": "MnO\u2084\u207b + 12H\u2082O", "Delta1": 35.49200000000019, "Delta2": -6.3510000000005675, "Delta3": -13.909999999999854, "Delta4": -22.472999999999956, "d1": -0.010860140180028253, "d2": -0.009246138441755099, "d3": -0.005711141720077042, "d4": -0.0, "solveff": -7.242000000000189, "variable": "delta4", "value": -7.242000000000189}, {"mol": "Fe", "x_labels": "Fe", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Fe(CO)\u2085 + 6C\u2086H\u2086", "Delta1": 67.43199999999979, "Delta2": -2.0169999999998254, "Delta3": -0.8409999999998945, "Delta4": -17.46199999999999, "d1": -0.008717314895411402, "d2": -0.007852018431629732, "d3": -0.007491227987385629, "d4": -0.0, "solveff": 47.11200000000008, "variable": "delta4", "value": 47.11200000000008}, {"mol": "Co", "x_labels": "Co", "where": "SO-ZORA", "row": 4, "charge": -3, "solvent": "12H\u2082O", "complex": "Co(CN)\u2086\u00b3\u207b + 12H\u2082O", "Delta1": 1098.3239999999996, "Delta2": 29.27599999999984, "Delta3": -3.118999999999687, "Delta4": -27.10699999999997, "d1": -0.0001645170921136079, "d2": -0.005234414343396641, "d3": -0.004694278753604651, "d4": -0.0, "solveff": 1097.3739999999998, "variable": "delta4", "value": 1097.3739999999998}, {"mol": "Ni", "x_labels": "Ni", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Ni(CO)\u2084 + 6C\u2086H\u2086", "Delta1": -9.360000000000127, "Delta2": -8.591999999999643, "Delta3": -3.505000000000109, "Delta4": -6.0870000000002165, "d1": -0.011156635879161785, "d2": -0.005885088613777148, "d3": -0.0037346261876627976, "d4": -0.0, "solveff": -27.544000000000096, "variable": "delta4", "value": -27.544000000000096}, {"mol": "Cu", "x_labels": "Cu", "where": "SO-ZORA", "row": 4, "charge": 1, "solvent": "12CH\u2083CN", "complex": "Cu(CH\u2083CN)\u2084\u207a + 12CH\u2083CN", "Delta1": -23.295999999999992, "Delta2": -21.591999999999985, "Delta3": -2.983000000000004, "Delta4": -5.593000000000018, "d1": 0.06319613047294453, "d2": 0.01796506281278088, "d3": 0.01171625423412821, "d4": 0.0, "solveff": -53.464, "variable": "delta4", "value": -53.464}, {"mol": "Zn", "x_labels": "Zn", "where": "SO-ZORA", "row": 4, "charge": 2, "solvent": "12H\u2082O", "complex": "Zn(H\u2082O)\u2086\u00b2\u207a + 12H\u2082O", "Delta1": -29.68100000000004, "Delta2": -0.6109999999996489, "Delta3": 0.17099999999959437, "Delta4": -13.024999999999864, "d1": 0.007034567861245784, "d2": 0.006715360957182009, "d3": 0.006804697095635049, "d4": 0.0, "solveff": -43.14599999999996, "variable": "delta4", "value": -43.14599999999996}, {"mol": "Nb", "x_labels": "Nb", "where": "SO-ZORA", "row": 5, "charge": -1, "solvent": "12CH\u2083CN", "complex": "NbCl\u2086\u207b + 12CH\u2083CN", "Delta1": 15.894000000000005, "Delta2": -12.684000000000026, "Delta3": -3.030999999999949, "Delta4": -19.694000000000017, "d1": -0.11137042011203403, "d2": -0.07147597495116977, "d3": -0.061942699700257016, "d4": -0.0, "solveff": -19.514999999999986, "variable": "delta4", "value": -19.514999999999986}, {"mol": "Mo", "x_labels": "Mo", "where": "SO-ZORA", "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "MoO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 69.50000000000006, "Delta2": -12.021000000000072, "Delta3": -19.467999999999904, "Delta4": -21.75400000000002, "d1": -0.09521501751650162, "d2": -0.07371773664266144, "d3": -0.03890290725642767, "d4": -0.0, "solveff": 16.257000000000062, "variable": "delta4", "value": 16.257000000000062}, {"mol": "Tc", "x_labels": "Tc", "where": "SO-ZORA", "row": 5, "charge": -1, "solvent": "12H\u2082O", "complex": "TcO\u2084\u207b + 12H\u2082O", "Delta1": 22.694999999999936, "Delta2": 6.183999999999969, "Delta3": -4.981999999999971, "Delta4": 3.0920000000000982, "d1": 0.003025801759954068, "d2": -0.0013318037555455694, "d3": 0.002178802757749899, "d4": -0.0, "solveff": 26.989000000000033, "variable": "delta4", "value": 26.989000000000033}, {"mol": "Ru", "x_labels": "Ru", "where": "SO-ZORA", "row": 5, "charge": -4, "solvent": "12H\u2082O", "complex": "Ru(CN)\u2086\u2074\u207b + 12H\u2082O", "Delta1": 828.1270000000001, "Delta2": 3.6370000000000005, "Delta3": 2.411999999999999, "Delta4": -46.415, "d1": -0.04974484294377672, "d2": -0.05422688212988671, "d3": -0.057199298549160095, "d4": -0.0, "solveff": 787.761, "variable": "delta4", "value": 787.761}, {"mol": "Pd", "x_labels": "Pd", "where": "SO-ZORA", "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "PdCl\u2086\u00b2\u207b + 12H\u2082O", "Delta1": 202.92700000000013, "Delta2": 35.669000000000096, "Delta3": 31.88799999999992, "Delta4": 0.48500000000012733, "d1": 0.04304883596306927, "d2": 0.020481760774704455, "d3": 0.0003068499668159965, "d4": -0.0, "solveff": 270.9690000000003, "variable": "delta4", "value": 270.9690000000003}, {"mol": "Ag", "x_labels": "Ag", "where": "SO-ZORA", "row": 5, "charge": 1, "solvent": "12H\u2082O", "complex": "Ag(H\u2082O)\u2084\u207a + 12H\u2082O", "Delta1": -175.03999999999996, "Delta2": 0.7719999999999345, "Delta3": 0.8350000000000364, "Delta4": -36.73399999999947, "d1": 0.008140764518530916, "d2": 0.008319677326579011, "d3": 0.008513190532175098, "d4": 0.0, "solveff": -210.16699999999946, "variable": "delta4", "value": -210.16699999999946}, {"mol": "Cd", "x_labels": "Cd", "where": "SO-ZORA", "row": 5, "charge": 0, "solvent": "6Cd(CH\u2083)\u2082", "complex": "Cd(CH\u2083)\u2082 + 6Cd(CH\u2083)\u2082", "Delta1": 6.982000000000426, "Delta2": 15.734999999999673, "Delta3": 24.101000000000568, "Delta4": 8.079999999999927, "d1": -0.013863777019912954, "d2": -0.009311090414012523, "d3": -0.002337826995594275, "d4": 0.0, "solveff": 54.89800000000059, "variable": "delta4", "value": 54.89800000000059}, {"mol": "Ta", "x_labels": "Ta", "where": "SO-ZORA", "row": 6, "charge": -1, "solvent": "12CH\u2083CN", "complex": "TaCl\u2086\u207b + 12CH\u2083CN", "Delta1": 11.592999999999847, "Delta2": -18.442000000000007, "Delta3": -4.747000000000298, "Delta4": 42.23100000000068, "d1": -0.005583268607645744, "d2": -0.010990612356317148, "d3": -0.012382471198901724, "d4": 0.0, "solveff": 30.63500000000022, "variable": "delta4", "value": 30.63500000000022}, {"mol": "W", "x_labels": "W", "where": "SO-ZORA", "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "WO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 85.21000000000004, "Delta2": -32.8159999999998, "Delta3": -27.295000000000073, "Delta4": -99.5, "d1": 0.05316830974068907, "d2": 0.04223691245321864, "d3": 0.03314462549071534, "d4": 0.0, "solveff": -74.40099999999984, "variable": "delta4", "value": -74.40099999999984}, {"mol": "Re", "x_labels": "Re", "where": "SO-ZORA", "row": 6, "charge": -1, "solvent": "12H\u2082O", "complex": "ReO\u2084\u207b + 12H\u2082O", "Delta1": 21.60499999999979, "Delta2": -10.04899999999975, "Delta3": -8.819000000000415, "Delta4": -55.559999999999945, "d1": 0.03932442385502783, "d2": 0.03401498204120556, "d3": 0.02935541717344737, "d4": 0.0, "solveff": -52.82300000000032, "variable": "delta4", "value": -52.82300000000032}, {"mol": "Os", "x_labels": "Os", "where": "SO-ZORA", "row": 6, "charge": 0, "solvent": "12CCl\u2084", "complex": "OsO\u2084 + 12CCl\u2084", "Delta1": 132.73399999999992, "Delta2": 2.826000000000022, "Delta3": 2.0270000000000437, "Delta4": -16.411000000000058, "d1": 0.009486133567518316, "d2": 0.011805549855959828, "d3": 0.013469193457046525, "d4": 0.0, "solveff": 121.17599999999993, "variable": "delta4", "value": 121.17599999999993}, {"mol": "Pt", "x_labels": "Pt", "where": "SO-ZORA", "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "PtCl\u2086\u00b2\u207b + 12H\u2082O", "Delta1": 292.2940000000001, "Delta2": 78.86200000000008, "Delta3": 56.90299999999979, "Delta4": 70.42900000000009, "d1": -0.10937188371234462, "d2": -0.0675409599545101, "d3": -0.0373577911965272, "d4": 0.0, "solveff": 498.48800000000006, "variable": "delta4", "value": 498.48800000000006}, {"mol": "Hg", "x_labels": "Hg", "where": "SO-ZORA", "row": 6, "charge": 0, "solvent": "6Hg(CH\u2083)\u2082", "complex": "Hg(CH\u2083)\u2082 + 6Hg(CH\u2083)\u2082", "Delta1": 31.950000000000728, "Delta2": 35.2450000000008, "Delta3": 28.27599999999802, "Delta4": -55.39499999999862, "d1": -0.0009148227516846377, "d2": 0.003053049249684422, "d3": 0.006236353227857244, "d4": 0.0, "solveff": 40.07600000000093, "variable": "delta4", "value": 40.07600000000093}]}}, {"mode": "vega-lite"});
+  })({"config": {"view": {"continuousWidth": 400, "continuousHeight": 300}}, "data": {"name": "data-82ba65b3d3f73062f9b09b91098cd11b"}, "facet": {"type": "nominal", "field": "row", "title": "row(X)"}, "spec": {"layer": [{"mark": "point", "encoding": {"color": {"condition": {"type": "nominal", "field": "solvent", "selection": "selector001"}, "value": "lightgray"}, "x": {"type": "ordinal", "axis": {"labelAngle": 0, "title": "X"}, "field": "mol"}, "y": {"type": "quantitative", "axis": {"format": ",.0f", "title": "\u03b4(super) [ppm]"}, "field": "solveff"}}, "height": 190, "selection": {"selector001": {"type": "single", "on": "mouseover", "nearest": true, "empty": "none"}, "selector002": {"type": "multi", "fields": ["row"], "bind": "legend"}}, "width": 230}, {"mark": {"type": "text", "dy": -5}, "encoding": {"color": {"condition": {"type": "nominal", "field": "solvent", "selection": "selector001"}, "value": "lightgray"}, "opacity": {"condition": {"value": 1, "selection": "selector001"}, "value": 0}, "text": {"type": "nominal", "field": "complex"}, "x": {"type": "ordinal", "axis": {"labelAngle": 0, "title": "X"}, "field": "mol"}, "y": {"type": "quantitative", "axis": {"format": ",.0f", "title": "\u03b4(super) [ppm]"}, "field": "solveff"}}, "height": 190, "width": 230}]}, "resolve": {"scale": {"x": "independent"}}, "spacing": -30, "title": "Solvent effects on \u03c3(X) [ppm]", "transform": [{"filter": {"selection": "selector002"}}], "$schema": "https://vega.github.io/schema/vega-lite/v4.8.1.json", "datasets": {"data-82ba65b3d3f73062f9b09b91098cd11b": [{"mol": "Ti", "x_labels": "Ti", "where": "SO-ZORA", "solveff": 4.300000000000068, "row": 4, "charge": 0, "solvent": "12TiCl\u2084", "complex": "TiCl\u2084 + 12TiCl\u2084", "delta1": 22.184000000000083, "delta2": 21.684000000000083, "delta3": 21.854000000000042, "delta4": 4.300000000000068, "Delta1": 22.184000000000083, "Delta2": -0.5, "Delta3": 0.16999999999995907, "Delta4": -17.553999999999974, "d1": -0.021763098138381388, "d2": -0.021154646501768178, "d3": -0.02136152005821662, "d4": -0.0}, {"mol": "V", "x_labels": "V", "where": "SO-ZORA", "solveff": -25.33199999999988, "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "VOCl\u2083 + 6C\u2086H\u2086", "delta1": 2.814000000000078, "delta2": 1.0170000000000528, "delta3": -0.10500000000001819, "delta4": -25.33199999999988, "Delta1": 2.814000000000078, "Delta2": -1.7970000000000255, "Delta3": -1.122000000000071, "Delta4": -25.22699999999986, "d1": -0.015131346929647224, "d2": -0.014165276069397935, "d3": -0.013562086584033574, "d4": -0.0}, {"mol": "Cr", "x_labels": "Cr", "where": "SO-ZORA", "solveff": 63.858000000000175, "row": 4, "charge": -2, "solvent": "12H\u2082O", "complex": "CrO\u2084\u00b2\u207b + 12H\u2082O", "delta1": 123.04400000000032, "delta2": 104.03900000000021, "delta3": 76.654, "delta4": 63.858000000000175, "Delta1": 123.04400000000032, "Delta2": -19.00500000000011, "Delta3": -27.38500000000022, "Delta4": -12.795999999999822, "d1": -0.021712884105380876, "d2": -0.014740739300481661, "d3": -0.004694320701051754, "d4": -0.0}, {"mol": "Mn", "x_labels": "Mn", "where": "SO-ZORA", "solveff": -7.241999999999734, "row": 4, "charge": -1, "solvent": "12H\u2082O", "complex": "MnO\u2084\u207b + 12H\u2082O", "delta1": 35.49200000000019, "delta2": 29.141000000000076, "delta3": 15.231000000000222, "delta4": -7.241999999999734, "Delta1": 35.49200000000019, "Delta2": -6.351000000000113, "Delta3": -13.909999999999854, "Delta4": -22.472999999999956, "d1": -0.010860140180028139, "d2": -0.009246138441755099, "d3": -0.005711141720077042, "d4": -0.0}, {"mol": "Fe", "x_labels": "Fe", "where": "SO-ZORA", "solveff": 47.11200000000008, "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Fe(CO)\u2085 + 6C\u2086H\u2086", "delta1": 67.43199999999979, "delta2": 65.41499999999996, "delta3": 64.57400000000007, "delta4": 47.11200000000008, "Delta1": 67.43199999999979, "Delta2": -2.0169999999998254, "Delta3": -0.8409999999998945, "Delta4": -17.46199999999999, "d1": -0.008717314895411402, "d2": -0.007852018431629732, "d3": -0.007491227987385629, "d4": -0.0}, {"mol": "Co", "x_labels": "Co", "where": "SO-ZORA", "solveff": 1097.3739999999998, "row": 4, "charge": -3, "solvent": "12H\u2082O", "complex": "Co(CN)\u2086\u00b3\u207b + 12H\u2082O", "delta1": 1098.3239999999996, "delta2": 1127.5999999999995, "delta3": 1124.4809999999998, "delta4": 1097.3739999999998, "Delta1": 1098.3239999999996, "Delta2": 29.27599999999984, "Delta3": -3.118999999999687, "Delta4": -27.10699999999997, "d1": -0.0001645170921136079, "d2": -0.005234414343396641, "d3": -0.004694278753604651, "d4": -0.0}, {"mol": "Ni", "x_labels": "Ni", "where": "SO-ZORA", "solveff": -27.54399999999987, "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Ni(CO)\u2084 + 6C\u2086H\u2086", "delta1": -9.3599999999999, "delta2": -17.951999999999998, "delta3": -21.45699999999988, "delta4": -27.54399999999987, "Delta1": -9.3599999999999, "Delta2": -8.592000000000098, "Delta3": -3.5049999999998818, "Delta4": -6.086999999999989, "d1": -0.011156635879161785, "d2": -0.005885088613776869, "d3": -0.0037346261876626584, "d4": -0.0}, {"mol": "Cu", "x_labels": "Cu", "where": "SO-ZORA", "solveff": -53.464, "row": 4, "charge": 1, "solvent": "12CH\u2083CN", "complex": "Cu(CH\u2083CN)\u2084\u207a + 12CH\u2083CN", "delta1": -23.295999999999992, "delta2": -44.88799999999998, "delta3": -47.87099999999998, "delta4": -53.464, "Delta1": -23.295999999999992, "Delta2": -21.591999999999985, "Delta3": -2.983000000000004, "Delta4": -5.593000000000018, "d1": 0.06319613047294453, "d2": 0.01796506281278088, "d3": 0.01171625423412821, "d4": 0.0}, {"mol": "Zn", "x_labels": "Zn", "where": "SO-ZORA", "solveff": -43.14599999999996, "row": 4, "charge": 2, "solvent": "12H\u2082O", "complex": "Zn(H\u2082O)\u2086\u00b2\u207a + 12H\u2082O", "delta1": -29.680999999999813, "delta2": -30.291999999999916, "delta3": -30.120999999999867, "delta4": -43.14599999999996, "Delta1": -29.680999999999813, "Delta2": -0.6110000000001037, "Delta3": 0.1710000000000491, "Delta4": -13.025000000000091, "d1": 0.007034567861245903, "d2": 0.00671536095718189, "d3": 0.0068046970956351675, "d4": 0.0}, {"mol": "Nb", "x_labels": "Nb", "where": "SO-ZORA", "solveff": -19.514999999999986, "row": 5, "charge": -1, "solvent": "12CH\u2083CN", "complex": "NbCl\u2086\u207b + 12CH\u2083CN", "delta1": 15.894000000000005, "delta2": 3.2100000000000364, "delta3": 0.17900000000003047, "delta4": -19.514999999999986, "Delta1": 15.894000000000005, "Delta2": -12.683999999999969, "Delta3": -3.031000000000006, "Delta4": -19.694000000000017, "d1": -0.11137042011203403, "d2": -0.07147597495116995, "d3": -0.061942699700257016, "d4": -0.0}, {"mol": "Mo", "x_labels": "Mo", "where": "SO-ZORA", "solveff": 16.257000000000062, "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "MoO\u2084\u00b2\u207b + 12H\u2082O", "delta1": 69.5, "delta2": 57.478999999999985, "delta3": 38.01099999999997, "delta4": 16.257000000000062, "Delta1": 69.5, "Delta2": -12.021000000000015, "Delta3": -19.468000000000018, "Delta4": -21.753999999999905, "d1": -0.09521501751650152, "d2": -0.07371773664266144, "d3": -0.03890290725642746, "d4": -0.0}, {"mol": "Tc", "x_labels": "Tc", "where": "SO-ZORA", "solveff": 26.989000000000033, "row": 5, "charge": -1, "solvent": "12H\u2082O", "complex": "TcO\u2084\u207b + 12H\u2082O", "delta1": 22.694999999999936, "delta2": 28.878999999999905, "delta3": 23.896999999999935, "delta4": 26.989000000000033, "Delta1": 22.694999999999936, "Delta2": 6.183999999999969, "Delta3": -4.981999999999971, "Delta4": 3.0920000000000982, "d1": 0.003025801759954068, "d2": -0.0013318037555455694, "d3": 0.002178802757749899, "d4": -0.0}, {"mol": "Ru", "x_labels": "Ru", "where": "SO-ZORA", "solveff": 787.761, "row": 5, "charge": -4, "solvent": "12H\u2082O", "complex": "Ru(CN)\u2086\u2074\u207b + 12H\u2082O", "delta1": 828.1270000000001, "delta2": 831.764, "delta3": 834.176, "delta4": 787.761, "Delta1": 828.1270000000001, "Delta2": 3.6370000000000005, "Delta3": 2.411999999999999, "Delta4": -46.415, "d1": -0.04974484294377672, "d2": -0.05422688212988671, "d3": -0.057199298549160095, "d4": -0.0}, {"mol": "Pd", "x_labels": "Pd", "where": "SO-ZORA", "solveff": 270.96900000000005, "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "PdCl\u2086\u00b2\u207b + 12H\u2082O", "delta1": 202.9269999999999, "delta2": 238.596, "delta3": 270.4839999999999, "delta4": 270.96900000000005, "Delta1": 202.9269999999999, "Delta2": 35.669000000000096, "Delta3": 31.88799999999992, "Delta4": 0.48500000000012733, "d1": 0.04304883596306927, "d2": 0.02048176077470446, "d3": 0.0003068499668159965, "d4": -0.0}, {"mol": "Ag", "x_labels": "Ag", "where": "SO-ZORA", "solveff": -210.16700000000037, "row": 5, "charge": 1, "solvent": "12H\u2082O", "complex": "Ag(H\u2082O)\u2084\u207a + 12H\u2082O", "delta1": -175.03999999999996, "delta2": -174.26800000000003, "delta3": -173.433, "delta4": -210.16700000000037, "Delta1": -175.03999999999996, "Delta2": 0.7719999999999345, "Delta3": 0.8350000000000364, "Delta4": -36.73400000000038, "d1": 0.008140764518531128, "d2": 0.008319677326579223, "d3": 0.008513190532175308, "d4": 0.0}, {"mol": "Cd", "x_labels": "Cd", "where": "SO-ZORA", "solveff": 54.89800000000014, "row": 5, "charge": 0, "solvent": "6Cd(CH\u2083)\u2082", "complex": "Cd(CH\u2083)\u2082 + 6Cd(CH\u2083)\u2082", "delta1": 6.981999999999971, "delta2": 22.7170000000001, "delta3": 46.817999999999756, "delta4": 54.89800000000014, "Delta1": 6.981999999999971, "Delta2": 15.735000000000127, "Delta3": 24.100999999999658, "Delta4": 8.080000000000382, "d1": -0.013863777019912952, "d2": -0.009311090414012391, "d3": -0.0023378269955944063, "d4": 0.0}, {"mol": "Ta", "x_labels": "Ta", "where": "SO-ZORA", "solveff": 30.634999999999764, "row": 6, "charge": -1, "solvent": "12CH\u2083CN", "complex": "TaCl\u2086\u207b + 12CH\u2083CN", "delta1": 11.592999999999847, "delta2": -6.84900000000016, "delta3": -11.596000000000004, "delta4": 30.634999999999764, "Delta1": 11.592999999999847, "Delta2": -18.442000000000007, "Delta3": -4.746999999999844, "Delta4": 42.23099999999977, "d1": -0.0055832686076456115, "d2": -0.010990612356317014, "d3": -0.012382471198901457, "d4": 0.0}, {"mol": "W", "x_labels": "W", "where": "SO-ZORA", "solveff": -74.40099999999984, "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "WO\u2084\u00b2\u207b + 12H\u2082O", "delta1": 85.21000000000004, "delta2": 52.39400000000023, "delta3": 25.09900000000016, "delta4": -74.40099999999984, "Delta1": 85.21000000000004, "Delta2": -32.8159999999998, "Delta3": -27.295000000000073, "Delta4": -99.5, "d1": 0.05316830974068907, "d2": 0.04223691245321864, "d3": 0.03314462549071534, "d4": 0.0}, {"mol": "Re", "x_labels": "Re", "where": "SO-ZORA", "solveff": -52.822999999999865, "row": 6, "charge": -1, "solvent": "12H\u2082O", "complex": "ReO\u2084\u207b + 12H\u2082O", "delta1": 21.605000000000018, "delta2": 11.55600000000004, "delta3": 2.73700000000008, "delta4": -52.822999999999865, "Delta1": 21.605000000000018, "Delta2": -10.048999999999978, "Delta3": -8.81899999999996, "Delta4": -55.559999999999945, "d1": 0.03932442385502771, "d2": 0.03401498204120532, "d3": 0.029355417173447373, "d4": 0.0}, {"mol": "Os", "x_labels": "Os", "where": "SO-ZORA", "solveff": 121.17599999999993, "row": 6, "charge": 0, "solvent": "12CCl\u2084", "complex": "OsO\u2084 + 12CCl\u2084", "delta1": 132.73399999999992, "delta2": 135.55999999999995, "delta3": 137.587, "delta4": 121.17599999999993, "Delta1": 132.73399999999992, "Delta2": 2.826000000000022, "Delta3": 2.0270000000000437, "Delta4": -16.411000000000058, "d1": 0.009486133567518316, "d2": 0.011805549855959828, "d3": 0.013469193457046525, "d4": 0.0}, {"mol": "Pt", "x_labels": "Pt", "where": "SO-ZORA", "solveff": 498.48800000000006, "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "PtCl\u2086\u00b2\u207b + 12H\u2082O", "delta1": 292.2940000000001, "delta2": 371.1559999999997, "delta3": 428.05899999999997, "delta4": 498.48800000000006, "Delta1": 292.2940000000001, "Delta2": 78.86199999999963, "Delta3": 56.90300000000025, "Delta4": 70.42900000000009, "d1": -0.10937188371234462, "d2": -0.06754095995451033, "d3": -0.0373577911965272, "d4": 0.0}, {"mol": "Hg", "x_labels": "Hg", "where": "SO-ZORA", "solveff": 40.07600000000093, "row": 6, "charge": 0, "solvent": "6Hg(CH\u2083)\u2082", "complex": "Hg(CH\u2083)\u2082 + 6Hg(CH\u2083)\u2082", "delta1": 31.950000000000728, "delta2": 67.19500000000153, "delta3": 95.47100000000137, "delta4": 40.07600000000093, "Delta1": 31.950000000000728, "Delta2": 35.2450000000008, "Delta3": 28.27599999999984, "Delta4": -55.39500000000044, "d1": -0.0009148227516846377, "d2": 0.003053049249684422, "d3": 0.006236353227857449, "d4": 0.0}]}}, {"mode": "vega-lite"});
 </script>
 
 
 
-## Towards one-page interactive summarization
+Let's then try to show the data corresponding to all introduced approximations to the solvent effects (represented by all $\delta$s).
 
-First, let's try to combine what we did above into one intuitive workflow. This can be presented to the readers of ... and to invite them to explore the data on their own:
+In the plot below, when we hover over the point, the color of the point indicates the solvent, and the text indicates the approximation to which the data point refers.
 
 
 ```python
-chart=alt.Chart(df_adf_all).mark_point().encode(
-    alt.X(alt.repeat("column"), type='ordinal'),
-    alt.Y(alt.repeat("row"), type='ordinal',
-          sort='descending',
-          axis=alt.Axis(format=",.0f")
-         ),
-    color=alt.Color('charge', type='nominal', scale=alt.Scale(scheme='dark2'))
-).properties(
-    width=200,
-    height=200
-).repeat(
-    row=['solveff', 'delta3'],
-    column=['mol', 'solvent']
-).interactive()
+delta_points, delta_text=plot_chart(df_adf_all_melted_delta, 
+                                    'mol:O', 
+                                    'value', 
+                                    'solvent:N', 
+                                    'variable:N', 
+                                    "δ(fdeN) [ppm]")
+                                          
+layer=def_layer(delta_points, 
+                delta_text,
+                True, False,
+                10,
+                'Approximations to solvent effects on σ(X) [ppm]')
 
-chart
+layer
+
 ```
 
 
 
 
 
-<div id="altair-viz-cbf3712e58854136aee19e4ce971aae9"></div>
+<div id="altair-viz-19c66bc8cb404bab8925548552995766"></div>
 <script type="text/javascript">
   (function(spec, embedOpt){
     let outputDiv = document.currentScript.previousElementSibling;
-    if (outputDiv.id !== "altair-viz-cbf3712e58854136aee19e4ce971aae9") {
-      outputDiv = document.getElementById("altair-viz-cbf3712e58854136aee19e4ce971aae9");
+    if (outputDiv.id !== "altair-viz-19c66bc8cb404bab8925548552995766") {
+      outputDiv = document.getElementById("altair-viz-19c66bc8cb404bab8925548552995766");
     }
     const paths = {
       "vega": "https://cdn.jsdelivr.net/npm//vega@5?noext",
@@ -3146,34 +521,194 @@ chart
         .catch(showError)
         .then(() => displayChart(vegaEmbed));
     }
-  })({"config": {"view": {"continuousWidth": 400, "continuousHeight": 300}}, "repeat": {"column": ["mol", "solvent"], "row": ["solveff", "delta3"]}, "spec": {"data": {"name": "data-7ad6c731f26a905cfbe8d6bcba28d033"}, "mark": "point", "encoding": {"color": {"type": "nominal", "field": "charge", "scale": {"scheme": "dark2"}}, "x": {"type": "ordinal", "field": {"repeat": "column"}}, "y": {"type": "ordinal", "axis": {"format": ",.0f"}, "field": {"repeat": "row"}, "sort": "descending"}}, "height": 200, "selection": {"selector005": {"type": "interval", "bind": "scales", "encodings": ["x", "y"]}}, "width": 200}, "$schema": "https://vega.github.io/schema/vega-lite/v4.8.1.json", "datasets": {"data-7ad6c731f26a905cfbe8d6bcba28d033": [{"mol": "Ti", "x_labels": "Ti", "where": "SO-ZORA", "solveff": 4.2999999999999545, "row": 4, "charge": 0, "solvent": "12TiCl\u2084", "complex": "TiCl\u2084 + 12TiCl\u2084", "delta1": 22.184000000000083, "delta2": 21.684000000000083, "delta3": 21.854000000000042, "delta4": 4.2999999999999545, "Delta1": 22.184000000000083, "Delta2": -0.5, "Delta3": 0.16999999999995907, "Delta4": -17.554000000000087, "d1": -0.021763098138381527, "d2": -0.021154646501768317, "d3": -0.021361520058216756, "d4": -0.0}, {"mol": "V", "x_labels": "V", "where": "SO-ZORA", "solveff": -25.33199999999988, "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "VOCl\u2083 + 6C\u2086H\u2086", "delta1": 2.8140000000003056, "delta2": 1.0170000000000528, "delta3": -0.10500000000001819, "delta4": -25.33199999999988, "Delta1": 2.8140000000003056, "Delta2": -1.7970000000002528, "Delta3": -1.122000000000071, "Delta4": -25.22699999999986, "d1": -0.015131346929647346, "d2": -0.014165276069397935, "d3": -0.013562086584033574, "d4": -0.0}, {"mol": "Cr", "x_labels": "Cr", "where": "SO-ZORA", "solveff": 63.858000000000175, "row": 4, "charge": -2, "solvent": "12H\u2082O", "complex": "CrO\u2084\u00b2\u207b + 12H\u2082O", "delta1": 123.04400000000032, "delta2": 104.03900000000021, "delta3": 76.65400000000045, "delta4": 63.858000000000175, "Delta1": 123.04400000000032, "Delta2": -19.00500000000011, "Delta3": -27.384999999999764, "Delta4": -12.796000000000276, "d1": -0.021712884105380876, "d2": -0.014740739300481661, "d3": -0.004694320701051921, "d4": -0.0}, {"mol": "Mn", "x_labels": "Mn", "where": "SO-ZORA", "solveff": -7.242000000000189, "row": 4, "charge": -1, "solvent": "12H\u2082O", "complex": "MnO\u2084\u207b + 12H\u2082O", "delta1": 35.49200000000019, "delta2": 29.14099999999962, "delta3": 15.230999999999767, "delta4": -7.242000000000189, "Delta1": 35.49200000000019, "Delta2": -6.3510000000005675, "Delta3": -13.909999999999854, "Delta4": -22.472999999999956, "d1": -0.010860140180028253, "d2": -0.009246138441755099, "d3": -0.005711141720077042, "d4": -0.0}, {"mol": "Fe", "x_labels": "Fe", "where": "SO-ZORA", "solveff": 47.11200000000008, "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Fe(CO)\u2085 + 6C\u2086H\u2086", "delta1": 67.43199999999979, "delta2": 65.41499999999996, "delta3": 64.57400000000007, "delta4": 47.11200000000008, "Delta1": 67.43199999999979, "Delta2": -2.0169999999998254, "Delta3": -0.8409999999998945, "Delta4": -17.46199999999999, "d1": -0.008717314895411402, "d2": -0.007852018431629732, "d3": -0.007491227987385629, "d4": -0.0}, {"mol": "Co", "x_labels": "Co", "where": "SO-ZORA", "solveff": 1097.3739999999998, "row": 4, "charge": -3, "solvent": "12H\u2082O", "complex": "Co(CN)\u2086\u00b3\u207b + 12H\u2082O", "delta1": 1098.3239999999996, "delta2": 1127.5999999999995, "delta3": 1124.4809999999998, "delta4": 1097.3739999999998, "Delta1": 1098.3239999999996, "Delta2": 29.27599999999984, "Delta3": -3.118999999999687, "Delta4": -27.10699999999997, "d1": -0.0001645170921136079, "d2": -0.005234414343396641, "d3": -0.004694278753604651, "d4": -0.0}, {"mol": "Ni", "x_labels": "Ni", "where": "SO-ZORA", "solveff": -27.544000000000096, "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Ni(CO)\u2084 + 6C\u2086H\u2086", "delta1": -9.360000000000127, "delta2": -17.95199999999977, "delta3": -21.45699999999988, "delta4": -27.544000000000096, "Delta1": -9.360000000000127, "Delta2": -8.591999999999643, "Delta3": -3.505000000000109, "Delta4": -6.0870000000002165, "d1": -0.011156635879161785, "d2": -0.005885088613777148, "d3": -0.0037346261876627976, "d4": -0.0}, {"mol": "Cu", "x_labels": "Cu", "where": "SO-ZORA", "solveff": -53.464, "row": 4, "charge": 1, "solvent": "12CH\u2083CN", "complex": "Cu(CH\u2083CN)\u2084\u207a + 12CH\u2083CN", "delta1": -23.295999999999992, "delta2": -44.88799999999998, "delta3": -47.87099999999998, "delta4": -53.464, "Delta1": -23.295999999999992, "Delta2": -21.591999999999985, "Delta3": -2.983000000000004, "Delta4": -5.593000000000018, "d1": 0.06319613047294453, "d2": 0.01796506281278088, "d3": 0.01171625423412821, "d4": 0.0}, {"mol": "Zn", "x_labels": "Zn", "where": "SO-ZORA", "solveff": -43.14599999999996, "row": 4, "charge": 2, "solvent": "12H\u2082O", "complex": "Zn(H\u2082O)\u2086\u00b2\u207a + 12H\u2082O", "delta1": -29.68100000000004, "delta2": -30.29199999999969, "delta3": -30.121000000000095, "delta4": -43.14599999999996, "Delta1": -29.68100000000004, "Delta2": -0.6109999999996489, "Delta3": 0.17099999999959437, "Delta4": -13.024999999999864, "d1": 0.007034567861245784, "d2": 0.006715360957182009, "d3": 0.006804697095635049, "d4": 0.0}, {"mol": "Nb", "x_labels": "Nb", "where": "SO-ZORA", "solveff": -19.514999999999986, "row": 5, "charge": -1, "solvent": "12CH\u2083CN", "complex": "NbCl\u2086\u207b + 12CH\u2083CN", "delta1": 15.894000000000005, "delta2": 3.2099999999999795, "delta3": 0.17900000000003047, "delta4": -19.514999999999986, "Delta1": 15.894000000000005, "Delta2": -12.684000000000026, "Delta3": -3.030999999999949, "Delta4": -19.694000000000017, "d1": -0.11137042011203403, "d2": -0.07147597495116977, "d3": -0.061942699700257016, "d4": -0.0}, {"mol": "Mo", "x_labels": "Mo", "where": "SO-ZORA", "solveff": 16.257000000000062, "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "MoO\u2084\u00b2\u207b + 12H\u2082O", "delta1": 69.50000000000006, "delta2": 57.478999999999985, "delta3": 38.01100000000008, "delta4": 16.257000000000062, "Delta1": 69.50000000000006, "Delta2": -12.021000000000072, "Delta3": -19.467999999999904, "Delta4": -21.75400000000002, "d1": -0.09521501751650162, "d2": -0.07371773664266144, "d3": -0.03890290725642767, "d4": -0.0}, {"mol": "Tc", "x_labels": "Tc", "where": "SO-ZORA", "solveff": 26.989000000000033, "row": 5, "charge": -1, "solvent": "12H\u2082O", "complex": "TcO\u2084\u207b + 12H\u2082O", "delta1": 22.694999999999936, "delta2": 28.878999999999905, "delta3": 23.896999999999935, "delta4": 26.989000000000033, "Delta1": 22.694999999999936, "Delta2": 6.183999999999969, "Delta3": -4.981999999999971, "Delta4": 3.0920000000000982, "d1": 0.003025801759954068, "d2": -0.0013318037555455694, "d3": 0.002178802757749899, "d4": -0.0}, {"mol": "Ru", "x_labels": "Ru", "where": "SO-ZORA", "solveff": 787.761, "row": 5, "charge": -4, "solvent": "12H\u2082O", "complex": "Ru(CN)\u2086\u2074\u207b + 12H\u2082O", "delta1": 828.1270000000001, "delta2": 831.764, "delta3": 834.176, "delta4": 787.761, "Delta1": 828.1270000000001, "Delta2": 3.6370000000000005, "Delta3": 2.411999999999999, "Delta4": -46.415, "d1": -0.04974484294377672, "d2": -0.05422688212988671, "d3": -0.057199298549160095, "d4": -0.0}, {"mol": "Pd", "x_labels": "Pd", "where": "SO-ZORA", "solveff": 270.9690000000003, "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "PdCl\u2086\u00b2\u207b + 12H\u2082O", "delta1": 202.92700000000013, "delta2": 238.59600000000023, "delta3": 270.48400000000015, "delta4": 270.9690000000003, "Delta1": 202.92700000000013, "Delta2": 35.669000000000096, "Delta3": 31.88799999999992, "Delta4": 0.48500000000012733, "d1": 0.04304883596306927, "d2": 0.020481760774704455, "d3": 0.0003068499668159965, "d4": -0.0}, {"mol": "Ag", "x_labels": "Ag", "where": "SO-ZORA", "solveff": -210.16699999999946, "row": 5, "charge": 1, "solvent": "12H\u2082O", "complex": "Ag(H\u2082O)\u2084\u207a + 12H\u2082O", "delta1": -175.03999999999996, "delta2": -174.26800000000003, "delta3": -173.433, "delta4": -210.16699999999946, "Delta1": -175.03999999999996, "Delta2": 0.7719999999999345, "Delta3": 0.8350000000000364, "Delta4": -36.73399999999947, "d1": 0.008140764518530916, "d2": 0.008319677326579011, "d3": 0.008513190532175098, "d4": 0.0}, {"mol": "Cd", "x_labels": "Cd", "where": "SO-ZORA", "solveff": 54.89800000000059, "row": 5, "charge": 0, "solvent": "6Cd(CH\u2083)\u2082", "complex": "Cd(CH\u2083)\u2082 + 6Cd(CH\u2083)\u2082", "delta1": 6.982000000000426, "delta2": 22.7170000000001, "delta3": 46.818000000000666, "delta4": 54.89800000000059, "Delta1": 6.982000000000426, "Delta2": 15.734999999999673, "Delta3": 24.101000000000568, "Delta4": 8.079999999999927, "d1": -0.013863777019912954, "d2": -0.009311090414012523, "d3": -0.002337826995594275, "d4": 0.0}, {"mol": "Ta", "x_labels": "Ta", "where": "SO-ZORA", "solveff": 30.63500000000022, "row": 6, "charge": -1, "solvent": "12CH\u2083CN", "complex": "TaCl\u2086\u207b + 12CH\u2083CN", "delta1": 11.592999999999847, "delta2": -6.84900000000016, "delta3": -11.596000000000458, "delta4": 30.63500000000022, "Delta1": 11.592999999999847, "Delta2": -18.442000000000007, "Delta3": -4.747000000000298, "Delta4": 42.23100000000068, "d1": -0.005583268607645744, "d2": -0.010990612356317148, "d3": -0.012382471198901724, "d4": 0.0}, {"mol": "W", "x_labels": "W", "where": "SO-ZORA", "solveff": -74.40099999999984, "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "WO\u2084\u00b2\u207b + 12H\u2082O", "delta1": 85.21000000000004, "delta2": 52.39400000000023, "delta3": 25.09900000000016, "delta4": -74.40099999999984, "Delta1": 85.21000000000004, "Delta2": -32.8159999999998, "Delta3": -27.295000000000073, "Delta4": -99.5, "d1": 0.05316830974068907, "d2": 0.04223691245321864, "d3": 0.03314462549071534, "d4": 0.0}, {"mol": "Re", "x_labels": "Re", "where": "SO-ZORA", "solveff": -52.82300000000032, "row": 6, "charge": -1, "solvent": "12H\u2082O", "complex": "ReO\u2084\u207b + 12H\u2082O", "delta1": 21.60499999999979, "delta2": 11.55600000000004, "delta3": 2.7369999999996253, "delta4": -52.82300000000032, "Delta1": 21.60499999999979, "Delta2": -10.04899999999975, "Delta3": -8.819000000000415, "Delta4": -55.559999999999945, "d1": 0.03932442385502783, "d2": 0.03401498204120556, "d3": 0.02935541717344737, "d4": 0.0}, {"mol": "Os", "x_labels": "Os", "where": "SO-ZORA", "solveff": 121.17599999999993, "row": 6, "charge": 0, "solvent": "12CCl\u2084", "complex": "OsO\u2084 + 12CCl\u2084", "delta1": 132.73399999999992, "delta2": 135.55999999999995, "delta3": 137.587, "delta4": 121.17599999999993, "Delta1": 132.73399999999992, "Delta2": 2.826000000000022, "Delta3": 2.0270000000000437, "Delta4": -16.411000000000058, "d1": 0.009486133567518316, "d2": 0.011805549855959828, "d3": 0.013469193457046525, "d4": 0.0}, {"mol": "Pt", "x_labels": "Pt", "where": "SO-ZORA", "solveff": 498.48800000000006, "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "PtCl\u2086\u00b2\u207b + 12H\u2082O", "delta1": 292.2940000000001, "delta2": 371.1560000000002, "delta3": 428.05899999999997, "delta4": 498.48800000000006, "Delta1": 292.2940000000001, "Delta2": 78.86200000000008, "Delta3": 56.90299999999979, "Delta4": 70.42900000000009, "d1": -0.10937188371234462, "d2": -0.0675409599545101, "d3": -0.0373577911965272, "d4": 0.0}, {"mol": "Hg", "x_labels": "Hg", "where": "SO-ZORA", "solveff": 40.07600000000093, "row": 6, "charge": 0, "solvent": "6Hg(CH\u2083)\u2082", "complex": "Hg(CH\u2083)\u2082 + 6Hg(CH\u2083)\u2082", "delta1": 31.950000000000728, "delta2": 67.19500000000153, "delta3": 95.47099999999955, "delta4": 40.07600000000093, "Delta1": 31.950000000000728, "Delta2": 35.2450000000008, "Delta3": 28.27599999999802, "Delta4": -55.39499999999862, "d1": -0.0009148227516846377, "d2": 0.003053049249684422, "d3": 0.006236353227857244, "d4": 0.0}]}}, {"mode": "vega-lite"});
+  })({"config": {"view": {"continuousWidth": 400, "continuousHeight": 300}}, "data": {"name": "data-e2958ed67ee61d3fe3755e8257c7988b"}, "facet": {"type": "nominal", "field": "row", "title": "row(X)"}, "spec": {"layer": [{"mark": "point", "encoding": {"color": {"condition": {"type": "nominal", "field": "solvent", "selection": "selector003"}, "value": "lightgray"}, "x": {"type": "ordinal", "axis": {"labelAngle": 0, "title": "X"}, "field": "mol"}, "y": {"type": "quantitative", "axis": {"format": ",.0f", "title": "\u03b4(fdeN) [ppm]"}, "field": "value"}}, "height": 190, "selection": {"selector003": {"type": "single", "on": "mouseover", "nearest": true, "empty": "none"}, "selector004": {"type": "multi", "fields": ["row"], "bind": "legend"}}, "width": 230}, {"mark": {"type": "text", "dy": -5}, "encoding": {"color": {"condition": {"type": "nominal", "field": "solvent", "selection": "selector003"}, "value": "lightgray"}, "opacity": {"condition": {"value": 1, "selection": "selector003"}, "value": 0}, "text": {"type": "nominal", "field": "variable"}, "x": {"type": "ordinal", "axis": {"labelAngle": 0, "title": "X"}, "field": "mol"}, "y": {"type": "quantitative", "axis": {"format": ",.0f", "title": "\u03b4(fdeN) [ppm]"}, "field": "value"}}, "height": 190, "width": 230}]}, "resolve": {"scale": {"x": "independent"}}, "spacing": 10, "title": "Approximations to solvent effects on \u03c3(X) [ppm]", "transform": [{"filter": {"selection": "selector004"}}], "$schema": "https://vega.github.io/schema/vega-lite/v4.8.1.json", "datasets": {"data-e2958ed67ee61d3fe3755e8257c7988b": [{"mol": "Ti", "x_labels": "Ti", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "12TiCl\u2084", "complex": "TiCl\u2084 + 12TiCl\u2084", "Delta1": 22.184000000000083, "Delta2": -0.5, "Delta3": 0.16999999999995907, "Delta4": -17.553999999999974, "d1": -0.021763098138381388, "d2": -0.021154646501768178, "d3": -0.02136152005821662, "d4": -0.0, "solveff": 4.300000000000068, "variable": "delta1", "value": 22.184000000000083}, {"mol": "V", "x_labels": "V", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "VOCl\u2083 + 6C\u2086H\u2086", "Delta1": 2.814000000000078, "Delta2": -1.7970000000000255, "Delta3": -1.122000000000071, "Delta4": -25.22699999999986, "d1": -0.015131346929647224, "d2": -0.014165276069397935, "d3": -0.013562086584033574, "d4": -0.0, "solveff": -25.33199999999988, "variable": "delta1", "value": 2.814000000000078}, {"mol": "Cr", "x_labels": "Cr", "where": "SO-ZORA", "row": 4, "charge": -2, "solvent": "12H\u2082O", "complex": "CrO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 123.04400000000032, "Delta2": -19.00500000000011, "Delta3": -27.38500000000022, "Delta4": -12.795999999999822, "d1": -0.021712884105380876, "d2": -0.014740739300481661, "d3": -0.004694320701051754, "d4": -0.0, "solveff": 63.858000000000175, "variable": "delta1", "value": 123.04400000000032}, {"mol": "Mn", "x_labels": "Mn", "where": "SO-ZORA", "row": 4, "charge": -1, "solvent": "12H\u2082O", "complex": "MnO\u2084\u207b + 12H\u2082O", "Delta1": 35.49200000000019, "Delta2": -6.351000000000113, "Delta3": -13.909999999999854, "Delta4": -22.472999999999956, "d1": -0.010860140180028139, "d2": -0.009246138441755099, "d3": -0.005711141720077042, "d4": -0.0, "solveff": -7.241999999999734, "variable": "delta1", "value": 35.49200000000019}, {"mol": "Fe", "x_labels": "Fe", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Fe(CO)\u2085 + 6C\u2086H\u2086", "Delta1": 67.43199999999979, "Delta2": -2.0169999999998254, "Delta3": -0.8409999999998945, "Delta4": -17.46199999999999, "d1": -0.008717314895411402, "d2": -0.007852018431629732, "d3": -0.007491227987385629, "d4": -0.0, "solveff": 47.11200000000008, "variable": "delta1", "value": 67.43199999999979}, {"mol": "Co", "x_labels": "Co", "where": "SO-ZORA", "row": 4, "charge": -3, "solvent": "12H\u2082O", "complex": "Co(CN)\u2086\u00b3\u207b + 12H\u2082O", "Delta1": 1098.3239999999996, "Delta2": 29.27599999999984, "Delta3": -3.118999999999687, "Delta4": -27.10699999999997, "d1": -0.0001645170921136079, "d2": -0.005234414343396641, "d3": -0.004694278753604651, "d4": -0.0, "solveff": 1097.3739999999998, "variable": "delta1", "value": 1098.3239999999996}, {"mol": "Ni", "x_labels": "Ni", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Ni(CO)\u2084 + 6C\u2086H\u2086", "Delta1": -9.3599999999999, "Delta2": -8.592000000000098, "Delta3": -3.5049999999998818, "Delta4": -6.086999999999989, "d1": -0.011156635879161785, "d2": -0.005885088613776869, "d3": -0.0037346261876626584, "d4": -0.0, "solveff": -27.54399999999987, "variable": "delta1", "value": -9.3599999999999}, {"mol": "Cu", "x_labels": "Cu", "where": "SO-ZORA", "row": 4, "charge": 1, "solvent": "12CH\u2083CN", "complex": "Cu(CH\u2083CN)\u2084\u207a + 12CH\u2083CN", "Delta1": -23.295999999999992, "Delta2": -21.591999999999985, "Delta3": -2.983000000000004, "Delta4": -5.593000000000018, "d1": 0.06319613047294453, "d2": 0.01796506281278088, "d3": 0.01171625423412821, "d4": 0.0, "solveff": -53.464, "variable": "delta1", "value": -23.295999999999992}, {"mol": "Zn", "x_labels": "Zn", "where": "SO-ZORA", "row": 4, "charge": 2, "solvent": "12H\u2082O", "complex": "Zn(H\u2082O)\u2086\u00b2\u207a + 12H\u2082O", "Delta1": -29.680999999999813, "Delta2": -0.6110000000001037, "Delta3": 0.1710000000000491, "Delta4": -13.025000000000091, "d1": 0.007034567861245903, "d2": 0.00671536095718189, "d3": 0.0068046970956351675, "d4": 0.0, "solveff": -43.14599999999996, "variable": "delta1", "value": -29.680999999999813}, {"mol": "Nb", "x_labels": "Nb", "where": "SO-ZORA", "row": 5, "charge": -1, "solvent": "12CH\u2083CN", "complex": "NbCl\u2086\u207b + 12CH\u2083CN", "Delta1": 15.894000000000005, "Delta2": -12.683999999999969, "Delta3": -3.031000000000006, "Delta4": -19.694000000000017, "d1": -0.11137042011203403, "d2": -0.07147597495116995, "d3": -0.061942699700257016, "d4": -0.0, "solveff": -19.514999999999986, "variable": "delta1", "value": 15.894000000000005}, {"mol": "Mo", "x_labels": "Mo", "where": "SO-ZORA", "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "MoO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 69.5, "Delta2": -12.021000000000015, "Delta3": -19.468000000000018, "Delta4": -21.753999999999905, "d1": -0.09521501751650152, "d2": -0.07371773664266144, "d3": -0.03890290725642746, "d4": -0.0, "solveff": 16.257000000000062, "variable": "delta1", "value": 69.5}, {"mol": "Tc", "x_labels": "Tc", "where": "SO-ZORA", "row": 5, "charge": -1, "solvent": "12H\u2082O", "complex": "TcO\u2084\u207b + 12H\u2082O", "Delta1": 22.694999999999936, "Delta2": 6.183999999999969, "Delta3": -4.981999999999971, "Delta4": 3.0920000000000982, "d1": 0.003025801759954068, "d2": -0.0013318037555455694, "d3": 0.002178802757749899, "d4": -0.0, "solveff": 26.989000000000033, "variable": "delta1", "value": 22.694999999999936}, {"mol": "Ru", "x_labels": "Ru", "where": "SO-ZORA", "row": 5, "charge": -4, "solvent": "12H\u2082O", "complex": "Ru(CN)\u2086\u2074\u207b + 12H\u2082O", "Delta1": 828.1270000000001, "Delta2": 3.6370000000000005, "Delta3": 2.411999999999999, "Delta4": -46.415, "d1": -0.04974484294377672, "d2": -0.05422688212988671, "d3": -0.057199298549160095, "d4": -0.0, "solveff": 787.761, "variable": "delta1", "value": 828.1270000000001}, {"mol": "Pd", "x_labels": "Pd", "where": "SO-ZORA", "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "PdCl\u2086\u00b2\u207b + 12H\u2082O", "Delta1": 202.9269999999999, "Delta2": 35.669000000000096, "Delta3": 31.88799999999992, "Delta4": 0.48500000000012733, "d1": 0.04304883596306927, "d2": 0.02048176077470446, "d3": 0.0003068499668159965, "d4": -0.0, "solveff": 270.96900000000005, "variable": "delta1", "value": 202.9269999999999}, {"mol": "Ag", "x_labels": "Ag", "where": "SO-ZORA", "row": 5, "charge": 1, "solvent": "12H\u2082O", "complex": "Ag(H\u2082O)\u2084\u207a + 12H\u2082O", "Delta1": -175.03999999999996, "Delta2": 0.7719999999999345, "Delta3": 0.8350000000000364, "Delta4": -36.73400000000038, "d1": 0.008140764518531128, "d2": 0.008319677326579223, "d3": 0.008513190532175308, "d4": 0.0, "solveff": -210.16700000000037, "variable": "delta1", "value": -175.03999999999996}, {"mol": "Cd", "x_labels": "Cd", "where": "SO-ZORA", "row": 5, "charge": 0, "solvent": "6Cd(CH\u2083)\u2082", "complex": "Cd(CH\u2083)\u2082 + 6Cd(CH\u2083)\u2082", "Delta1": 6.981999999999971, "Delta2": 15.735000000000127, "Delta3": 24.100999999999658, "Delta4": 8.080000000000382, "d1": -0.013863777019912952, "d2": -0.009311090414012391, "d3": -0.0023378269955944063, "d4": 0.0, "solveff": 54.89800000000014, "variable": "delta1", "value": 6.981999999999971}, {"mol": "Ta", "x_labels": "Ta", "where": "SO-ZORA", "row": 6, "charge": -1, "solvent": "12CH\u2083CN", "complex": "TaCl\u2086\u207b + 12CH\u2083CN", "Delta1": 11.592999999999847, "Delta2": -18.442000000000007, "Delta3": -4.746999999999844, "Delta4": 42.23099999999977, "d1": -0.0055832686076456115, "d2": -0.010990612356317014, "d3": -0.012382471198901457, "d4": 0.0, "solveff": 30.634999999999764, "variable": "delta1", "value": 11.592999999999847}, {"mol": "W", "x_labels": "W", "where": "SO-ZORA", "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "WO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 85.21000000000004, "Delta2": -32.8159999999998, "Delta3": -27.295000000000073, "Delta4": -99.5, "d1": 0.05316830974068907, "d2": 0.04223691245321864, "d3": 0.03314462549071534, "d4": 0.0, "solveff": -74.40099999999984, "variable": "delta1", "value": 85.21000000000004}, {"mol": "Re", "x_labels": "Re", "where": "SO-ZORA", "row": 6, "charge": -1, "solvent": "12H\u2082O", "complex": "ReO\u2084\u207b + 12H\u2082O", "Delta1": 21.605000000000018, "Delta2": -10.048999999999978, "Delta3": -8.81899999999996, "Delta4": -55.559999999999945, "d1": 0.03932442385502771, "d2": 0.03401498204120532, "d3": 0.029355417173447373, "d4": 0.0, "solveff": -52.822999999999865, "variable": "delta1", "value": 21.605000000000018}, {"mol": "Os", "x_labels": "Os", "where": "SO-ZORA", "row": 6, "charge": 0, "solvent": "12CCl\u2084", "complex": "OsO\u2084 + 12CCl\u2084", "Delta1": 132.73399999999992, "Delta2": 2.826000000000022, "Delta3": 2.0270000000000437, "Delta4": -16.411000000000058, "d1": 0.009486133567518316, "d2": 0.011805549855959828, "d3": 0.013469193457046525, "d4": 0.0, "solveff": 121.17599999999993, "variable": "delta1", "value": 132.73399999999992}, {"mol": "Pt", "x_labels": "Pt", "where": "SO-ZORA", "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "PtCl\u2086\u00b2\u207b + 12H\u2082O", "Delta1": 292.2940000000001, "Delta2": 78.86199999999963, "Delta3": 56.90300000000025, "Delta4": 70.42900000000009, "d1": -0.10937188371234462, "d2": -0.06754095995451033, "d3": -0.0373577911965272, "d4": 0.0, "solveff": 498.48800000000006, "variable": "delta1", "value": 292.2940000000001}, {"mol": "Hg", "x_labels": "Hg", "where": "SO-ZORA", "row": 6, "charge": 0, "solvent": "6Hg(CH\u2083)\u2082", "complex": "Hg(CH\u2083)\u2082 + 6Hg(CH\u2083)\u2082", "Delta1": 31.950000000000728, "Delta2": 35.2450000000008, "Delta3": 28.27599999999984, "Delta4": -55.39500000000044, "d1": -0.0009148227516846377, "d2": 0.003053049249684422, "d3": 0.006236353227857449, "d4": 0.0, "solveff": 40.07600000000093, "variable": "delta1", "value": 31.950000000000728}, {"mol": "Ti", "x_labels": "Ti", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "12TiCl\u2084", "complex": "TiCl\u2084 + 12TiCl\u2084", "Delta1": 22.184000000000083, "Delta2": -0.5, "Delta3": 0.16999999999995907, "Delta4": -17.553999999999974, "d1": -0.021763098138381388, "d2": -0.021154646501768178, "d3": -0.02136152005821662, "d4": -0.0, "solveff": 4.300000000000068, "variable": "delta2", "value": 21.684000000000083}, {"mol": "V", "x_labels": "V", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "VOCl\u2083 + 6C\u2086H\u2086", "Delta1": 2.814000000000078, "Delta2": -1.7970000000000255, "Delta3": -1.122000000000071, "Delta4": -25.22699999999986, "d1": -0.015131346929647224, "d2": -0.014165276069397935, "d3": -0.013562086584033574, "d4": -0.0, "solveff": -25.33199999999988, "variable": "delta2", "value": 1.0170000000000528}, {"mol": "Cr", "x_labels": "Cr", "where": "SO-ZORA", "row": 4, "charge": -2, "solvent": "12H\u2082O", "complex": "CrO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 123.04400000000032, "Delta2": -19.00500000000011, "Delta3": -27.38500000000022, "Delta4": -12.795999999999822, "d1": -0.021712884105380876, "d2": -0.014740739300481661, "d3": -0.004694320701051754, "d4": -0.0, "solveff": 63.858000000000175, "variable": "delta2", "value": 104.03900000000021}, {"mol": "Mn", "x_labels": "Mn", "where": "SO-ZORA", "row": 4, "charge": -1, "solvent": "12H\u2082O", "complex": "MnO\u2084\u207b + 12H\u2082O", "Delta1": 35.49200000000019, "Delta2": -6.351000000000113, "Delta3": -13.909999999999854, "Delta4": -22.472999999999956, "d1": -0.010860140180028139, "d2": -0.009246138441755099, "d3": -0.005711141720077042, "d4": -0.0, "solveff": -7.241999999999734, "variable": "delta2", "value": 29.141000000000076}, {"mol": "Fe", "x_labels": "Fe", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Fe(CO)\u2085 + 6C\u2086H\u2086", "Delta1": 67.43199999999979, "Delta2": -2.0169999999998254, "Delta3": -0.8409999999998945, "Delta4": -17.46199999999999, "d1": -0.008717314895411402, "d2": -0.007852018431629732, "d3": -0.007491227987385629, "d4": -0.0, "solveff": 47.11200000000008, "variable": "delta2", "value": 65.41499999999996}, {"mol": "Co", "x_labels": "Co", "where": "SO-ZORA", "row": 4, "charge": -3, "solvent": "12H\u2082O", "complex": "Co(CN)\u2086\u00b3\u207b + 12H\u2082O", "Delta1": 1098.3239999999996, "Delta2": 29.27599999999984, "Delta3": -3.118999999999687, "Delta4": -27.10699999999997, "d1": -0.0001645170921136079, "d2": -0.005234414343396641, "d3": -0.004694278753604651, "d4": -0.0, "solveff": 1097.3739999999998, "variable": "delta2", "value": 1127.5999999999995}, {"mol": "Ni", "x_labels": "Ni", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Ni(CO)\u2084 + 6C\u2086H\u2086", "Delta1": -9.3599999999999, "Delta2": -8.592000000000098, "Delta3": -3.5049999999998818, "Delta4": -6.086999999999989, "d1": -0.011156635879161785, "d2": -0.005885088613776869, "d3": -0.0037346261876626584, "d4": -0.0, "solveff": -27.54399999999987, "variable": "delta2", "value": -17.951999999999998}, {"mol": "Cu", "x_labels": "Cu", "where": "SO-ZORA", "row": 4, "charge": 1, "solvent": "12CH\u2083CN", "complex": "Cu(CH\u2083CN)\u2084\u207a + 12CH\u2083CN", "Delta1": -23.295999999999992, "Delta2": -21.591999999999985, "Delta3": -2.983000000000004, "Delta4": -5.593000000000018, "d1": 0.06319613047294453, "d2": 0.01796506281278088, "d3": 0.01171625423412821, "d4": 0.0, "solveff": -53.464, "variable": "delta2", "value": -44.88799999999998}, {"mol": "Zn", "x_labels": "Zn", "where": "SO-ZORA", "row": 4, "charge": 2, "solvent": "12H\u2082O", "complex": "Zn(H\u2082O)\u2086\u00b2\u207a + 12H\u2082O", "Delta1": -29.680999999999813, "Delta2": -0.6110000000001037, "Delta3": 0.1710000000000491, "Delta4": -13.025000000000091, "d1": 0.007034567861245903, "d2": 0.00671536095718189, "d3": 0.0068046970956351675, "d4": 0.0, "solveff": -43.14599999999996, "variable": "delta2", "value": -30.291999999999916}, {"mol": "Nb", "x_labels": "Nb", "where": "SO-ZORA", "row": 5, "charge": -1, "solvent": "12CH\u2083CN", "complex": "NbCl\u2086\u207b + 12CH\u2083CN", "Delta1": 15.894000000000005, "Delta2": -12.683999999999969, "Delta3": -3.031000000000006, "Delta4": -19.694000000000017, "d1": -0.11137042011203403, "d2": -0.07147597495116995, "d3": -0.061942699700257016, "d4": -0.0, "solveff": -19.514999999999986, "variable": "delta2", "value": 3.2100000000000364}, {"mol": "Mo", "x_labels": "Mo", "where": "SO-ZORA", "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "MoO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 69.5, "Delta2": -12.021000000000015, "Delta3": -19.468000000000018, "Delta4": -21.753999999999905, "d1": -0.09521501751650152, "d2": -0.07371773664266144, "d3": -0.03890290725642746, "d4": -0.0, "solveff": 16.257000000000062, "variable": "delta2", "value": 57.478999999999985}, {"mol": "Tc", "x_labels": "Tc", "where": "SO-ZORA", "row": 5, "charge": -1, "solvent": "12H\u2082O", "complex": "TcO\u2084\u207b + 12H\u2082O", "Delta1": 22.694999999999936, "Delta2": 6.183999999999969, "Delta3": -4.981999999999971, "Delta4": 3.0920000000000982, "d1": 0.003025801759954068, "d2": -0.0013318037555455694, "d3": 0.002178802757749899, "d4": -0.0, "solveff": 26.989000000000033, "variable": "delta2", "value": 28.878999999999905}, {"mol": "Ru", "x_labels": "Ru", "where": "SO-ZORA", "row": 5, "charge": -4, "solvent": "12H\u2082O", "complex": "Ru(CN)\u2086\u2074\u207b + 12H\u2082O", "Delta1": 828.1270000000001, "Delta2": 3.6370000000000005, "Delta3": 2.411999999999999, "Delta4": -46.415, "d1": -0.04974484294377672, "d2": -0.05422688212988671, "d3": -0.057199298549160095, "d4": -0.0, "solveff": 787.761, "variable": "delta2", "value": 831.764}, {"mol": "Pd", "x_labels": "Pd", "where": "SO-ZORA", "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "PdCl\u2086\u00b2\u207b + 12H\u2082O", "Delta1": 202.9269999999999, "Delta2": 35.669000000000096, "Delta3": 31.88799999999992, "Delta4": 0.48500000000012733, "d1": 0.04304883596306927, "d2": 0.02048176077470446, "d3": 0.0003068499668159965, "d4": -0.0, "solveff": 270.96900000000005, "variable": "delta2", "value": 238.596}, {"mol": "Ag", "x_labels": "Ag", "where": "SO-ZORA", "row": 5, "charge": 1, "solvent": "12H\u2082O", "complex": "Ag(H\u2082O)\u2084\u207a + 12H\u2082O", "Delta1": -175.03999999999996, "Delta2": 0.7719999999999345, "Delta3": 0.8350000000000364, "Delta4": -36.73400000000038, "d1": 0.008140764518531128, "d2": 0.008319677326579223, "d3": 0.008513190532175308, "d4": 0.0, "solveff": -210.16700000000037, "variable": "delta2", "value": -174.26800000000003}, {"mol": "Cd", "x_labels": "Cd", "where": "SO-ZORA", "row": 5, "charge": 0, "solvent": "6Cd(CH\u2083)\u2082", "complex": "Cd(CH\u2083)\u2082 + 6Cd(CH\u2083)\u2082", "Delta1": 6.981999999999971, "Delta2": 15.735000000000127, "Delta3": 24.100999999999658, "Delta4": 8.080000000000382, "d1": -0.013863777019912952, "d2": -0.009311090414012391, "d3": -0.0023378269955944063, "d4": 0.0, "solveff": 54.89800000000014, "variable": "delta2", "value": 22.7170000000001}, {"mol": "Ta", "x_labels": "Ta", "where": "SO-ZORA", "row": 6, "charge": -1, "solvent": "12CH\u2083CN", "complex": "TaCl\u2086\u207b + 12CH\u2083CN", "Delta1": 11.592999999999847, "Delta2": -18.442000000000007, "Delta3": -4.746999999999844, "Delta4": 42.23099999999977, "d1": -0.0055832686076456115, "d2": -0.010990612356317014, "d3": -0.012382471198901457, "d4": 0.0, "solveff": 30.634999999999764, "variable": "delta2", "value": -6.84900000000016}, {"mol": "W", "x_labels": "W", "where": "SO-ZORA", "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "WO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 85.21000000000004, "Delta2": -32.8159999999998, "Delta3": -27.295000000000073, "Delta4": -99.5, "d1": 0.05316830974068907, "d2": 0.04223691245321864, "d3": 0.03314462549071534, "d4": 0.0, "solveff": -74.40099999999984, "variable": "delta2", "value": 52.39400000000023}, {"mol": "Re", "x_labels": "Re", "where": "SO-ZORA", "row": 6, "charge": -1, "solvent": "12H\u2082O", "complex": "ReO\u2084\u207b + 12H\u2082O", "Delta1": 21.605000000000018, "Delta2": -10.048999999999978, "Delta3": -8.81899999999996, "Delta4": -55.559999999999945, "d1": 0.03932442385502771, "d2": 0.03401498204120532, "d3": 0.029355417173447373, "d4": 0.0, "solveff": -52.822999999999865, "variable": "delta2", "value": 11.55600000000004}, {"mol": "Os", "x_labels": "Os", "where": "SO-ZORA", "row": 6, "charge": 0, "solvent": "12CCl\u2084", "complex": "OsO\u2084 + 12CCl\u2084", "Delta1": 132.73399999999992, "Delta2": 2.826000000000022, "Delta3": 2.0270000000000437, "Delta4": -16.411000000000058, "d1": 0.009486133567518316, "d2": 0.011805549855959828, "d3": 0.013469193457046525, "d4": 0.0, "solveff": 121.17599999999993, "variable": "delta2", "value": 135.55999999999995}, {"mol": "Pt", "x_labels": "Pt", "where": "SO-ZORA", "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "PtCl\u2086\u00b2\u207b + 12H\u2082O", "Delta1": 292.2940000000001, "Delta2": 78.86199999999963, "Delta3": 56.90300000000025, "Delta4": 70.42900000000009, "d1": -0.10937188371234462, "d2": -0.06754095995451033, "d3": -0.0373577911965272, "d4": 0.0, "solveff": 498.48800000000006, "variable": "delta2", "value": 371.1559999999997}, {"mol": "Hg", "x_labels": "Hg", "where": "SO-ZORA", "row": 6, "charge": 0, "solvent": "6Hg(CH\u2083)\u2082", "complex": "Hg(CH\u2083)\u2082 + 6Hg(CH\u2083)\u2082", "Delta1": 31.950000000000728, "Delta2": 35.2450000000008, "Delta3": 28.27599999999984, "Delta4": -55.39500000000044, "d1": -0.0009148227516846377, "d2": 0.003053049249684422, "d3": 0.006236353227857449, "d4": 0.0, "solveff": 40.07600000000093, "variable": "delta2", "value": 67.19500000000153}, {"mol": "Ti", "x_labels": "Ti", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "12TiCl\u2084", "complex": "TiCl\u2084 + 12TiCl\u2084", "Delta1": 22.184000000000083, "Delta2": -0.5, "Delta3": 0.16999999999995907, "Delta4": -17.553999999999974, "d1": -0.021763098138381388, "d2": -0.021154646501768178, "d3": -0.02136152005821662, "d4": -0.0, "solveff": 4.300000000000068, "variable": "delta3", "value": 21.854000000000042}, {"mol": "V", "x_labels": "V", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "VOCl\u2083 + 6C\u2086H\u2086", "Delta1": 2.814000000000078, "Delta2": -1.7970000000000255, "Delta3": -1.122000000000071, "Delta4": -25.22699999999986, "d1": -0.015131346929647224, "d2": -0.014165276069397935, "d3": -0.013562086584033574, "d4": -0.0, "solveff": -25.33199999999988, "variable": "delta3", "value": -0.10500000000001819}, {"mol": "Cr", "x_labels": "Cr", "where": "SO-ZORA", "row": 4, "charge": -2, "solvent": "12H\u2082O", "complex": "CrO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 123.04400000000032, "Delta2": -19.00500000000011, "Delta3": -27.38500000000022, "Delta4": -12.795999999999822, "d1": -0.021712884105380876, "d2": -0.014740739300481661, "d3": -0.004694320701051754, "d4": -0.0, "solveff": 63.858000000000175, "variable": "delta3", "value": 76.654}, {"mol": "Mn", "x_labels": "Mn", "where": "SO-ZORA", "row": 4, "charge": -1, "solvent": "12H\u2082O", "complex": "MnO\u2084\u207b + 12H\u2082O", "Delta1": 35.49200000000019, "Delta2": -6.351000000000113, "Delta3": -13.909999999999854, "Delta4": -22.472999999999956, "d1": -0.010860140180028139, "d2": -0.009246138441755099, "d3": -0.005711141720077042, "d4": -0.0, "solveff": -7.241999999999734, "variable": "delta3", "value": 15.231000000000222}, {"mol": "Fe", "x_labels": "Fe", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Fe(CO)\u2085 + 6C\u2086H\u2086", "Delta1": 67.43199999999979, "Delta2": -2.0169999999998254, "Delta3": -0.8409999999998945, "Delta4": -17.46199999999999, "d1": -0.008717314895411402, "d2": -0.007852018431629732, "d3": -0.007491227987385629, "d4": -0.0, "solveff": 47.11200000000008, "variable": "delta3", "value": 64.57400000000007}, {"mol": "Co", "x_labels": "Co", "where": "SO-ZORA", "row": 4, "charge": -3, "solvent": "12H\u2082O", "complex": "Co(CN)\u2086\u00b3\u207b + 12H\u2082O", "Delta1": 1098.3239999999996, "Delta2": 29.27599999999984, "Delta3": -3.118999999999687, "Delta4": -27.10699999999997, "d1": -0.0001645170921136079, "d2": -0.005234414343396641, "d3": -0.004694278753604651, "d4": -0.0, "solveff": 1097.3739999999998, "variable": "delta3", "value": 1124.4809999999998}, {"mol": "Ni", "x_labels": "Ni", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Ni(CO)\u2084 + 6C\u2086H\u2086", "Delta1": -9.3599999999999, "Delta2": -8.592000000000098, "Delta3": -3.5049999999998818, "Delta4": -6.086999999999989, "d1": -0.011156635879161785, "d2": -0.005885088613776869, "d3": -0.0037346261876626584, "d4": -0.0, "solveff": -27.54399999999987, "variable": "delta3", "value": -21.45699999999988}, {"mol": "Cu", "x_labels": "Cu", "where": "SO-ZORA", "row": 4, "charge": 1, "solvent": "12CH\u2083CN", "complex": "Cu(CH\u2083CN)\u2084\u207a + 12CH\u2083CN", "Delta1": -23.295999999999992, "Delta2": -21.591999999999985, "Delta3": -2.983000000000004, "Delta4": -5.593000000000018, "d1": 0.06319613047294453, "d2": 0.01796506281278088, "d3": 0.01171625423412821, "d4": 0.0, "solveff": -53.464, "variable": "delta3", "value": -47.87099999999998}, {"mol": "Zn", "x_labels": "Zn", "where": "SO-ZORA", "row": 4, "charge": 2, "solvent": "12H\u2082O", "complex": "Zn(H\u2082O)\u2086\u00b2\u207a + 12H\u2082O", "Delta1": -29.680999999999813, "Delta2": -0.6110000000001037, "Delta3": 0.1710000000000491, "Delta4": -13.025000000000091, "d1": 0.007034567861245903, "d2": 0.00671536095718189, "d3": 0.0068046970956351675, "d4": 0.0, "solveff": -43.14599999999996, "variable": "delta3", "value": -30.120999999999867}, {"mol": "Nb", "x_labels": "Nb", "where": "SO-ZORA", "row": 5, "charge": -1, "solvent": "12CH\u2083CN", "complex": "NbCl\u2086\u207b + 12CH\u2083CN", "Delta1": 15.894000000000005, "Delta2": -12.683999999999969, "Delta3": -3.031000000000006, "Delta4": -19.694000000000017, "d1": -0.11137042011203403, "d2": -0.07147597495116995, "d3": -0.061942699700257016, "d4": -0.0, "solveff": -19.514999999999986, "variable": "delta3", "value": 0.17900000000003047}, {"mol": "Mo", "x_labels": "Mo", "where": "SO-ZORA", "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "MoO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 69.5, "Delta2": -12.021000000000015, "Delta3": -19.468000000000018, "Delta4": -21.753999999999905, "d1": -0.09521501751650152, "d2": -0.07371773664266144, "d3": -0.03890290725642746, "d4": -0.0, "solveff": 16.257000000000062, "variable": "delta3", "value": 38.01099999999997}, {"mol": "Tc", "x_labels": "Tc", "where": "SO-ZORA", "row": 5, "charge": -1, "solvent": "12H\u2082O", "complex": "TcO\u2084\u207b + 12H\u2082O", "Delta1": 22.694999999999936, "Delta2": 6.183999999999969, "Delta3": -4.981999999999971, "Delta4": 3.0920000000000982, "d1": 0.003025801759954068, "d2": -0.0013318037555455694, "d3": 0.002178802757749899, "d4": -0.0, "solveff": 26.989000000000033, "variable": "delta3", "value": 23.896999999999935}, {"mol": "Ru", "x_labels": "Ru", "where": "SO-ZORA", "row": 5, "charge": -4, "solvent": "12H\u2082O", "complex": "Ru(CN)\u2086\u2074\u207b + 12H\u2082O", "Delta1": 828.1270000000001, "Delta2": 3.6370000000000005, "Delta3": 2.411999999999999, "Delta4": -46.415, "d1": -0.04974484294377672, "d2": -0.05422688212988671, "d3": -0.057199298549160095, "d4": -0.0, "solveff": 787.761, "variable": "delta3", "value": 834.176}, {"mol": "Pd", "x_labels": "Pd", "where": "SO-ZORA", "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "PdCl\u2086\u00b2\u207b + 12H\u2082O", "Delta1": 202.9269999999999, "Delta2": 35.669000000000096, "Delta3": 31.88799999999992, "Delta4": 0.48500000000012733, "d1": 0.04304883596306927, "d2": 0.02048176077470446, "d3": 0.0003068499668159965, "d4": -0.0, "solveff": 270.96900000000005, "variable": "delta3", "value": 270.4839999999999}, {"mol": "Ag", "x_labels": "Ag", "where": "SO-ZORA", "row": 5, "charge": 1, "solvent": "12H\u2082O", "complex": "Ag(H\u2082O)\u2084\u207a + 12H\u2082O", "Delta1": -175.03999999999996, "Delta2": 0.7719999999999345, "Delta3": 0.8350000000000364, "Delta4": -36.73400000000038, "d1": 0.008140764518531128, "d2": 0.008319677326579223, "d3": 0.008513190532175308, "d4": 0.0, "solveff": -210.16700000000037, "variable": "delta3", "value": -173.433}, {"mol": "Cd", "x_labels": "Cd", "where": "SO-ZORA", "row": 5, "charge": 0, "solvent": "6Cd(CH\u2083)\u2082", "complex": "Cd(CH\u2083)\u2082 + 6Cd(CH\u2083)\u2082", "Delta1": 6.981999999999971, "Delta2": 15.735000000000127, "Delta3": 24.100999999999658, "Delta4": 8.080000000000382, "d1": -0.013863777019912952, "d2": -0.009311090414012391, "d3": -0.0023378269955944063, "d4": 0.0, "solveff": 54.89800000000014, "variable": "delta3", "value": 46.817999999999756}, {"mol": "Ta", "x_labels": "Ta", "where": "SO-ZORA", "row": 6, "charge": -1, "solvent": "12CH\u2083CN", "complex": "TaCl\u2086\u207b + 12CH\u2083CN", "Delta1": 11.592999999999847, "Delta2": -18.442000000000007, "Delta3": -4.746999999999844, "Delta4": 42.23099999999977, "d1": -0.0055832686076456115, "d2": -0.010990612356317014, "d3": -0.012382471198901457, "d4": 0.0, "solveff": 30.634999999999764, "variable": "delta3", "value": -11.596000000000004}, {"mol": "W", "x_labels": "W", "where": "SO-ZORA", "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "WO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 85.21000000000004, "Delta2": -32.8159999999998, "Delta3": -27.295000000000073, "Delta4": -99.5, "d1": 0.05316830974068907, "d2": 0.04223691245321864, "d3": 0.03314462549071534, "d4": 0.0, "solveff": -74.40099999999984, "variable": "delta3", "value": 25.09900000000016}, {"mol": "Re", "x_labels": "Re", "where": "SO-ZORA", "row": 6, "charge": -1, "solvent": "12H\u2082O", "complex": "ReO\u2084\u207b + 12H\u2082O", "Delta1": 21.605000000000018, "Delta2": -10.048999999999978, "Delta3": -8.81899999999996, "Delta4": -55.559999999999945, "d1": 0.03932442385502771, "d2": 0.03401498204120532, "d3": 0.029355417173447373, "d4": 0.0, "solveff": -52.822999999999865, "variable": "delta3", "value": 2.73700000000008}, {"mol": "Os", "x_labels": "Os", "where": "SO-ZORA", "row": 6, "charge": 0, "solvent": "12CCl\u2084", "complex": "OsO\u2084 + 12CCl\u2084", "Delta1": 132.73399999999992, "Delta2": 2.826000000000022, "Delta3": 2.0270000000000437, "Delta4": -16.411000000000058, "d1": 0.009486133567518316, "d2": 0.011805549855959828, "d3": 0.013469193457046525, "d4": 0.0, "solveff": 121.17599999999993, "variable": "delta3", "value": 137.587}, {"mol": "Pt", "x_labels": "Pt", "where": "SO-ZORA", "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "PtCl\u2086\u00b2\u207b + 12H\u2082O", "Delta1": 292.2940000000001, "Delta2": 78.86199999999963, "Delta3": 56.90300000000025, "Delta4": 70.42900000000009, "d1": -0.10937188371234462, "d2": -0.06754095995451033, "d3": -0.0373577911965272, "d4": 0.0, "solveff": 498.48800000000006, "variable": "delta3", "value": 428.05899999999997}, {"mol": "Hg", "x_labels": "Hg", "where": "SO-ZORA", "row": 6, "charge": 0, "solvent": "6Hg(CH\u2083)\u2082", "complex": "Hg(CH\u2083)\u2082 + 6Hg(CH\u2083)\u2082", "Delta1": 31.950000000000728, "Delta2": 35.2450000000008, "Delta3": 28.27599999999984, "Delta4": -55.39500000000044, "d1": -0.0009148227516846377, "d2": 0.003053049249684422, "d3": 0.006236353227857449, "d4": 0.0, "solveff": 40.07600000000093, "variable": "delta3", "value": 95.47100000000137}, {"mol": "Ti", "x_labels": "Ti", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "12TiCl\u2084", "complex": "TiCl\u2084 + 12TiCl\u2084", "Delta1": 22.184000000000083, "Delta2": -0.5, "Delta3": 0.16999999999995907, "Delta4": -17.553999999999974, "d1": -0.021763098138381388, "d2": -0.021154646501768178, "d3": -0.02136152005821662, "d4": -0.0, "solveff": 4.300000000000068, "variable": "delta4", "value": 4.300000000000068}, {"mol": "V", "x_labels": "V", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "VOCl\u2083 + 6C\u2086H\u2086", "Delta1": 2.814000000000078, "Delta2": -1.7970000000000255, "Delta3": -1.122000000000071, "Delta4": -25.22699999999986, "d1": -0.015131346929647224, "d2": -0.014165276069397935, "d3": -0.013562086584033574, "d4": -0.0, "solveff": -25.33199999999988, "variable": "delta4", "value": -25.33199999999988}, {"mol": "Cr", "x_labels": "Cr", "where": "SO-ZORA", "row": 4, "charge": -2, "solvent": "12H\u2082O", "complex": "CrO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 123.04400000000032, "Delta2": -19.00500000000011, "Delta3": -27.38500000000022, "Delta4": -12.795999999999822, "d1": -0.021712884105380876, "d2": -0.014740739300481661, "d3": -0.004694320701051754, "d4": -0.0, "solveff": 63.858000000000175, "variable": "delta4", "value": 63.858000000000175}, {"mol": "Mn", "x_labels": "Mn", "where": "SO-ZORA", "row": 4, "charge": -1, "solvent": "12H\u2082O", "complex": "MnO\u2084\u207b + 12H\u2082O", "Delta1": 35.49200000000019, "Delta2": -6.351000000000113, "Delta3": -13.909999999999854, "Delta4": -22.472999999999956, "d1": -0.010860140180028139, "d2": -0.009246138441755099, "d3": -0.005711141720077042, "d4": -0.0, "solveff": -7.241999999999734, "variable": "delta4", "value": -7.241999999999734}, {"mol": "Fe", "x_labels": "Fe", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Fe(CO)\u2085 + 6C\u2086H\u2086", "Delta1": 67.43199999999979, "Delta2": -2.0169999999998254, "Delta3": -0.8409999999998945, "Delta4": -17.46199999999999, "d1": -0.008717314895411402, "d2": -0.007852018431629732, "d3": -0.007491227987385629, "d4": -0.0, "solveff": 47.11200000000008, "variable": "delta4", "value": 47.11200000000008}, {"mol": "Co", "x_labels": "Co", "where": "SO-ZORA", "row": 4, "charge": -3, "solvent": "12H\u2082O", "complex": "Co(CN)\u2086\u00b3\u207b + 12H\u2082O", "Delta1": 1098.3239999999996, "Delta2": 29.27599999999984, "Delta3": -3.118999999999687, "Delta4": -27.10699999999997, "d1": -0.0001645170921136079, "d2": -0.005234414343396641, "d3": -0.004694278753604651, "d4": -0.0, "solveff": 1097.3739999999998, "variable": "delta4", "value": 1097.3739999999998}, {"mol": "Ni", "x_labels": "Ni", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Ni(CO)\u2084 + 6C\u2086H\u2086", "Delta1": -9.3599999999999, "Delta2": -8.592000000000098, "Delta3": -3.5049999999998818, "Delta4": -6.086999999999989, "d1": -0.011156635879161785, "d2": -0.005885088613776869, "d3": -0.0037346261876626584, "d4": -0.0, "solveff": -27.54399999999987, "variable": "delta4", "value": -27.54399999999987}, {"mol": "Cu", "x_labels": "Cu", "where": "SO-ZORA", "row": 4, "charge": 1, "solvent": "12CH\u2083CN", "complex": "Cu(CH\u2083CN)\u2084\u207a + 12CH\u2083CN", "Delta1": -23.295999999999992, "Delta2": -21.591999999999985, "Delta3": -2.983000000000004, "Delta4": -5.593000000000018, "d1": 0.06319613047294453, "d2": 0.01796506281278088, "d3": 0.01171625423412821, "d4": 0.0, "solveff": -53.464, "variable": "delta4", "value": -53.464}, {"mol": "Zn", "x_labels": "Zn", "where": "SO-ZORA", "row": 4, "charge": 2, "solvent": "12H\u2082O", "complex": "Zn(H\u2082O)\u2086\u00b2\u207a + 12H\u2082O", "Delta1": -29.680999999999813, "Delta2": -0.6110000000001037, "Delta3": 0.1710000000000491, "Delta4": -13.025000000000091, "d1": 0.007034567861245903, "d2": 0.00671536095718189, "d3": 0.0068046970956351675, "d4": 0.0, "solveff": -43.14599999999996, "variable": "delta4", "value": -43.14599999999996}, {"mol": "Nb", "x_labels": "Nb", "where": "SO-ZORA", "row": 5, "charge": -1, "solvent": "12CH\u2083CN", "complex": "NbCl\u2086\u207b + 12CH\u2083CN", "Delta1": 15.894000000000005, "Delta2": -12.683999999999969, "Delta3": -3.031000000000006, "Delta4": -19.694000000000017, "d1": -0.11137042011203403, "d2": -0.07147597495116995, "d3": -0.061942699700257016, "d4": -0.0, "solveff": -19.514999999999986, "variable": "delta4", "value": -19.514999999999986}, {"mol": "Mo", "x_labels": "Mo", "where": "SO-ZORA", "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "MoO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 69.5, "Delta2": -12.021000000000015, "Delta3": -19.468000000000018, "Delta4": -21.753999999999905, "d1": -0.09521501751650152, "d2": -0.07371773664266144, "d3": -0.03890290725642746, "d4": -0.0, "solveff": 16.257000000000062, "variable": "delta4", "value": 16.257000000000062}, {"mol": "Tc", "x_labels": "Tc", "where": "SO-ZORA", "row": 5, "charge": -1, "solvent": "12H\u2082O", "complex": "TcO\u2084\u207b + 12H\u2082O", "Delta1": 22.694999999999936, "Delta2": 6.183999999999969, "Delta3": -4.981999999999971, "Delta4": 3.0920000000000982, "d1": 0.003025801759954068, "d2": -0.0013318037555455694, "d3": 0.002178802757749899, "d4": -0.0, "solveff": 26.989000000000033, "variable": "delta4", "value": 26.989000000000033}, {"mol": "Ru", "x_labels": "Ru", "where": "SO-ZORA", "row": 5, "charge": -4, "solvent": "12H\u2082O", "complex": "Ru(CN)\u2086\u2074\u207b + 12H\u2082O", "Delta1": 828.1270000000001, "Delta2": 3.6370000000000005, "Delta3": 2.411999999999999, "Delta4": -46.415, "d1": -0.04974484294377672, "d2": -0.05422688212988671, "d3": -0.057199298549160095, "d4": -0.0, "solveff": 787.761, "variable": "delta4", "value": 787.761}, {"mol": "Pd", "x_labels": "Pd", "where": "SO-ZORA", "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "PdCl\u2086\u00b2\u207b + 12H\u2082O", "Delta1": 202.9269999999999, "Delta2": 35.669000000000096, "Delta3": 31.88799999999992, "Delta4": 0.48500000000012733, "d1": 0.04304883596306927, "d2": 0.02048176077470446, "d3": 0.0003068499668159965, "d4": -0.0, "solveff": 270.96900000000005, "variable": "delta4", "value": 270.96900000000005}, {"mol": "Ag", "x_labels": "Ag", "where": "SO-ZORA", "row": 5, "charge": 1, "solvent": "12H\u2082O", "complex": "Ag(H\u2082O)\u2084\u207a + 12H\u2082O", "Delta1": -175.03999999999996, "Delta2": 0.7719999999999345, "Delta3": 0.8350000000000364, "Delta4": -36.73400000000038, "d1": 0.008140764518531128, "d2": 0.008319677326579223, "d3": 0.008513190532175308, "d4": 0.0, "solveff": -210.16700000000037, "variable": "delta4", "value": -210.16700000000037}, {"mol": "Cd", "x_labels": "Cd", "where": "SO-ZORA", "row": 5, "charge": 0, "solvent": "6Cd(CH\u2083)\u2082", "complex": "Cd(CH\u2083)\u2082 + 6Cd(CH\u2083)\u2082", "Delta1": 6.981999999999971, "Delta2": 15.735000000000127, "Delta3": 24.100999999999658, "Delta4": 8.080000000000382, "d1": -0.013863777019912952, "d2": -0.009311090414012391, "d3": -0.0023378269955944063, "d4": 0.0, "solveff": 54.89800000000014, "variable": "delta4", "value": 54.89800000000014}, {"mol": "Ta", "x_labels": "Ta", "where": "SO-ZORA", "row": 6, "charge": -1, "solvent": "12CH\u2083CN", "complex": "TaCl\u2086\u207b + 12CH\u2083CN", "Delta1": 11.592999999999847, "Delta2": -18.442000000000007, "Delta3": -4.746999999999844, "Delta4": 42.23099999999977, "d1": -0.0055832686076456115, "d2": -0.010990612356317014, "d3": -0.012382471198901457, "d4": 0.0, "solveff": 30.634999999999764, "variable": "delta4", "value": 30.634999999999764}, {"mol": "W", "x_labels": "W", "where": "SO-ZORA", "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "WO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 85.21000000000004, "Delta2": -32.8159999999998, "Delta3": -27.295000000000073, "Delta4": -99.5, "d1": 0.05316830974068907, "d2": 0.04223691245321864, "d3": 0.03314462549071534, "d4": 0.0, "solveff": -74.40099999999984, "variable": "delta4", "value": -74.40099999999984}, {"mol": "Re", "x_labels": "Re", "where": "SO-ZORA", "row": 6, "charge": -1, "solvent": "12H\u2082O", "complex": "ReO\u2084\u207b + 12H\u2082O", "Delta1": 21.605000000000018, "Delta2": -10.048999999999978, "Delta3": -8.81899999999996, "Delta4": -55.559999999999945, "d1": 0.03932442385502771, "d2": 0.03401498204120532, "d3": 0.029355417173447373, "d4": 0.0, "solveff": -52.822999999999865, "variable": "delta4", "value": -52.822999999999865}, {"mol": "Os", "x_labels": "Os", "where": "SO-ZORA", "row": 6, "charge": 0, "solvent": "12CCl\u2084", "complex": "OsO\u2084 + 12CCl\u2084", "Delta1": 132.73399999999992, "Delta2": 2.826000000000022, "Delta3": 2.0270000000000437, "Delta4": -16.411000000000058, "d1": 0.009486133567518316, "d2": 0.011805549855959828, "d3": 0.013469193457046525, "d4": 0.0, "solveff": 121.17599999999993, "variable": "delta4", "value": 121.17599999999993}, {"mol": "Pt", "x_labels": "Pt", "where": "SO-ZORA", "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "PtCl\u2086\u00b2\u207b + 12H\u2082O", "Delta1": 292.2940000000001, "Delta2": 78.86199999999963, "Delta3": 56.90300000000025, "Delta4": 70.42900000000009, "d1": -0.10937188371234462, "d2": -0.06754095995451033, "d3": -0.0373577911965272, "d4": 0.0, "solveff": 498.48800000000006, "variable": "delta4", "value": 498.48800000000006}, {"mol": "Hg", "x_labels": "Hg", "where": "SO-ZORA", "row": 6, "charge": 0, "solvent": "6Hg(CH\u2083)\u2082", "complex": "Hg(CH\u2083)\u2082 + 6Hg(CH\u2083)\u2082", "Delta1": 31.950000000000728, "Delta2": 35.2450000000008, "Delta3": 28.27599999999984, "Delta4": -55.39500000000044, "d1": -0.0009148227516846377, "d2": 0.003053049249684422, "d3": 0.006236353227857449, "d4": 0.0, "solveff": 40.07600000000093, "variable": "delta4", "value": 40.07600000000093}]}}, {"mode": "vega-lite"});
 </script>
 
 
 
-
-```python
-
-```
-
-Let's now try to assemble what we did in a one page summary. I used a 1-page business plan as an inspiration ([link](https://leanstack.com/leancanvas))
+To zoom into the plots for each row, we may keep the y-axes of all plots independent:
 
 
 ```python
+delta_points, delta_text=plot_chart(df_adf_all_melted_delta, 
+                                    'mol:O', 
+                                    'value', 
+                                    'solvent:N', 
+                                    'variable:N', 
+                                    "δ(fdeN) [ppm]")
+                                          
+layer=def_layer(delta_points, 
+                delta_text,
+                True, True,
+                10,
+                'Approximations to solvent effects on σ(X) [ppm] (note different y-scales)')
+
+layer
+
+```
+
+
+
+
+
+<div id="altair-viz-88ba2c2deaba435c82eb62a26d213b89"></div>
+<script type="text/javascript">
+  (function(spec, embedOpt){
+    let outputDiv = document.currentScript.previousElementSibling;
+    if (outputDiv.id !== "altair-viz-88ba2c2deaba435c82eb62a26d213b89") {
+      outputDiv = document.getElementById("altair-viz-88ba2c2deaba435c82eb62a26d213b89");
+    }
+    const paths = {
+      "vega": "https://cdn.jsdelivr.net/npm//vega@5?noext",
+      "vega-lib": "https://cdn.jsdelivr.net/npm//vega-lib?noext",
+      "vega-lite": "https://cdn.jsdelivr.net/npm//vega-lite@4.8.1?noext",
+      "vega-embed": "https://cdn.jsdelivr.net/npm//vega-embed@6?noext",
+    };
+
+    function loadScript(lib) {
+      return new Promise(function(resolve, reject) {
+        var s = document.createElement('script');
+        s.src = paths[lib];
+        s.async = true;
+        s.onload = () => resolve(paths[lib]);
+        s.onerror = () => reject(`Error loading script: ${paths[lib]}`);
+        document.getElementsByTagName("head")[0].appendChild(s);
+      });
+    }
+
+    function showError(err) {
+      outputDiv.innerHTML = `<div class="error" style="color:red;">${err}</div>`;
+      throw err;
+    }
+
+    function displayChart(vegaEmbed) {
+      vegaEmbed(outputDiv, spec, embedOpt)
+        .catch(err => showError(`Javascript Error: ${err.message}<br>This usually means there's a typo in your chart specification. See the javascript console for the full traceback.`));
+    }
+
+    if(typeof define === "function" && define.amd) {
+      requirejs.config({paths});
+      require(["vega-embed"], displayChart, err => showError(`Error loading script: ${err.message}`));
+    } else if (typeof vegaEmbed === "function") {
+      displayChart(vegaEmbed);
+    } else {
+      loadScript("vega")
+        .then(() => loadScript("vega-lite"))
+        .then(() => loadScript("vega-embed"))
+        .catch(showError)
+        .then(() => displayChart(vegaEmbed));
+    }
+  })({"config": {"view": {"continuousWidth": 400, "continuousHeight": 300}}, "data": {"name": "data-e2958ed67ee61d3fe3755e8257c7988b"}, "facet": {"type": "nominal", "field": "row", "title": "row(X)"}, "spec": {"layer": [{"mark": "point", "encoding": {"color": {"condition": {"type": "nominal", "field": "solvent", "selection": "selector005"}, "value": "lightgray"}, "x": {"type": "ordinal", "axis": {"labelAngle": 0, "title": "X"}, "field": "mol"}, "y": {"type": "quantitative", "axis": {"format": ",.0f", "title": "\u03b4(fdeN) [ppm]"}, "field": "value"}}, "height": 190, "selection": {"selector005": {"type": "single", "on": "mouseover", "nearest": true, "empty": "none"}, "selector006": {"type": "multi", "fields": ["row"], "bind": "legend"}}, "width": 230}, {"mark": {"type": "text", "dy": -5}, "encoding": {"color": {"condition": {"type": "nominal", "field": "solvent", "selection": "selector005"}, "value": "lightgray"}, "opacity": {"condition": {"value": 1, "selection": "selector005"}, "value": 0}, "text": {"type": "nominal", "field": "variable"}, "x": {"type": "ordinal", "axis": {"labelAngle": 0, "title": "X"}, "field": "mol"}, "y": {"type": "quantitative", "axis": {"format": ",.0f", "title": "\u03b4(fdeN) [ppm]"}, "field": "value"}}, "height": 190, "width": 230}]}, "resolve": {"scale": {"x": "independent", "y": "independent"}}, "spacing": 10, "title": "Approximations to solvent effects on \u03c3(X) [ppm] (note different y-scales)", "transform": [{"filter": {"selection": "selector006"}}], "$schema": "https://vega.github.io/schema/vega-lite/v4.8.1.json", "datasets": {"data-e2958ed67ee61d3fe3755e8257c7988b": [{"mol": "Ti", "x_labels": "Ti", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "12TiCl\u2084", "complex": "TiCl\u2084 + 12TiCl\u2084", "Delta1": 22.184000000000083, "Delta2": -0.5, "Delta3": 0.16999999999995907, "Delta4": -17.553999999999974, "d1": -0.021763098138381388, "d2": -0.021154646501768178, "d3": -0.02136152005821662, "d4": -0.0, "solveff": 4.300000000000068, "variable": "delta1", "value": 22.184000000000083}, {"mol": "V", "x_labels": "V", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "VOCl\u2083 + 6C\u2086H\u2086", "Delta1": 2.814000000000078, "Delta2": -1.7970000000000255, "Delta3": -1.122000000000071, "Delta4": -25.22699999999986, "d1": -0.015131346929647224, "d2": -0.014165276069397935, "d3": -0.013562086584033574, "d4": -0.0, "solveff": -25.33199999999988, "variable": "delta1", "value": 2.814000000000078}, {"mol": "Cr", "x_labels": "Cr", "where": "SO-ZORA", "row": 4, "charge": -2, "solvent": "12H\u2082O", "complex": "CrO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 123.04400000000032, "Delta2": -19.00500000000011, "Delta3": -27.38500000000022, "Delta4": -12.795999999999822, "d1": -0.021712884105380876, "d2": -0.014740739300481661, "d3": -0.004694320701051754, "d4": -0.0, "solveff": 63.858000000000175, "variable": "delta1", "value": 123.04400000000032}, {"mol": "Mn", "x_labels": "Mn", "where": "SO-ZORA", "row": 4, "charge": -1, "solvent": "12H\u2082O", "complex": "MnO\u2084\u207b + 12H\u2082O", "Delta1": 35.49200000000019, "Delta2": -6.351000000000113, "Delta3": -13.909999999999854, "Delta4": -22.472999999999956, "d1": -0.010860140180028139, "d2": -0.009246138441755099, "d3": -0.005711141720077042, "d4": -0.0, "solveff": -7.241999999999734, "variable": "delta1", "value": 35.49200000000019}, {"mol": "Fe", "x_labels": "Fe", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Fe(CO)\u2085 + 6C\u2086H\u2086", "Delta1": 67.43199999999979, "Delta2": -2.0169999999998254, "Delta3": -0.8409999999998945, "Delta4": -17.46199999999999, "d1": -0.008717314895411402, "d2": -0.007852018431629732, "d3": -0.007491227987385629, "d4": -0.0, "solveff": 47.11200000000008, "variable": "delta1", "value": 67.43199999999979}, {"mol": "Co", "x_labels": "Co", "where": "SO-ZORA", "row": 4, "charge": -3, "solvent": "12H\u2082O", "complex": "Co(CN)\u2086\u00b3\u207b + 12H\u2082O", "Delta1": 1098.3239999999996, "Delta2": 29.27599999999984, "Delta3": -3.118999999999687, "Delta4": -27.10699999999997, "d1": -0.0001645170921136079, "d2": -0.005234414343396641, "d3": -0.004694278753604651, "d4": -0.0, "solveff": 1097.3739999999998, "variable": "delta1", "value": 1098.3239999999996}, {"mol": "Ni", "x_labels": "Ni", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Ni(CO)\u2084 + 6C\u2086H\u2086", "Delta1": -9.3599999999999, "Delta2": -8.592000000000098, "Delta3": -3.5049999999998818, "Delta4": -6.086999999999989, "d1": -0.011156635879161785, "d2": -0.005885088613776869, "d3": -0.0037346261876626584, "d4": -0.0, "solveff": -27.54399999999987, "variable": "delta1", "value": -9.3599999999999}, {"mol": "Cu", "x_labels": "Cu", "where": "SO-ZORA", "row": 4, "charge": 1, "solvent": "12CH\u2083CN", "complex": "Cu(CH\u2083CN)\u2084\u207a + 12CH\u2083CN", "Delta1": -23.295999999999992, "Delta2": -21.591999999999985, "Delta3": -2.983000000000004, "Delta4": -5.593000000000018, "d1": 0.06319613047294453, "d2": 0.01796506281278088, "d3": 0.01171625423412821, "d4": 0.0, "solveff": -53.464, "variable": "delta1", "value": -23.295999999999992}, {"mol": "Zn", "x_labels": "Zn", "where": "SO-ZORA", "row": 4, "charge": 2, "solvent": "12H\u2082O", "complex": "Zn(H\u2082O)\u2086\u00b2\u207a + 12H\u2082O", "Delta1": -29.680999999999813, "Delta2": -0.6110000000001037, "Delta3": 0.1710000000000491, "Delta4": -13.025000000000091, "d1": 0.007034567861245903, "d2": 0.00671536095718189, "d3": 0.0068046970956351675, "d4": 0.0, "solveff": -43.14599999999996, "variable": "delta1", "value": -29.680999999999813}, {"mol": "Nb", "x_labels": "Nb", "where": "SO-ZORA", "row": 5, "charge": -1, "solvent": "12CH\u2083CN", "complex": "NbCl\u2086\u207b + 12CH\u2083CN", "Delta1": 15.894000000000005, "Delta2": -12.683999999999969, "Delta3": -3.031000000000006, "Delta4": -19.694000000000017, "d1": -0.11137042011203403, "d2": -0.07147597495116995, "d3": -0.061942699700257016, "d4": -0.0, "solveff": -19.514999999999986, "variable": "delta1", "value": 15.894000000000005}, {"mol": "Mo", "x_labels": "Mo", "where": "SO-ZORA", "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "MoO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 69.5, "Delta2": -12.021000000000015, "Delta3": -19.468000000000018, "Delta4": -21.753999999999905, "d1": -0.09521501751650152, "d2": -0.07371773664266144, "d3": -0.03890290725642746, "d4": -0.0, "solveff": 16.257000000000062, "variable": "delta1", "value": 69.5}, {"mol": "Tc", "x_labels": "Tc", "where": "SO-ZORA", "row": 5, "charge": -1, "solvent": "12H\u2082O", "complex": "TcO\u2084\u207b + 12H\u2082O", "Delta1": 22.694999999999936, "Delta2": 6.183999999999969, "Delta3": -4.981999999999971, "Delta4": 3.0920000000000982, "d1": 0.003025801759954068, "d2": -0.0013318037555455694, "d3": 0.002178802757749899, "d4": -0.0, "solveff": 26.989000000000033, "variable": "delta1", "value": 22.694999999999936}, {"mol": "Ru", "x_labels": "Ru", "where": "SO-ZORA", "row": 5, "charge": -4, "solvent": "12H\u2082O", "complex": "Ru(CN)\u2086\u2074\u207b + 12H\u2082O", "Delta1": 828.1270000000001, "Delta2": 3.6370000000000005, "Delta3": 2.411999999999999, "Delta4": -46.415, "d1": -0.04974484294377672, "d2": -0.05422688212988671, "d3": -0.057199298549160095, "d4": -0.0, "solveff": 787.761, "variable": "delta1", "value": 828.1270000000001}, {"mol": "Pd", "x_labels": "Pd", "where": "SO-ZORA", "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "PdCl\u2086\u00b2\u207b + 12H\u2082O", "Delta1": 202.9269999999999, "Delta2": 35.669000000000096, "Delta3": 31.88799999999992, "Delta4": 0.48500000000012733, "d1": 0.04304883596306927, "d2": 0.02048176077470446, "d3": 0.0003068499668159965, "d4": -0.0, "solveff": 270.96900000000005, "variable": "delta1", "value": 202.9269999999999}, {"mol": "Ag", "x_labels": "Ag", "where": "SO-ZORA", "row": 5, "charge": 1, "solvent": "12H\u2082O", "complex": "Ag(H\u2082O)\u2084\u207a + 12H\u2082O", "Delta1": -175.03999999999996, "Delta2": 0.7719999999999345, "Delta3": 0.8350000000000364, "Delta4": -36.73400000000038, "d1": 0.008140764518531128, "d2": 0.008319677326579223, "d3": 0.008513190532175308, "d4": 0.0, "solveff": -210.16700000000037, "variable": "delta1", "value": -175.03999999999996}, {"mol": "Cd", "x_labels": "Cd", "where": "SO-ZORA", "row": 5, "charge": 0, "solvent": "6Cd(CH\u2083)\u2082", "complex": "Cd(CH\u2083)\u2082 + 6Cd(CH\u2083)\u2082", "Delta1": 6.981999999999971, "Delta2": 15.735000000000127, "Delta3": 24.100999999999658, "Delta4": 8.080000000000382, "d1": -0.013863777019912952, "d2": -0.009311090414012391, "d3": -0.0023378269955944063, "d4": 0.0, "solveff": 54.89800000000014, "variable": "delta1", "value": 6.981999999999971}, {"mol": "Ta", "x_labels": "Ta", "where": "SO-ZORA", "row": 6, "charge": -1, "solvent": "12CH\u2083CN", "complex": "TaCl\u2086\u207b + 12CH\u2083CN", "Delta1": 11.592999999999847, "Delta2": -18.442000000000007, "Delta3": -4.746999999999844, "Delta4": 42.23099999999977, "d1": -0.0055832686076456115, "d2": -0.010990612356317014, "d3": -0.012382471198901457, "d4": 0.0, "solveff": 30.634999999999764, "variable": "delta1", "value": 11.592999999999847}, {"mol": "W", "x_labels": "W", "where": "SO-ZORA", "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "WO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 85.21000000000004, "Delta2": -32.8159999999998, "Delta3": -27.295000000000073, "Delta4": -99.5, "d1": 0.05316830974068907, "d2": 0.04223691245321864, "d3": 0.03314462549071534, "d4": 0.0, "solveff": -74.40099999999984, "variable": "delta1", "value": 85.21000000000004}, {"mol": "Re", "x_labels": "Re", "where": "SO-ZORA", "row": 6, "charge": -1, "solvent": "12H\u2082O", "complex": "ReO\u2084\u207b + 12H\u2082O", "Delta1": 21.605000000000018, "Delta2": -10.048999999999978, "Delta3": -8.81899999999996, "Delta4": -55.559999999999945, "d1": 0.03932442385502771, "d2": 0.03401498204120532, "d3": 0.029355417173447373, "d4": 0.0, "solveff": -52.822999999999865, "variable": "delta1", "value": 21.605000000000018}, {"mol": "Os", "x_labels": "Os", "where": "SO-ZORA", "row": 6, "charge": 0, "solvent": "12CCl\u2084", "complex": "OsO\u2084 + 12CCl\u2084", "Delta1": 132.73399999999992, "Delta2": 2.826000000000022, "Delta3": 2.0270000000000437, "Delta4": -16.411000000000058, "d1": 0.009486133567518316, "d2": 0.011805549855959828, "d3": 0.013469193457046525, "d4": 0.0, "solveff": 121.17599999999993, "variable": "delta1", "value": 132.73399999999992}, {"mol": "Pt", "x_labels": "Pt", "where": "SO-ZORA", "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "PtCl\u2086\u00b2\u207b + 12H\u2082O", "Delta1": 292.2940000000001, "Delta2": 78.86199999999963, "Delta3": 56.90300000000025, "Delta4": 70.42900000000009, "d1": -0.10937188371234462, "d2": -0.06754095995451033, "d3": -0.0373577911965272, "d4": 0.0, "solveff": 498.48800000000006, "variable": "delta1", "value": 292.2940000000001}, {"mol": "Hg", "x_labels": "Hg", "where": "SO-ZORA", "row": 6, "charge": 0, "solvent": "6Hg(CH\u2083)\u2082", "complex": "Hg(CH\u2083)\u2082 + 6Hg(CH\u2083)\u2082", "Delta1": 31.950000000000728, "Delta2": 35.2450000000008, "Delta3": 28.27599999999984, "Delta4": -55.39500000000044, "d1": -0.0009148227516846377, "d2": 0.003053049249684422, "d3": 0.006236353227857449, "d4": 0.0, "solveff": 40.07600000000093, "variable": "delta1", "value": 31.950000000000728}, {"mol": "Ti", "x_labels": "Ti", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "12TiCl\u2084", "complex": "TiCl\u2084 + 12TiCl\u2084", "Delta1": 22.184000000000083, "Delta2": -0.5, "Delta3": 0.16999999999995907, "Delta4": -17.553999999999974, "d1": -0.021763098138381388, "d2": -0.021154646501768178, "d3": -0.02136152005821662, "d4": -0.0, "solveff": 4.300000000000068, "variable": "delta2", "value": 21.684000000000083}, {"mol": "V", "x_labels": "V", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "VOCl\u2083 + 6C\u2086H\u2086", "Delta1": 2.814000000000078, "Delta2": -1.7970000000000255, "Delta3": -1.122000000000071, "Delta4": -25.22699999999986, "d1": -0.015131346929647224, "d2": -0.014165276069397935, "d3": -0.013562086584033574, "d4": -0.0, "solveff": -25.33199999999988, "variable": "delta2", "value": 1.0170000000000528}, {"mol": "Cr", "x_labels": "Cr", "where": "SO-ZORA", "row": 4, "charge": -2, "solvent": "12H\u2082O", "complex": "CrO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 123.04400000000032, "Delta2": -19.00500000000011, "Delta3": -27.38500000000022, "Delta4": -12.795999999999822, "d1": -0.021712884105380876, "d2": -0.014740739300481661, "d3": -0.004694320701051754, "d4": -0.0, "solveff": 63.858000000000175, "variable": "delta2", "value": 104.03900000000021}, {"mol": "Mn", "x_labels": "Mn", "where": "SO-ZORA", "row": 4, "charge": -1, "solvent": "12H\u2082O", "complex": "MnO\u2084\u207b + 12H\u2082O", "Delta1": 35.49200000000019, "Delta2": -6.351000000000113, "Delta3": -13.909999999999854, "Delta4": -22.472999999999956, "d1": -0.010860140180028139, "d2": -0.009246138441755099, "d3": -0.005711141720077042, "d4": -0.0, "solveff": -7.241999999999734, "variable": "delta2", "value": 29.141000000000076}, {"mol": "Fe", "x_labels": "Fe", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Fe(CO)\u2085 + 6C\u2086H\u2086", "Delta1": 67.43199999999979, "Delta2": -2.0169999999998254, "Delta3": -0.8409999999998945, "Delta4": -17.46199999999999, "d1": -0.008717314895411402, "d2": -0.007852018431629732, "d3": -0.007491227987385629, "d4": -0.0, "solveff": 47.11200000000008, "variable": "delta2", "value": 65.41499999999996}, {"mol": "Co", "x_labels": "Co", "where": "SO-ZORA", "row": 4, "charge": -3, "solvent": "12H\u2082O", "complex": "Co(CN)\u2086\u00b3\u207b + 12H\u2082O", "Delta1": 1098.3239999999996, "Delta2": 29.27599999999984, "Delta3": -3.118999999999687, "Delta4": -27.10699999999997, "d1": -0.0001645170921136079, "d2": -0.005234414343396641, "d3": -0.004694278753604651, "d4": -0.0, "solveff": 1097.3739999999998, "variable": "delta2", "value": 1127.5999999999995}, {"mol": "Ni", "x_labels": "Ni", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Ni(CO)\u2084 + 6C\u2086H\u2086", "Delta1": -9.3599999999999, "Delta2": -8.592000000000098, "Delta3": -3.5049999999998818, "Delta4": -6.086999999999989, "d1": -0.011156635879161785, "d2": -0.005885088613776869, "d3": -0.0037346261876626584, "d4": -0.0, "solveff": -27.54399999999987, "variable": "delta2", "value": -17.951999999999998}, {"mol": "Cu", "x_labels": "Cu", "where": "SO-ZORA", "row": 4, "charge": 1, "solvent": "12CH\u2083CN", "complex": "Cu(CH\u2083CN)\u2084\u207a + 12CH\u2083CN", "Delta1": -23.295999999999992, "Delta2": -21.591999999999985, "Delta3": -2.983000000000004, "Delta4": -5.593000000000018, "d1": 0.06319613047294453, "d2": 0.01796506281278088, "d3": 0.01171625423412821, "d4": 0.0, "solveff": -53.464, "variable": "delta2", "value": -44.88799999999998}, {"mol": "Zn", "x_labels": "Zn", "where": "SO-ZORA", "row": 4, "charge": 2, "solvent": "12H\u2082O", "complex": "Zn(H\u2082O)\u2086\u00b2\u207a + 12H\u2082O", "Delta1": -29.680999999999813, "Delta2": -0.6110000000001037, "Delta3": 0.1710000000000491, "Delta4": -13.025000000000091, "d1": 0.007034567861245903, "d2": 0.00671536095718189, "d3": 0.0068046970956351675, "d4": 0.0, "solveff": -43.14599999999996, "variable": "delta2", "value": -30.291999999999916}, {"mol": "Nb", "x_labels": "Nb", "where": "SO-ZORA", "row": 5, "charge": -1, "solvent": "12CH\u2083CN", "complex": "NbCl\u2086\u207b + 12CH\u2083CN", "Delta1": 15.894000000000005, "Delta2": -12.683999999999969, "Delta3": -3.031000000000006, "Delta4": -19.694000000000017, "d1": -0.11137042011203403, "d2": -0.07147597495116995, "d3": -0.061942699700257016, "d4": -0.0, "solveff": -19.514999999999986, "variable": "delta2", "value": 3.2100000000000364}, {"mol": "Mo", "x_labels": "Mo", "where": "SO-ZORA", "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "MoO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 69.5, "Delta2": -12.021000000000015, "Delta3": -19.468000000000018, "Delta4": -21.753999999999905, "d1": -0.09521501751650152, "d2": -0.07371773664266144, "d3": -0.03890290725642746, "d4": -0.0, "solveff": 16.257000000000062, "variable": "delta2", "value": 57.478999999999985}, {"mol": "Tc", "x_labels": "Tc", "where": "SO-ZORA", "row": 5, "charge": -1, "solvent": "12H\u2082O", "complex": "TcO\u2084\u207b + 12H\u2082O", "Delta1": 22.694999999999936, "Delta2": 6.183999999999969, "Delta3": -4.981999999999971, "Delta4": 3.0920000000000982, "d1": 0.003025801759954068, "d2": -0.0013318037555455694, "d3": 0.002178802757749899, "d4": -0.0, "solveff": 26.989000000000033, "variable": "delta2", "value": 28.878999999999905}, {"mol": "Ru", "x_labels": "Ru", "where": "SO-ZORA", "row": 5, "charge": -4, "solvent": "12H\u2082O", "complex": "Ru(CN)\u2086\u2074\u207b + 12H\u2082O", "Delta1": 828.1270000000001, "Delta2": 3.6370000000000005, "Delta3": 2.411999999999999, "Delta4": -46.415, "d1": -0.04974484294377672, "d2": -0.05422688212988671, "d3": -0.057199298549160095, "d4": -0.0, "solveff": 787.761, "variable": "delta2", "value": 831.764}, {"mol": "Pd", "x_labels": "Pd", "where": "SO-ZORA", "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "PdCl\u2086\u00b2\u207b + 12H\u2082O", "Delta1": 202.9269999999999, "Delta2": 35.669000000000096, "Delta3": 31.88799999999992, "Delta4": 0.48500000000012733, "d1": 0.04304883596306927, "d2": 0.02048176077470446, "d3": 0.0003068499668159965, "d4": -0.0, "solveff": 270.96900000000005, "variable": "delta2", "value": 238.596}, {"mol": "Ag", "x_labels": "Ag", "where": "SO-ZORA", "row": 5, "charge": 1, "solvent": "12H\u2082O", "complex": "Ag(H\u2082O)\u2084\u207a + 12H\u2082O", "Delta1": -175.03999999999996, "Delta2": 0.7719999999999345, "Delta3": 0.8350000000000364, "Delta4": -36.73400000000038, "d1": 0.008140764518531128, "d2": 0.008319677326579223, "d3": 0.008513190532175308, "d4": 0.0, "solveff": -210.16700000000037, "variable": "delta2", "value": -174.26800000000003}, {"mol": "Cd", "x_labels": "Cd", "where": "SO-ZORA", "row": 5, "charge": 0, "solvent": "6Cd(CH\u2083)\u2082", "complex": "Cd(CH\u2083)\u2082 + 6Cd(CH\u2083)\u2082", "Delta1": 6.981999999999971, "Delta2": 15.735000000000127, "Delta3": 24.100999999999658, "Delta4": 8.080000000000382, "d1": -0.013863777019912952, "d2": -0.009311090414012391, "d3": -0.0023378269955944063, "d4": 0.0, "solveff": 54.89800000000014, "variable": "delta2", "value": 22.7170000000001}, {"mol": "Ta", "x_labels": "Ta", "where": "SO-ZORA", "row": 6, "charge": -1, "solvent": "12CH\u2083CN", "complex": "TaCl\u2086\u207b + 12CH\u2083CN", "Delta1": 11.592999999999847, "Delta2": -18.442000000000007, "Delta3": -4.746999999999844, "Delta4": 42.23099999999977, "d1": -0.0055832686076456115, "d2": -0.010990612356317014, "d3": -0.012382471198901457, "d4": 0.0, "solveff": 30.634999999999764, "variable": "delta2", "value": -6.84900000000016}, {"mol": "W", "x_labels": "W", "where": "SO-ZORA", "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "WO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 85.21000000000004, "Delta2": -32.8159999999998, "Delta3": -27.295000000000073, "Delta4": -99.5, "d1": 0.05316830974068907, "d2": 0.04223691245321864, "d3": 0.03314462549071534, "d4": 0.0, "solveff": -74.40099999999984, "variable": "delta2", "value": 52.39400000000023}, {"mol": "Re", "x_labels": "Re", "where": "SO-ZORA", "row": 6, "charge": -1, "solvent": "12H\u2082O", "complex": "ReO\u2084\u207b + 12H\u2082O", "Delta1": 21.605000000000018, "Delta2": -10.048999999999978, "Delta3": -8.81899999999996, "Delta4": -55.559999999999945, "d1": 0.03932442385502771, "d2": 0.03401498204120532, "d3": 0.029355417173447373, "d4": 0.0, "solveff": -52.822999999999865, "variable": "delta2", "value": 11.55600000000004}, {"mol": "Os", "x_labels": "Os", "where": "SO-ZORA", "row": 6, "charge": 0, "solvent": "12CCl\u2084", "complex": "OsO\u2084 + 12CCl\u2084", "Delta1": 132.73399999999992, "Delta2": 2.826000000000022, "Delta3": 2.0270000000000437, "Delta4": -16.411000000000058, "d1": 0.009486133567518316, "d2": 0.011805549855959828, "d3": 0.013469193457046525, "d4": 0.0, "solveff": 121.17599999999993, "variable": "delta2", "value": 135.55999999999995}, {"mol": "Pt", "x_labels": "Pt", "where": "SO-ZORA", "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "PtCl\u2086\u00b2\u207b + 12H\u2082O", "Delta1": 292.2940000000001, "Delta2": 78.86199999999963, "Delta3": 56.90300000000025, "Delta4": 70.42900000000009, "d1": -0.10937188371234462, "d2": -0.06754095995451033, "d3": -0.0373577911965272, "d4": 0.0, "solveff": 498.48800000000006, "variable": "delta2", "value": 371.1559999999997}, {"mol": "Hg", "x_labels": "Hg", "where": "SO-ZORA", "row": 6, "charge": 0, "solvent": "6Hg(CH\u2083)\u2082", "complex": "Hg(CH\u2083)\u2082 + 6Hg(CH\u2083)\u2082", "Delta1": 31.950000000000728, "Delta2": 35.2450000000008, "Delta3": 28.27599999999984, "Delta4": -55.39500000000044, "d1": -0.0009148227516846377, "d2": 0.003053049249684422, "d3": 0.006236353227857449, "d4": 0.0, "solveff": 40.07600000000093, "variable": "delta2", "value": 67.19500000000153}, {"mol": "Ti", "x_labels": "Ti", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "12TiCl\u2084", "complex": "TiCl\u2084 + 12TiCl\u2084", "Delta1": 22.184000000000083, "Delta2": -0.5, "Delta3": 0.16999999999995907, "Delta4": -17.553999999999974, "d1": -0.021763098138381388, "d2": -0.021154646501768178, "d3": -0.02136152005821662, "d4": -0.0, "solveff": 4.300000000000068, "variable": "delta3", "value": 21.854000000000042}, {"mol": "V", "x_labels": "V", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "VOCl\u2083 + 6C\u2086H\u2086", "Delta1": 2.814000000000078, "Delta2": -1.7970000000000255, "Delta3": -1.122000000000071, "Delta4": -25.22699999999986, "d1": -0.015131346929647224, "d2": -0.014165276069397935, "d3": -0.013562086584033574, "d4": -0.0, "solveff": -25.33199999999988, "variable": "delta3", "value": -0.10500000000001819}, {"mol": "Cr", "x_labels": "Cr", "where": "SO-ZORA", "row": 4, "charge": -2, "solvent": "12H\u2082O", "complex": "CrO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 123.04400000000032, "Delta2": -19.00500000000011, "Delta3": -27.38500000000022, "Delta4": -12.795999999999822, "d1": -0.021712884105380876, "d2": -0.014740739300481661, "d3": -0.004694320701051754, "d4": -0.0, "solveff": 63.858000000000175, "variable": "delta3", "value": 76.654}, {"mol": "Mn", "x_labels": "Mn", "where": "SO-ZORA", "row": 4, "charge": -1, "solvent": "12H\u2082O", "complex": "MnO\u2084\u207b + 12H\u2082O", "Delta1": 35.49200000000019, "Delta2": -6.351000000000113, "Delta3": -13.909999999999854, "Delta4": -22.472999999999956, "d1": -0.010860140180028139, "d2": -0.009246138441755099, "d3": -0.005711141720077042, "d4": -0.0, "solveff": -7.241999999999734, "variable": "delta3", "value": 15.231000000000222}, {"mol": "Fe", "x_labels": "Fe", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Fe(CO)\u2085 + 6C\u2086H\u2086", "Delta1": 67.43199999999979, "Delta2": -2.0169999999998254, "Delta3": -0.8409999999998945, "Delta4": -17.46199999999999, "d1": -0.008717314895411402, "d2": -0.007852018431629732, "d3": -0.007491227987385629, "d4": -0.0, "solveff": 47.11200000000008, "variable": "delta3", "value": 64.57400000000007}, {"mol": "Co", "x_labels": "Co", "where": "SO-ZORA", "row": 4, "charge": -3, "solvent": "12H\u2082O", "complex": "Co(CN)\u2086\u00b3\u207b + 12H\u2082O", "Delta1": 1098.3239999999996, "Delta2": 29.27599999999984, "Delta3": -3.118999999999687, "Delta4": -27.10699999999997, "d1": -0.0001645170921136079, "d2": -0.005234414343396641, "d3": -0.004694278753604651, "d4": -0.0, "solveff": 1097.3739999999998, "variable": "delta3", "value": 1124.4809999999998}, {"mol": "Ni", "x_labels": "Ni", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Ni(CO)\u2084 + 6C\u2086H\u2086", "Delta1": -9.3599999999999, "Delta2": -8.592000000000098, "Delta3": -3.5049999999998818, "Delta4": -6.086999999999989, "d1": -0.011156635879161785, "d2": -0.005885088613776869, "d3": -0.0037346261876626584, "d4": -0.0, "solveff": -27.54399999999987, "variable": "delta3", "value": -21.45699999999988}, {"mol": "Cu", "x_labels": "Cu", "where": "SO-ZORA", "row": 4, "charge": 1, "solvent": "12CH\u2083CN", "complex": "Cu(CH\u2083CN)\u2084\u207a + 12CH\u2083CN", "Delta1": -23.295999999999992, "Delta2": -21.591999999999985, "Delta3": -2.983000000000004, "Delta4": -5.593000000000018, "d1": 0.06319613047294453, "d2": 0.01796506281278088, "d3": 0.01171625423412821, "d4": 0.0, "solveff": -53.464, "variable": "delta3", "value": -47.87099999999998}, {"mol": "Zn", "x_labels": "Zn", "where": "SO-ZORA", "row": 4, "charge": 2, "solvent": "12H\u2082O", "complex": "Zn(H\u2082O)\u2086\u00b2\u207a + 12H\u2082O", "Delta1": -29.680999999999813, "Delta2": -0.6110000000001037, "Delta3": 0.1710000000000491, "Delta4": -13.025000000000091, "d1": 0.007034567861245903, "d2": 0.00671536095718189, "d3": 0.0068046970956351675, "d4": 0.0, "solveff": -43.14599999999996, "variable": "delta3", "value": -30.120999999999867}, {"mol": "Nb", "x_labels": "Nb", "where": "SO-ZORA", "row": 5, "charge": -1, "solvent": "12CH\u2083CN", "complex": "NbCl\u2086\u207b + 12CH\u2083CN", "Delta1": 15.894000000000005, "Delta2": -12.683999999999969, "Delta3": -3.031000000000006, "Delta4": -19.694000000000017, "d1": -0.11137042011203403, "d2": -0.07147597495116995, "d3": -0.061942699700257016, "d4": -0.0, "solveff": -19.514999999999986, "variable": "delta3", "value": 0.17900000000003047}, {"mol": "Mo", "x_labels": "Mo", "where": "SO-ZORA", "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "MoO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 69.5, "Delta2": -12.021000000000015, "Delta3": -19.468000000000018, "Delta4": -21.753999999999905, "d1": -0.09521501751650152, "d2": -0.07371773664266144, "d3": -0.03890290725642746, "d4": -0.0, "solveff": 16.257000000000062, "variable": "delta3", "value": 38.01099999999997}, {"mol": "Tc", "x_labels": "Tc", "where": "SO-ZORA", "row": 5, "charge": -1, "solvent": "12H\u2082O", "complex": "TcO\u2084\u207b + 12H\u2082O", "Delta1": 22.694999999999936, "Delta2": 6.183999999999969, "Delta3": -4.981999999999971, "Delta4": 3.0920000000000982, "d1": 0.003025801759954068, "d2": -0.0013318037555455694, "d3": 0.002178802757749899, "d4": -0.0, "solveff": 26.989000000000033, "variable": "delta3", "value": 23.896999999999935}, {"mol": "Ru", "x_labels": "Ru", "where": "SO-ZORA", "row": 5, "charge": -4, "solvent": "12H\u2082O", "complex": "Ru(CN)\u2086\u2074\u207b + 12H\u2082O", "Delta1": 828.1270000000001, "Delta2": 3.6370000000000005, "Delta3": 2.411999999999999, "Delta4": -46.415, "d1": -0.04974484294377672, "d2": -0.05422688212988671, "d3": -0.057199298549160095, "d4": -0.0, "solveff": 787.761, "variable": "delta3", "value": 834.176}, {"mol": "Pd", "x_labels": "Pd", "where": "SO-ZORA", "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "PdCl\u2086\u00b2\u207b + 12H\u2082O", "Delta1": 202.9269999999999, "Delta2": 35.669000000000096, "Delta3": 31.88799999999992, "Delta4": 0.48500000000012733, "d1": 0.04304883596306927, "d2": 0.02048176077470446, "d3": 0.0003068499668159965, "d4": -0.0, "solveff": 270.96900000000005, "variable": "delta3", "value": 270.4839999999999}, {"mol": "Ag", "x_labels": "Ag", "where": "SO-ZORA", "row": 5, "charge": 1, "solvent": "12H\u2082O", "complex": "Ag(H\u2082O)\u2084\u207a + 12H\u2082O", "Delta1": -175.03999999999996, "Delta2": 0.7719999999999345, "Delta3": 0.8350000000000364, "Delta4": -36.73400000000038, "d1": 0.008140764518531128, "d2": 0.008319677326579223, "d3": 0.008513190532175308, "d4": 0.0, "solveff": -210.16700000000037, "variable": "delta3", "value": -173.433}, {"mol": "Cd", "x_labels": "Cd", "where": "SO-ZORA", "row": 5, "charge": 0, "solvent": "6Cd(CH\u2083)\u2082", "complex": "Cd(CH\u2083)\u2082 + 6Cd(CH\u2083)\u2082", "Delta1": 6.981999999999971, "Delta2": 15.735000000000127, "Delta3": 24.100999999999658, "Delta4": 8.080000000000382, "d1": -0.013863777019912952, "d2": -0.009311090414012391, "d3": -0.0023378269955944063, "d4": 0.0, "solveff": 54.89800000000014, "variable": "delta3", "value": 46.817999999999756}, {"mol": "Ta", "x_labels": "Ta", "where": "SO-ZORA", "row": 6, "charge": -1, "solvent": "12CH\u2083CN", "complex": "TaCl\u2086\u207b + 12CH\u2083CN", "Delta1": 11.592999999999847, "Delta2": -18.442000000000007, "Delta3": -4.746999999999844, "Delta4": 42.23099999999977, "d1": -0.0055832686076456115, "d2": -0.010990612356317014, "d3": -0.012382471198901457, "d4": 0.0, "solveff": 30.634999999999764, "variable": "delta3", "value": -11.596000000000004}, {"mol": "W", "x_labels": "W", "where": "SO-ZORA", "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "WO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 85.21000000000004, "Delta2": -32.8159999999998, "Delta3": -27.295000000000073, "Delta4": -99.5, "d1": 0.05316830974068907, "d2": 0.04223691245321864, "d3": 0.03314462549071534, "d4": 0.0, "solveff": -74.40099999999984, "variable": "delta3", "value": 25.09900000000016}, {"mol": "Re", "x_labels": "Re", "where": "SO-ZORA", "row": 6, "charge": -1, "solvent": "12H\u2082O", "complex": "ReO\u2084\u207b + 12H\u2082O", "Delta1": 21.605000000000018, "Delta2": -10.048999999999978, "Delta3": -8.81899999999996, "Delta4": -55.559999999999945, "d1": 0.03932442385502771, "d2": 0.03401498204120532, "d3": 0.029355417173447373, "d4": 0.0, "solveff": -52.822999999999865, "variable": "delta3", "value": 2.73700000000008}, {"mol": "Os", "x_labels": "Os", "where": "SO-ZORA", "row": 6, "charge": 0, "solvent": "12CCl\u2084", "complex": "OsO\u2084 + 12CCl\u2084", "Delta1": 132.73399999999992, "Delta2": 2.826000000000022, "Delta3": 2.0270000000000437, "Delta4": -16.411000000000058, "d1": 0.009486133567518316, "d2": 0.011805549855959828, "d3": 0.013469193457046525, "d4": 0.0, "solveff": 121.17599999999993, "variable": "delta3", "value": 137.587}, {"mol": "Pt", "x_labels": "Pt", "where": "SO-ZORA", "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "PtCl\u2086\u00b2\u207b + 12H\u2082O", "Delta1": 292.2940000000001, "Delta2": 78.86199999999963, "Delta3": 56.90300000000025, "Delta4": 70.42900000000009, "d1": -0.10937188371234462, "d2": -0.06754095995451033, "d3": -0.0373577911965272, "d4": 0.0, "solveff": 498.48800000000006, "variable": "delta3", "value": 428.05899999999997}, {"mol": "Hg", "x_labels": "Hg", "where": "SO-ZORA", "row": 6, "charge": 0, "solvent": "6Hg(CH\u2083)\u2082", "complex": "Hg(CH\u2083)\u2082 + 6Hg(CH\u2083)\u2082", "Delta1": 31.950000000000728, "Delta2": 35.2450000000008, "Delta3": 28.27599999999984, "Delta4": -55.39500000000044, "d1": -0.0009148227516846377, "d2": 0.003053049249684422, "d3": 0.006236353227857449, "d4": 0.0, "solveff": 40.07600000000093, "variable": "delta3", "value": 95.47100000000137}, {"mol": "Ti", "x_labels": "Ti", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "12TiCl\u2084", "complex": "TiCl\u2084 + 12TiCl\u2084", "Delta1": 22.184000000000083, "Delta2": -0.5, "Delta3": 0.16999999999995907, "Delta4": -17.553999999999974, "d1": -0.021763098138381388, "d2": -0.021154646501768178, "d3": -0.02136152005821662, "d4": -0.0, "solveff": 4.300000000000068, "variable": "delta4", "value": 4.300000000000068}, {"mol": "V", "x_labels": "V", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "VOCl\u2083 + 6C\u2086H\u2086", "Delta1": 2.814000000000078, "Delta2": -1.7970000000000255, "Delta3": -1.122000000000071, "Delta4": -25.22699999999986, "d1": -0.015131346929647224, "d2": -0.014165276069397935, "d3": -0.013562086584033574, "d4": -0.0, "solveff": -25.33199999999988, "variable": "delta4", "value": -25.33199999999988}, {"mol": "Cr", "x_labels": "Cr", "where": "SO-ZORA", "row": 4, "charge": -2, "solvent": "12H\u2082O", "complex": "CrO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 123.04400000000032, "Delta2": -19.00500000000011, "Delta3": -27.38500000000022, "Delta4": -12.795999999999822, "d1": -0.021712884105380876, "d2": -0.014740739300481661, "d3": -0.004694320701051754, "d4": -0.0, "solveff": 63.858000000000175, "variable": "delta4", "value": 63.858000000000175}, {"mol": "Mn", "x_labels": "Mn", "where": "SO-ZORA", "row": 4, "charge": -1, "solvent": "12H\u2082O", "complex": "MnO\u2084\u207b + 12H\u2082O", "Delta1": 35.49200000000019, "Delta2": -6.351000000000113, "Delta3": -13.909999999999854, "Delta4": -22.472999999999956, "d1": -0.010860140180028139, "d2": -0.009246138441755099, "d3": -0.005711141720077042, "d4": -0.0, "solveff": -7.241999999999734, "variable": "delta4", "value": -7.241999999999734}, {"mol": "Fe", "x_labels": "Fe", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Fe(CO)\u2085 + 6C\u2086H\u2086", "Delta1": 67.43199999999979, "Delta2": -2.0169999999998254, "Delta3": -0.8409999999998945, "Delta4": -17.46199999999999, "d1": -0.008717314895411402, "d2": -0.007852018431629732, "d3": -0.007491227987385629, "d4": -0.0, "solveff": 47.11200000000008, "variable": "delta4", "value": 47.11200000000008}, {"mol": "Co", "x_labels": "Co", "where": "SO-ZORA", "row": 4, "charge": -3, "solvent": "12H\u2082O", "complex": "Co(CN)\u2086\u00b3\u207b + 12H\u2082O", "Delta1": 1098.3239999999996, "Delta2": 29.27599999999984, "Delta3": -3.118999999999687, "Delta4": -27.10699999999997, "d1": -0.0001645170921136079, "d2": -0.005234414343396641, "d3": -0.004694278753604651, "d4": -0.0, "solveff": 1097.3739999999998, "variable": "delta4", "value": 1097.3739999999998}, {"mol": "Ni", "x_labels": "Ni", "where": "SO-ZORA", "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Ni(CO)\u2084 + 6C\u2086H\u2086", "Delta1": -9.3599999999999, "Delta2": -8.592000000000098, "Delta3": -3.5049999999998818, "Delta4": -6.086999999999989, "d1": -0.011156635879161785, "d2": -0.005885088613776869, "d3": -0.0037346261876626584, "d4": -0.0, "solveff": -27.54399999999987, "variable": "delta4", "value": -27.54399999999987}, {"mol": "Cu", "x_labels": "Cu", "where": "SO-ZORA", "row": 4, "charge": 1, "solvent": "12CH\u2083CN", "complex": "Cu(CH\u2083CN)\u2084\u207a + 12CH\u2083CN", "Delta1": -23.295999999999992, "Delta2": -21.591999999999985, "Delta3": -2.983000000000004, "Delta4": -5.593000000000018, "d1": 0.06319613047294453, "d2": 0.01796506281278088, "d3": 0.01171625423412821, "d4": 0.0, "solveff": -53.464, "variable": "delta4", "value": -53.464}, {"mol": "Zn", "x_labels": "Zn", "where": "SO-ZORA", "row": 4, "charge": 2, "solvent": "12H\u2082O", "complex": "Zn(H\u2082O)\u2086\u00b2\u207a + 12H\u2082O", "Delta1": -29.680999999999813, "Delta2": -0.6110000000001037, "Delta3": 0.1710000000000491, "Delta4": -13.025000000000091, "d1": 0.007034567861245903, "d2": 0.00671536095718189, "d3": 0.0068046970956351675, "d4": 0.0, "solveff": -43.14599999999996, "variable": "delta4", "value": -43.14599999999996}, {"mol": "Nb", "x_labels": "Nb", "where": "SO-ZORA", "row": 5, "charge": -1, "solvent": "12CH\u2083CN", "complex": "NbCl\u2086\u207b + 12CH\u2083CN", "Delta1": 15.894000000000005, "Delta2": -12.683999999999969, "Delta3": -3.031000000000006, "Delta4": -19.694000000000017, "d1": -0.11137042011203403, "d2": -0.07147597495116995, "d3": -0.061942699700257016, "d4": -0.0, "solveff": -19.514999999999986, "variable": "delta4", "value": -19.514999999999986}, {"mol": "Mo", "x_labels": "Mo", "where": "SO-ZORA", "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "MoO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 69.5, "Delta2": -12.021000000000015, "Delta3": -19.468000000000018, "Delta4": -21.753999999999905, "d1": -0.09521501751650152, "d2": -0.07371773664266144, "d3": -0.03890290725642746, "d4": -0.0, "solveff": 16.257000000000062, "variable": "delta4", "value": 16.257000000000062}, {"mol": "Tc", "x_labels": "Tc", "where": "SO-ZORA", "row": 5, "charge": -1, "solvent": "12H\u2082O", "complex": "TcO\u2084\u207b + 12H\u2082O", "Delta1": 22.694999999999936, "Delta2": 6.183999999999969, "Delta3": -4.981999999999971, "Delta4": 3.0920000000000982, "d1": 0.003025801759954068, "d2": -0.0013318037555455694, "d3": 0.002178802757749899, "d4": -0.0, "solveff": 26.989000000000033, "variable": "delta4", "value": 26.989000000000033}, {"mol": "Ru", "x_labels": "Ru", "where": "SO-ZORA", "row": 5, "charge": -4, "solvent": "12H\u2082O", "complex": "Ru(CN)\u2086\u2074\u207b + 12H\u2082O", "Delta1": 828.1270000000001, "Delta2": 3.6370000000000005, "Delta3": 2.411999999999999, "Delta4": -46.415, "d1": -0.04974484294377672, "d2": -0.05422688212988671, "d3": -0.057199298549160095, "d4": -0.0, "solveff": 787.761, "variable": "delta4", "value": 787.761}, {"mol": "Pd", "x_labels": "Pd", "where": "SO-ZORA", "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "PdCl\u2086\u00b2\u207b + 12H\u2082O", "Delta1": 202.9269999999999, "Delta2": 35.669000000000096, "Delta3": 31.88799999999992, "Delta4": 0.48500000000012733, "d1": 0.04304883596306927, "d2": 0.02048176077470446, "d3": 0.0003068499668159965, "d4": -0.0, "solveff": 270.96900000000005, "variable": "delta4", "value": 270.96900000000005}, {"mol": "Ag", "x_labels": "Ag", "where": "SO-ZORA", "row": 5, "charge": 1, "solvent": "12H\u2082O", "complex": "Ag(H\u2082O)\u2084\u207a + 12H\u2082O", "Delta1": -175.03999999999996, "Delta2": 0.7719999999999345, "Delta3": 0.8350000000000364, "Delta4": -36.73400000000038, "d1": 0.008140764518531128, "d2": 0.008319677326579223, "d3": 0.008513190532175308, "d4": 0.0, "solveff": -210.16700000000037, "variable": "delta4", "value": -210.16700000000037}, {"mol": "Cd", "x_labels": "Cd", "where": "SO-ZORA", "row": 5, "charge": 0, "solvent": "6Cd(CH\u2083)\u2082", "complex": "Cd(CH\u2083)\u2082 + 6Cd(CH\u2083)\u2082", "Delta1": 6.981999999999971, "Delta2": 15.735000000000127, "Delta3": 24.100999999999658, "Delta4": 8.080000000000382, "d1": -0.013863777019912952, "d2": -0.009311090414012391, "d3": -0.0023378269955944063, "d4": 0.0, "solveff": 54.89800000000014, "variable": "delta4", "value": 54.89800000000014}, {"mol": "Ta", "x_labels": "Ta", "where": "SO-ZORA", "row": 6, "charge": -1, "solvent": "12CH\u2083CN", "complex": "TaCl\u2086\u207b + 12CH\u2083CN", "Delta1": 11.592999999999847, "Delta2": -18.442000000000007, "Delta3": -4.746999999999844, "Delta4": 42.23099999999977, "d1": -0.0055832686076456115, "d2": -0.010990612356317014, "d3": -0.012382471198901457, "d4": 0.0, "solveff": 30.634999999999764, "variable": "delta4", "value": 30.634999999999764}, {"mol": "W", "x_labels": "W", "where": "SO-ZORA", "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "WO\u2084\u00b2\u207b + 12H\u2082O", "Delta1": 85.21000000000004, "Delta2": -32.8159999999998, "Delta3": -27.295000000000073, "Delta4": -99.5, "d1": 0.05316830974068907, "d2": 0.04223691245321864, "d3": 0.03314462549071534, "d4": 0.0, "solveff": -74.40099999999984, "variable": "delta4", "value": -74.40099999999984}, {"mol": "Re", "x_labels": "Re", "where": "SO-ZORA", "row": 6, "charge": -1, "solvent": "12H\u2082O", "complex": "ReO\u2084\u207b + 12H\u2082O", "Delta1": 21.605000000000018, "Delta2": -10.048999999999978, "Delta3": -8.81899999999996, "Delta4": -55.559999999999945, "d1": 0.03932442385502771, "d2": 0.03401498204120532, "d3": 0.029355417173447373, "d4": 0.0, "solveff": -52.822999999999865, "variable": "delta4", "value": -52.822999999999865}, {"mol": "Os", "x_labels": "Os", "where": "SO-ZORA", "row": 6, "charge": 0, "solvent": "12CCl\u2084", "complex": "OsO\u2084 + 12CCl\u2084", "Delta1": 132.73399999999992, "Delta2": 2.826000000000022, "Delta3": 2.0270000000000437, "Delta4": -16.411000000000058, "d1": 0.009486133567518316, "d2": 0.011805549855959828, "d3": 0.013469193457046525, "d4": 0.0, "solveff": 121.17599999999993, "variable": "delta4", "value": 121.17599999999993}, {"mol": "Pt", "x_labels": "Pt", "where": "SO-ZORA", "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "PtCl\u2086\u00b2\u207b + 12H\u2082O", "Delta1": 292.2940000000001, "Delta2": 78.86199999999963, "Delta3": 56.90300000000025, "Delta4": 70.42900000000009, "d1": -0.10937188371234462, "d2": -0.06754095995451033, "d3": -0.0373577911965272, "d4": 0.0, "solveff": 498.48800000000006, "variable": "delta4", "value": 498.48800000000006}, {"mol": "Hg", "x_labels": "Hg", "where": "SO-ZORA", "row": 6, "charge": 0, "solvent": "6Hg(CH\u2083)\u2082", "complex": "Hg(CH\u2083)\u2082 + 6Hg(CH\u2083)\u2082", "Delta1": 31.950000000000728, "Delta2": 35.2450000000008, "Delta3": 28.27599999999984, "Delta4": -55.39500000000044, "d1": -0.0009148227516846377, "d2": 0.003053049249684422, "d3": 0.006236353227857449, "d4": 0.0, "solveff": 40.07600000000093, "variable": "delta4", "value": 40.07600000000093}]}}, {"mode": "vega-lite"});
+</script>
+
+
+
+To show the dependence of results on other parameters (e.g. charge of the complex), we can use the [repeat chart method](https://altair-viz.github.io/user_guide/compound_charts.html) of Altair.
+
+For that we need just a small adjustment of our plot_chart function:
+
+
+```python
+def plot_chart2(df, colorData, rows, cols):
+    
+    hover = alt.selection_single(on='mouseover', nearest=True, empty='none')
+    
+    bckcolor='lightgray'
+    
+    base = alt.Chart(df).encode(
+        
+        x=alt.X(alt.repeat("column"),
+                type='ordinal',
+                ),
+        y=alt.Y(alt.repeat("row"),
+                type='ordinal',
+                sort='descending',
+                axis=alt.Axis(format=",.0f")
+                ),
+        color=alt.condition(hover,
+                            colorData,
+                            alt.value(bckcolor),
+                            type='nominal',
+                            scale=alt.Scale(scheme='dark2')
+                           )
+        ).properties(width=230,
+                     height=190
+                    )
+    
+    points = base.mark_point().encode().add_selection(hover).repeat(
+        row=rows,
+        column=cols)
+    
+    
+    return points
 
 ```
 
 
 ```python
-
+delta_points=plot_chart2(df_adf_all,
+                         'charge',
+                         ['solveff', 'delta1', 'delta2', 'delta3', 'delta4'],
+                         ['mol', 'solvent']
+                        )
+                                          
+delta_points
 ```
 
 
-```python
-
-```
 
 
-```python
 
-```
+<div id="altair-viz-b7dc5f6caae2431da6af8f182f17f8c0"></div>
+<script type="text/javascript">
+  (function(spec, embedOpt){
+    let outputDiv = document.currentScript.previousElementSibling;
+    if (outputDiv.id !== "altair-viz-b7dc5f6caae2431da6af8f182f17f8c0") {
+      outputDiv = document.getElementById("altair-viz-b7dc5f6caae2431da6af8f182f17f8c0");
+    }
+    const paths = {
+      "vega": "https://cdn.jsdelivr.net/npm//vega@5?noext",
+      "vega-lib": "https://cdn.jsdelivr.net/npm//vega-lib?noext",
+      "vega-lite": "https://cdn.jsdelivr.net/npm//vega-lite@4.8.1?noext",
+      "vega-embed": "https://cdn.jsdelivr.net/npm//vega-embed@6?noext",
+    };
+
+    function loadScript(lib) {
+      return new Promise(function(resolve, reject) {
+        var s = document.createElement('script');
+        s.src = paths[lib];
+        s.async = true;
+        s.onload = () => resolve(paths[lib]);
+        s.onerror = () => reject(`Error loading script: ${paths[lib]}`);
+        document.getElementsByTagName("head")[0].appendChild(s);
+      });
+    }
+
+    function showError(err) {
+      outputDiv.innerHTML = `<div class="error" style="color:red;">${err}</div>`;
+      throw err;
+    }
+
+    function displayChart(vegaEmbed) {
+      vegaEmbed(outputDiv, spec, embedOpt)
+        .catch(err => showError(`Javascript Error: ${err.message}<br>This usually means there's a typo in your chart specification. See the javascript console for the full traceback.`));
+    }
+
+    if(typeof define === "function" && define.amd) {
+      requirejs.config({paths});
+      require(["vega-embed"], displayChart, err => showError(`Error loading script: ${err.message}`));
+    } else if (typeof vegaEmbed === "function") {
+      displayChart(vegaEmbed);
+    } else {
+      loadScript("vega")
+        .then(() => loadScript("vega-lite"))
+        .then(() => loadScript("vega-embed"))
+        .catch(showError)
+        .then(() => displayChart(vegaEmbed));
+    }
+  })({"config": {"view": {"continuousWidth": 400, "continuousHeight": 300}}, "repeat": {"column": ["mol", "solvent"], "row": ["solveff", "delta1", "delta2", "delta3", "delta4"]}, "spec": {"data": {"name": "data-82ba65b3d3f73062f9b09b91098cd11b"}, "mark": "point", "encoding": {"color": {"condition": {"type": "nominal", "field": "charge", "scale": {"scheme": "dark2"}, "selection": "selector007"}, "value": "lightgray"}, "x": {"type": "ordinal", "field": {"repeat": "column"}}, "y": {"type": "ordinal", "axis": {"format": ",.0f"}, "field": {"repeat": "row"}, "sort": "descending"}}, "height": 190, "selection": {"selector007": {"type": "single", "on": "mouseover", "nearest": true, "empty": "none"}}, "width": 230}, "$schema": "https://vega.github.io/schema/vega-lite/v4.8.1.json", "datasets": {"data-82ba65b3d3f73062f9b09b91098cd11b": [{"mol": "Ti", "x_labels": "Ti", "where": "SO-ZORA", "solveff": 4.300000000000068, "row": 4, "charge": 0, "solvent": "12TiCl\u2084", "complex": "TiCl\u2084 + 12TiCl\u2084", "delta1": 22.184000000000083, "delta2": 21.684000000000083, "delta3": 21.854000000000042, "delta4": 4.300000000000068, "Delta1": 22.184000000000083, "Delta2": -0.5, "Delta3": 0.16999999999995907, "Delta4": -17.553999999999974, "d1": -0.021763098138381388, "d2": -0.021154646501768178, "d3": -0.02136152005821662, "d4": -0.0}, {"mol": "V", "x_labels": "V", "where": "SO-ZORA", "solveff": -25.33199999999988, "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "VOCl\u2083 + 6C\u2086H\u2086", "delta1": 2.814000000000078, "delta2": 1.0170000000000528, "delta3": -0.10500000000001819, "delta4": -25.33199999999988, "Delta1": 2.814000000000078, "Delta2": -1.7970000000000255, "Delta3": -1.122000000000071, "Delta4": -25.22699999999986, "d1": -0.015131346929647224, "d2": -0.014165276069397935, "d3": -0.013562086584033574, "d4": -0.0}, {"mol": "Cr", "x_labels": "Cr", "where": "SO-ZORA", "solveff": 63.858000000000175, "row": 4, "charge": -2, "solvent": "12H\u2082O", "complex": "CrO\u2084\u00b2\u207b + 12H\u2082O", "delta1": 123.04400000000032, "delta2": 104.03900000000021, "delta3": 76.654, "delta4": 63.858000000000175, "Delta1": 123.04400000000032, "Delta2": -19.00500000000011, "Delta3": -27.38500000000022, "Delta4": -12.795999999999822, "d1": -0.021712884105380876, "d2": -0.014740739300481661, "d3": -0.004694320701051754, "d4": -0.0}, {"mol": "Mn", "x_labels": "Mn", "where": "SO-ZORA", "solveff": -7.241999999999734, "row": 4, "charge": -1, "solvent": "12H\u2082O", "complex": "MnO\u2084\u207b + 12H\u2082O", "delta1": 35.49200000000019, "delta2": 29.141000000000076, "delta3": 15.231000000000222, "delta4": -7.241999999999734, "Delta1": 35.49200000000019, "Delta2": -6.351000000000113, "Delta3": -13.909999999999854, "Delta4": -22.472999999999956, "d1": -0.010860140180028139, "d2": -0.009246138441755099, "d3": -0.005711141720077042, "d4": -0.0}, {"mol": "Fe", "x_labels": "Fe", "where": "SO-ZORA", "solveff": 47.11200000000008, "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Fe(CO)\u2085 + 6C\u2086H\u2086", "delta1": 67.43199999999979, "delta2": 65.41499999999996, "delta3": 64.57400000000007, "delta4": 47.11200000000008, "Delta1": 67.43199999999979, "Delta2": -2.0169999999998254, "Delta3": -0.8409999999998945, "Delta4": -17.46199999999999, "d1": -0.008717314895411402, "d2": -0.007852018431629732, "d3": -0.007491227987385629, "d4": -0.0}, {"mol": "Co", "x_labels": "Co", "where": "SO-ZORA", "solveff": 1097.3739999999998, "row": 4, "charge": -3, "solvent": "12H\u2082O", "complex": "Co(CN)\u2086\u00b3\u207b + 12H\u2082O", "delta1": 1098.3239999999996, "delta2": 1127.5999999999995, "delta3": 1124.4809999999998, "delta4": 1097.3739999999998, "Delta1": 1098.3239999999996, "Delta2": 29.27599999999984, "Delta3": -3.118999999999687, "Delta4": -27.10699999999997, "d1": -0.0001645170921136079, "d2": -0.005234414343396641, "d3": -0.004694278753604651, "d4": -0.0}, {"mol": "Ni", "x_labels": "Ni", "where": "SO-ZORA", "solveff": -27.54399999999987, "row": 4, "charge": 0, "solvent": "6C\u2086H\u2086", "complex": "Ni(CO)\u2084 + 6C\u2086H\u2086", "delta1": -9.3599999999999, "delta2": -17.951999999999998, "delta3": -21.45699999999988, "delta4": -27.54399999999987, "Delta1": -9.3599999999999, "Delta2": -8.592000000000098, "Delta3": -3.5049999999998818, "Delta4": -6.086999999999989, "d1": -0.011156635879161785, "d2": -0.005885088613776869, "d3": -0.0037346261876626584, "d4": -0.0}, {"mol": "Cu", "x_labels": "Cu", "where": "SO-ZORA", "solveff": -53.464, "row": 4, "charge": 1, "solvent": "12CH\u2083CN", "complex": "Cu(CH\u2083CN)\u2084\u207a + 12CH\u2083CN", "delta1": -23.295999999999992, "delta2": -44.88799999999998, "delta3": -47.87099999999998, "delta4": -53.464, "Delta1": -23.295999999999992, "Delta2": -21.591999999999985, "Delta3": -2.983000000000004, "Delta4": -5.593000000000018, "d1": 0.06319613047294453, "d2": 0.01796506281278088, "d3": 0.01171625423412821, "d4": 0.0}, {"mol": "Zn", "x_labels": "Zn", "where": "SO-ZORA", "solveff": -43.14599999999996, "row": 4, "charge": 2, "solvent": "12H\u2082O", "complex": "Zn(H\u2082O)\u2086\u00b2\u207a + 12H\u2082O", "delta1": -29.680999999999813, "delta2": -30.291999999999916, "delta3": -30.120999999999867, "delta4": -43.14599999999996, "Delta1": -29.680999999999813, "Delta2": -0.6110000000001037, "Delta3": 0.1710000000000491, "Delta4": -13.025000000000091, "d1": 0.007034567861245903, "d2": 0.00671536095718189, "d3": 0.0068046970956351675, "d4": 0.0}, {"mol": "Nb", "x_labels": "Nb", "where": "SO-ZORA", "solveff": -19.514999999999986, "row": 5, "charge": -1, "solvent": "12CH\u2083CN", "complex": "NbCl\u2086\u207b + 12CH\u2083CN", "delta1": 15.894000000000005, "delta2": 3.2100000000000364, "delta3": 0.17900000000003047, "delta4": -19.514999999999986, "Delta1": 15.894000000000005, "Delta2": -12.683999999999969, "Delta3": -3.031000000000006, "Delta4": -19.694000000000017, "d1": -0.11137042011203403, "d2": -0.07147597495116995, "d3": -0.061942699700257016, "d4": -0.0}, {"mol": "Mo", "x_labels": "Mo", "where": "SO-ZORA", "solveff": 16.257000000000062, "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "MoO\u2084\u00b2\u207b + 12H\u2082O", "delta1": 69.5, "delta2": 57.478999999999985, "delta3": 38.01099999999997, "delta4": 16.257000000000062, "Delta1": 69.5, "Delta2": -12.021000000000015, "Delta3": -19.468000000000018, "Delta4": -21.753999999999905, "d1": -0.09521501751650152, "d2": -0.07371773664266144, "d3": -0.03890290725642746, "d4": -0.0}, {"mol": "Tc", "x_labels": "Tc", "where": "SO-ZORA", "solveff": 26.989000000000033, "row": 5, "charge": -1, "solvent": "12H\u2082O", "complex": "TcO\u2084\u207b + 12H\u2082O", "delta1": 22.694999999999936, "delta2": 28.878999999999905, "delta3": 23.896999999999935, "delta4": 26.989000000000033, "Delta1": 22.694999999999936, "Delta2": 6.183999999999969, "Delta3": -4.981999999999971, "Delta4": 3.0920000000000982, "d1": 0.003025801759954068, "d2": -0.0013318037555455694, "d3": 0.002178802757749899, "d4": -0.0}, {"mol": "Ru", "x_labels": "Ru", "where": "SO-ZORA", "solveff": 787.761, "row": 5, "charge": -4, "solvent": "12H\u2082O", "complex": "Ru(CN)\u2086\u2074\u207b + 12H\u2082O", "delta1": 828.1270000000001, "delta2": 831.764, "delta3": 834.176, "delta4": 787.761, "Delta1": 828.1270000000001, "Delta2": 3.6370000000000005, "Delta3": 2.411999999999999, "Delta4": -46.415, "d1": -0.04974484294377672, "d2": -0.05422688212988671, "d3": -0.057199298549160095, "d4": -0.0}, {"mol": "Pd", "x_labels": "Pd", "where": "SO-ZORA", "solveff": 270.96900000000005, "row": 5, "charge": -2, "solvent": "12H\u2082O", "complex": "PdCl\u2086\u00b2\u207b + 12H\u2082O", "delta1": 202.9269999999999, "delta2": 238.596, "delta3": 270.4839999999999, "delta4": 270.96900000000005, "Delta1": 202.9269999999999, "Delta2": 35.669000000000096, "Delta3": 31.88799999999992, "Delta4": 0.48500000000012733, "d1": 0.04304883596306927, "d2": 0.02048176077470446, "d3": 0.0003068499668159965, "d4": -0.0}, {"mol": "Ag", "x_labels": "Ag", "where": "SO-ZORA", "solveff": -210.16700000000037, "row": 5, "charge": 1, "solvent": "12H\u2082O", "complex": "Ag(H\u2082O)\u2084\u207a + 12H\u2082O", "delta1": -175.03999999999996, "delta2": -174.26800000000003, "delta3": -173.433, "delta4": -210.16700000000037, "Delta1": -175.03999999999996, "Delta2": 0.7719999999999345, "Delta3": 0.8350000000000364, "Delta4": -36.73400000000038, "d1": 0.008140764518531128, "d2": 0.008319677326579223, "d3": 0.008513190532175308, "d4": 0.0}, {"mol": "Cd", "x_labels": "Cd", "where": "SO-ZORA", "solveff": 54.89800000000014, "row": 5, "charge": 0, "solvent": "6Cd(CH\u2083)\u2082", "complex": "Cd(CH\u2083)\u2082 + 6Cd(CH\u2083)\u2082", "delta1": 6.981999999999971, "delta2": 22.7170000000001, "delta3": 46.817999999999756, "delta4": 54.89800000000014, "Delta1": 6.981999999999971, "Delta2": 15.735000000000127, "Delta3": 24.100999999999658, "Delta4": 8.080000000000382, "d1": -0.013863777019912952, "d2": -0.009311090414012391, "d3": -0.0023378269955944063, "d4": 0.0}, {"mol": "Ta", "x_labels": "Ta", "where": "SO-ZORA", "solveff": 30.634999999999764, "row": 6, "charge": -1, "solvent": "12CH\u2083CN", "complex": "TaCl\u2086\u207b + 12CH\u2083CN", "delta1": 11.592999999999847, "delta2": -6.84900000000016, "delta3": -11.596000000000004, "delta4": 30.634999999999764, "Delta1": 11.592999999999847, "Delta2": -18.442000000000007, "Delta3": -4.746999999999844, "Delta4": 42.23099999999977, "d1": -0.0055832686076456115, "d2": -0.010990612356317014, "d3": -0.012382471198901457, "d4": 0.0}, {"mol": "W", "x_labels": "W", "where": "SO-ZORA", "solveff": -74.40099999999984, "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "WO\u2084\u00b2\u207b + 12H\u2082O", "delta1": 85.21000000000004, "delta2": 52.39400000000023, "delta3": 25.09900000000016, "delta4": -74.40099999999984, "Delta1": 85.21000000000004, "Delta2": -32.8159999999998, "Delta3": -27.295000000000073, "Delta4": -99.5, "d1": 0.05316830974068907, "d2": 0.04223691245321864, "d3": 0.03314462549071534, "d4": 0.0}, {"mol": "Re", "x_labels": "Re", "where": "SO-ZORA", "solveff": -52.822999999999865, "row": 6, "charge": -1, "solvent": "12H\u2082O", "complex": "ReO\u2084\u207b + 12H\u2082O", "delta1": 21.605000000000018, "delta2": 11.55600000000004, "delta3": 2.73700000000008, "delta4": -52.822999999999865, "Delta1": 21.605000000000018, "Delta2": -10.048999999999978, "Delta3": -8.81899999999996, "Delta4": -55.559999999999945, "d1": 0.03932442385502771, "d2": 0.03401498204120532, "d3": 0.029355417173447373, "d4": 0.0}, {"mol": "Os", "x_labels": "Os", "where": "SO-ZORA", "solveff": 121.17599999999993, "row": 6, "charge": 0, "solvent": "12CCl\u2084", "complex": "OsO\u2084 + 12CCl\u2084", "delta1": 132.73399999999992, "delta2": 135.55999999999995, "delta3": 137.587, "delta4": 121.17599999999993, "Delta1": 132.73399999999992, "Delta2": 2.826000000000022, "Delta3": 2.0270000000000437, "Delta4": -16.411000000000058, "d1": 0.009486133567518316, "d2": 0.011805549855959828, "d3": 0.013469193457046525, "d4": 0.0}, {"mol": "Pt", "x_labels": "Pt", "where": "SO-ZORA", "solveff": 498.48800000000006, "row": 6, "charge": -2, "solvent": "12H\u2082O", "complex": "PtCl\u2086\u00b2\u207b + 12H\u2082O", "delta1": 292.2940000000001, "delta2": 371.1559999999997, "delta3": 428.05899999999997, "delta4": 498.48800000000006, "Delta1": 292.2940000000001, "Delta2": 78.86199999999963, "Delta3": 56.90300000000025, "Delta4": 70.42900000000009, "d1": -0.10937188371234462, "d2": -0.06754095995451033, "d3": -0.0373577911965272, "d4": 0.0}, {"mol": "Hg", "x_labels": "Hg", "where": "SO-ZORA", "solveff": 40.07600000000093, "row": 6, "charge": 0, "solvent": "6Hg(CH\u2083)\u2082", "complex": "Hg(CH\u2083)\u2082 + 6Hg(CH\u2083)\u2082", "delta1": 31.950000000000728, "delta2": 67.19500000000153, "delta3": 95.47100000000137, "delta4": 40.07600000000093, "Delta1": 31.950000000000728, "Delta2": 35.2450000000008, "Delta3": 28.27599999999984, "Delta4": -55.39500000000044, "d1": -0.0009148227516846377, "d2": 0.003053049249684422, "d3": 0.006236353227857449, "d4": 0.0}]}}, {"mode": "vega-lite"});
+</script>
+
+
+
+There's still a lot that could be done to improve the readibility of the plots, besides Altair has many other interactive options to offer in addition to simple hover. For instance, what could be done is to show the results from both programs on one plot or plot some more statistics. However, I will dive into this using larger data in the future.
