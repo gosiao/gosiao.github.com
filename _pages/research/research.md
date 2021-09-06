@@ -12,10 +12,41 @@ I am particularly enthusiastic about combining data science and computer science
 
 <br>
 
-Current research projects:
+### Current research projects:
 
 * [Topological Data Analysis of quantum chemistry data](tda_and_qchem)
 * [Molecules in realistic environments - the Frozen Density Embedding approach](fde)
+
+
+### Research funding:
+
+* "Quantum chemistry solutions for molecules with heavy atoms in realistic environments."
+<br>
+    SONATA Grant, National Science Centre Poland
+<br>
+    Amount: 458 340,00 PLN
+<br>
+    Date: X 2017 – VI 2021
+
+* "Embedding methods in quantum chemistry - pushing the boundaries of modeling molecular properties of complex systems with heavy elements."
+<br>
+    SONATA BIS Grant, National Science Centre Poland
+<br>
+    Amount: 1 413 200,00 PLN
+<br>
+    Date: VII 2021 – VI 2025
+
+
+
+### Computational grants:
+
+* "Development and applications of quantum chemistry embedding methods."
+<br>
+    PL-Grid Infrastructure, Poland
+<br>
+    CPU: 1 095 000 +  1 000 000 hours
+<br>
+    Date: III 2020 - III 2021, X 2020 - X 2021
 
 
 
