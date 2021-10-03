@@ -170,6 +170,7 @@ collections:
     output: true
     permalink: /:collection/:path/
 
+
 # Sass/SCSS
 sass:
   sass_dir: _sass

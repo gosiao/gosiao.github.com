@@ -3,7 +3,7 @@ layout: default
 ---
 
 <div id="main" role="main">
-  {% include sidebar.html %}
+  {% include sidebar__blog.html %}
 
   <article class="page">
     <div class="page__inner-wrap">
@@ -29,7 +29,6 @@ layout: default
         </div>
         {% endif %}
       </section>
-
 
       <footer class="page__meta">
         {% if site.data.ui-text[site.locale].meta_label %}
@@ -61,7 +60,6 @@ layout: default
         {% endfor %}
       </div>
       {% endif %}
-
 
     </div>
 
