@@ -24,5 +24,7 @@
       <a href="{{ base_path }}{{ tag_word | slugify | prepend: path_type | prepend: site.tag_archive.path }}" class="page__taxonomy-item" rel="tag">{{ tag_word }}</a>{% unless forloop.last %}<span class="sep">, </span>{% endunless %}
     {% endfor %}
     </span>
+    </br>
+    <strong><i class="fa fa-fw fa-tags" aria-hidden="true"></i> {{ site.data.ui-text[site.locale].tags_label | default: "" }} </strong><span><a href="{{ base_path }}{{ slugify | prepend:site.tag_archive.path }}">{{ "Posts by Tags" }}</span>
   </p>
 {% endif %}
