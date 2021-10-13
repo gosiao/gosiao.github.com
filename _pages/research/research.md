@@ -20,14 +20,6 @@ I am particularly enthusiastic about combining data science and computer science
 
 ### Research funding:
 
-* "Quantum chemistry solutions for molecules with heavy atoms in realistic environments."
-<br>
-    SONATA Grant, National Science Centre Poland
-<br>
-    Amount: 458 340,00 PLN
-<br>
-    Date: X 2017 – VI 2021
-
 * "Embedding methods in quantum chemistry - pushing the boundaries of modeling molecular properties of complex systems with heavy elements."
 <br>
     SONATA BIS Grant, National Science Centre Poland
@@ -37,6 +29,14 @@ I am particularly enthusiastic about combining data science and computer science
     Date: VII 2021 – VI 2025
 
 
+* "Quantum chemistry solutions for molecules with heavy atoms in realistic environments."
+<br>
+    SONATA Grant, National Science Centre Poland
+<br>
+    Amount: 458 340,00 PLN
+<br>
+    Date: X 2017 – VI 2021
+
 
 ### Computational grants:
 
@@ -44,9 +44,9 @@ I am particularly enthusiastic about combining data science and computer science
 <br>
     PL-Grid Infrastructure, Poland
 <br>
-    CPU: 1 095 000 +  1 000 000 hours
+    CPU: 1 095 000 +  1 000 000 + 1 000 000 hours
 <br>
-    Date: III 2020 - III 2021, X 2020 - X 2021
+    Date: III 2020 - III 2021, X 2020 - X 2021, X 2021 - X 2022
 
 
 
