@@ -10,7 +10,7 @@ Papers in refereed journals:
 * 2021
   *Relativistic frozen density embedding calculations of solvent effects on the nuclear magnetic resonance shielding constants of transition metal nuclei*,
   M. Olejniczak, A. Antušek, M. Jaszuński:
-
+  Int. J. Quantum Chem. 121 (22), e26789, 2021,
   [arXiv](https://arxiv.org/abs/2106.00763),
   [Int. J. Quantum Chem.](https://onlinelibrary.wiley.com/doi/10.1002/qua.26789),
   [data on Zenodo](https://zenodo.org/record/4883729#.YRjKoHXnhH4)
