@@ -12,7 +12,7 @@ date: 2022-04-09
 ---
 
 
-Technical reading is a complex skill. It involves the ability to follow a complicated argument, often accompanied by equations, plots, and other analyses, and to put it in the context of the existing knowledge. The actual reading task can get constantly interrupted by switching between the text and accompanying comments and the need to consult other references. This leads to context shifting and, consequently, fatigue and concentration loss. This also makes the reading much less enjoyable.
+Technical reading is a complex skill. It involves the ability to follow a complicated argument, often accompanied by equations, plots, and other analyses, and to put it in the context of the existing knowledge. The actual reading task can get constantly interrupted by switching between the text and accompanying comments and the need to consult other references. This leads to context shifting and, consequently, fatigue and concentration loss. This also makes reading much less enjoyable.
 
 Questions about building and practicing this skill and getting better at it have been on my research list and motivated me to look for better ways to establish my own routines and systems around this type of work. I want to share the advice I collected on this topic and my personal learnings in this post.
 
@@ -35,7 +35,7 @@ K. Noe's TRT strategy involves simple steps, which she groups into *prereading c
 	* "Were there areas I didn't understand that are still unclear?"
 	* "Am I now ready to act on this document?"
 
-I created [a markdown template for my literature notes](https://github.com/gosiao/myre_templates/blob/main/obsidian_zettelkasten_templates/template-lit.md) to put this advice into practice. This template is a part of my Zettelkasten-inspired system of note-taking that I've implemented in Obsidian (which I will write about in the next post). Other "helper" questions in this template are inspired by the [How to Take Smart Notes](https://www.goodreads.com/book/show/34507927-how-to-take-smart-notes) book by Sönke Ahrens.  
+I created [a markdown template for my literature notes](https://github.com/gosiao/myre_templates/blob/main/obsidian_zettelkasten_templates/template-lit.md) to put this advice into practice. This template is a part of my [Zettelkasten](https://en.wikipedia.org/wiki/Zettelkasten)-inspired system of note-taking that I've implemented in [Obsidian](https://obsidian.md/) (which I will write about in the next post). Other "helper" questions in this template are inspired by the [How to Take Smart Notes](https://www.goodreads.com/book/show/34507927-how-to-take-smart-notes) book by Sönke Ahrens.  
 
 K. Noe's protocol can be helpful to become more aware of how one reads a demanding text. I also believe it can snowball into better writing. The *prereading checklist* can easily make up for a good recipe for composing the abstract or introduction to a report or a publication. And the whole strategy can help authors develop a mindset of making their papers genuinely accessible.
 
