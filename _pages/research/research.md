@@ -41,12 +41,23 @@ I am particularly enthusiastic about combining data science and computer science
 ### Computational grants:
 
 * "Development and applications of quantum chemistry embedding methods."
+
 <br>
     PL-Grid Infrastructure, Poland
 <br>
-    CPU: 1 095 000 +  1 000 000 + 1 000 000 hours
+    CPU: 1 095 000 +  1 000 000 hours
 <br>
-    Date: III 2020 - III 2021, X 2020 - X 2021, X 2021 - X 2022
+    Date: III 2020 - III 2021, X 2020 - X 2021
+
+
+* "Quantum chemistry embedding and topological data analysis - developments and applications for molecular systems in realistic environments"
+
+<br>
+    PL-Grid Infrastructure, Poland
+<br>
+    CPU: 1 000 000 + 250 000 hours
+<br>
+    Date: X 2021 - X 2022, X 2022 - X 2023
 
 
 
