@@ -7,6 +7,14 @@ author_profile: false
 
 Papers in refereed journals:
 
+* 2023
+  *Topological data analysis of vortices in the magnetically-induced current density in LiH molecule*,
+  M. Olejniczak, J. Tierny:
+  Phys. Chem. Chem. Phys. 25, 5942, 2023,
+  [arXiv](https://arxiv.org/abs/2212.08690),
+  [Phys. Chem. Chem. Phys.](https://doi.org/10.1039/D2CP05893F)
+  [data on Zenodo](https://zenodo.org/record/7446735#.Y9PULNKE4XU)
+
 * 2021
   *Relativistic frozen density embedding calculations of solvent effects on the nuclear magnetic resonance shielding constants of transition metal nuclei*,
   M. Olejniczak, A. Antušek, M. Jaszuński:
