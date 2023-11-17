@@ -55,9 +55,9 @@ I am particularly enthusiastic about combining data science and computer science
 <br>
     PL-Grid Infrastructure, Poland
 <br>
-    CPU: 1 000 000 + 250 000 hours
+    CPU: 1 000 000 + 250 000 hours + 250 000 hours
 <br>
-    Date: X 2021 - X 2022, X 2022 - X 2023
+    Date: X 2021 - X 2022, X 2022 - X 2023, X 20223 - X 2024
 
 
 
