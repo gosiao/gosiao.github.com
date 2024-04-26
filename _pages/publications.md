@@ -10,11 +10,6 @@ author_profile: false
 Book chapters:
 
 * 2024
-  *Interoperable Workflows by Exchanging Grid-Based Data between Quantum-Chemical Program Packages*
-  K. Focke, M. De Santis, M. Wolter, J. A. Martinez B, V. Vallet, A. S. P. Gomes, M. Olejniczak, C. R. Jacob:
-  [arXiv](https://arxiv.org/abs/2401.17925)
-
-* 2024
   *Modeling Environment Effects on Heavy-Element Compounds*,
   M. Olejniczak, V. Vallet, A. S. P. Gomes:
   Comprehensive Computational Chemistry, Volume 3, 129--154, 2024,
@@ -22,6 +17,12 @@ Book chapters:
 
 
 Papers in refereed journals:
+
+* 2024
+  *Interoperable Workflows by Exchanging Grid-Based Data between Quantum-Chemical Program Packages*
+  K. Focke, M. De Santis, M. Wolter, J. A. Martinez B, V. Vallet, A. S. P. Gomes, M. Olejniczak, C. R. Jacob:
+  [arXiv](https://arxiv.org/abs/2401.17925)
+
 
 * 2024
   *Interoperable Workflows by Exchanging Grid-Based Data between Quantum-Chemical Program Packages*,
