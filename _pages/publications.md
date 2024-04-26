@@ -19,12 +19,6 @@ Book chapters:
 Papers in refereed journals:
 
 * 2024
-  *Interoperable Workflows by Exchanging Grid-Based Data between Quantum-Chemical Program Packages*
-  K. Focke, M. De Santis, M. Wolter, J. A. Martinez B, V. Vallet, A. S. P. Gomes, M. Olejniczak, C. R. Jacob:
-  [arXiv](https://arxiv.org/abs/2401.17925)
-
-
-* 2024
   *Interoperable Workflows by Exchanging Grid-Based Data between Quantum-Chemical Program Packages*,
   K. Focke, M. De Santis, M. Wolter, J. A. Martinez B, V. Vallet, A. S. P. Gomes, M. Olejniczak, C. R. Jacob,
   [arXiv](https://arxiv.org/abs/2401.17925)
