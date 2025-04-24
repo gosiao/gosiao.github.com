@@ -5,87 +5,24 @@ title: "Molecules in realistic environments"
 author_profile: false
 ---
 
-*Molecules in realistic environments* is a shortcut phrase coined for 
-complex molecular systems 
-which additionally can be subjected to external perturbations.
-Examples of such systems, 
-including for instance molecules in condensed phases or on interfaces 
-which involve heavy elements (from the bottom of the periodic table) 
-and are perturbed by probing electromagnetic fields in spectroscopic experiments, 
-are ubiquitous in research conducted to predict 
-and understand the properties and behavior of molecules 
-in endless applications in various domains of biology and chemistry.
-In addition, due to the presence of heavy elements in such systems,
-many applications that appear in this context are of the strategic importance 
-for the sustainable future of the modern society. 
-Examples include applications in medicine (radiopharmaceuticals, nuclear imaging agents)
-and various industries (catalysts, photonic devices, single molecular magnets),
-energy sources (nuclear fuels), to name but a few.
+This project focuses on modeling molecules in realistic environments subjected to various perturbations.
+Examples of such systems include molecules in condensed phases or on interfaces involving *heavy* elements (i.e., from the bottom of the periodic table), studied through their interactions with other molecules and/or external electromagnetic fields. Their modeling has become an essential step towards designing solutions for the sustainable future of modern society. Examples include applications in medicine (radiopharmaceuticals, nuclear imaging agents), various industries (catalysts, photonic devices, single molecular magnets), and energy sources (nuclear fuels), to name but a few. Computational studies of such systems are also invaluable for basic research. Analyzing interactions between molecules and between molecules and external fields enhances our understanding of the electronic structure and molecular properties.
 
-The computational studies of such systems - which are the core of this project - are also
-invaluable for basic research. They make significant contributions to understanding the
-electronic structure and properties of complex molecular ensembles,
-through the information retrieved
-from the analysis of interactions between molecules and between molecules and external fields.
-In turn, the knowledge of electronic structure and properties of molecules 
-with heavy elements in complex environments is the first step in an efficient design 
-of functional molecular materials and drugs. 
-Among various applications, this project will consider systems which can be used as chemical sensors, 
-molecule-based materials of desired magnetic properties or as radiopharmaceuticals.
-
-
-The computational studies of such systems are not only run for application purposes,
-but they also provide invaluable theoretical information, since through the
-interactions between molecules and between molecules and external fields, 
-the electronic structure and properties of such systems can be examined and better understood.
-
-
-However, computer simulations of such ensembles are not easy.
-The methodology required for this task should include the relativistic effects (scalar and spin-orbit), 
-have a good description of electron correlation and, finally, 
-should account for the presence of an environment, which may significantly affect 
-the geometry, electronic structure and properties of the molecule of interest.
-More advanced quantum chemistry methods which are able to encompass the relativistic 
-and electron correlation effects are computationally very expensive, 
-therefore cannot be used to a molecule and its environment treated as a whole system. 
-
-A promising alternative is to use embedding methods, 
-in which the whole system is divided into subsystems: 
-an *active* molecule of interest and its *environment*, 
-treated separately by the best (and tailored for them) quantum chemistry models. 
-
-A promising example of such method is the frozen density embedding (FDE), 
-in which this partitioning is performed in terms of the electron density 
-and the effect of all other subsystems on the molecule for which 
-the electronic structure and properties are sought is accounted for through 
-the so-called embedding potential. 
-FDE is based on the density functional theory (DFT), 
-therefore the embedding potential is defined analogously to 
-exchange-correlation potential in Kohn-Sham DFT, 
-nevertheless all the subsystems can either be described with DFT 
-or with wave-function theory (WFT) based methods, 
-what results in various embedding schemes, termed DFT-in-DFT, WFT-in-DFT, WFT-in-WFT.
-
-Currently available FDE schemes are limited to non-relativistic or quasi-relativistic Hamiltonians 
-and only to few molecular properties (not higher than of second-order). 
-The developments in the *fully*-relativistic four-component (4c) 
-framework with the Dirac-Coulomb (DC) Hamiltonian and various DFT and WFT methods 
-for the wide range of second- and third-order molecular properties are certainly needed.
-
-This extension is essential to systems with heavy atoms and to properties which depend on the 
-electron density near the nucleus - as for them the relativistic effects are expected to be 
-significant - such as the properties observed in nuclear magnetic resonance (NMR) spectroscopy 
-or in the X-ray spectroscopy, however recent advancements in relativistic quantum chemistry also show examples of significant relativistic effects on valence properties.
-
-The methodology development in this direction will therefore allow to revisit and calculate various properties, 
-notably in systems with heavy elements, with the relativistic, correlation and environmental effects calculated from the start.
-
-
-
-
+Such computer simulations are not easy. At the quantum chemistry level, the appropriate method should be able to describe relativistic effects (scalar and spin-orbit) and electron correlation; it should also account for the presence of an environment that may significantly affect
+the geometry, electronic structure, and properties of the molecule of interest. However, the cost of accurate methods often prevents their application to studied systems. An interesting way around this is to divide a large system into small parts and treat each separately with the best cost-efficient model. This is the key point of subsystem-based methods in quantum chemistry. An additional argument for adopting partitioning-based approaches is that the systems of interest are often composed of an easily distinguishable *active* subsystem and its *environment*.
+The Frozen Density Embedding (FDE) - a central method developed in this project - is an example of such a technique. In principle, FDE employs partitioning the system's electron density, and the effect of all other subsystems on the properties of the *active* one is accounted for through the embedding potential. The key contributions of this project include the adaptations and testing of FDE in the relativistic framework and the optimization of FDE for demanding applications (such as the minimization of errors due to an insufficient description of coupling between the subsystems).
 
 <br>
 
+Selected publications related to this project:
 
-*Project funded by the [National Science Center](https://ncn.gov.pl/?language=en), grant number 2016/23/D/ST4/03217*
+* 2024 *Modeling Environment Effects on Heavy-Element Compounds*, M. Olejniczak, V. Vallet, A. S. P. Gomes: [Comprehensive Computational Chemistry, Volume 3, 129--154 (2024)](https://www.sciencedirect.com/science/article/abs/pii/B9780128219782000994?via%3Dihub)
+ 
+* 2021 *Relativistic frozen density embedding calculations of solvent effects on the nuclear magnetic resonance shielding constants of transition metal nuclei*, M. Olejniczak, A. Antušek, M. Jaszuński, [Int. J. Quantum Chem. 121 (22), e26789 (2021)](https://onlinelibrary.wiley.com/doi/10.1002/qua.26789),
+
+* 2020 *Investigating solvent effects on the magnetic properties of molybdate ions (MoO2-4) with relativistic embedding*, L. Halbert, M. Olejniczak, V. Vallet, A. Severo Pereira Gomes, [Int. J. Quantum Chem. 120 (21), e26207 (2020)](https://onlinelibrary.wiley.com/doi/abs/10.1002/qua.26207)
+
+<br>
+
+*Project funded by the [National Science Center](https://ncn.gov.pl/?language=en), grant number 2016/23/D/ST4/03217 and 2020/38/E/ST4/00614*
 

@@ -6,6 +6,8 @@ author_profile: false
 ---
 
 
+## Academic publishing
+
 Book chapters:
 
 * 2024

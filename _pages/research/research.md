@@ -6,9 +6,9 @@ author_profile: false
 ---
 
 
-I am broadly interested in quantum chemistry and its applications to model properties of molecules, in particular the ones involving heavy elements, responding to various perturbations and interacting with other molecules in the environment.
+I am broadly interested in quantum chemistry and its applications to model properties of molecules, particularly those involving heavy elements, responding to various perturbations, and interacting with other molecules in the environment.
 
-I am particularly enthusiastic about combining data science and computer science with chemistry. At the intersection of these domains I am looking for ways to improve computational quantum chemistry workflows, as well as for new methods contributing to a deeper understanding of the behavior of molecular systems in complex environments and under perturbations.
+I am particularly enthusiastic about combining data science and computer science with chemistry. At the intersection of these domains, I am looking for ways to improve computational quantum chemistry workflows and new methods that contribute to a deeper understanding of the behavior of molecular systems in complex environments and under perturbations.
 
 <br>
 
@@ -21,43 +21,18 @@ I am particularly enthusiastic about combining data science and computer science
 ### Research funding:
 
 * "Embedding methods in quantum chemistry - pushing the boundaries of modeling molecular properties of complex systems with heavy elements."
-<br>
-    SONATA BIS Grant, National Science Centre Poland
-<br>
-    Amount: 1 413 200,00 PLN
-<br>
-    Date: VII 2021 – VI 2025
-
+    * SONATA BIS Grant, National Science Centre Poland (1 413 200 PLN; 07/2021 – 07/2025)
 
 * "Quantum chemistry solutions for molecules with heavy atoms in realistic environments."
-<br>
-    SONATA Grant, National Science Centre Poland
-<br>
-    Amount: 458 340,00 PLN
-<br>
-    Date: X 2017 – VI 2021
+    * SONATA Grant, National Science Centre Poland (458 340 PLN; 10/2017 – 06/2021)
 
 
 ### Computational grants:
 
-* "Development and applications of quantum chemistry embedding methods."
-
-<br>
-    PL-Grid Infrastructure, Poland
-<br>
-    CPU: 1 095 000 +  1 000 000 hours
-<br>
-    Date: III 2020 - III 2021, X 2020 - X 2021
-
-
 * "Quantum chemistry embedding and topological data analysis - developments and applications for molecular systems in realistic environments"
+    * PL-Grid Infrastructure, Poland (1 000 000 + 3 x 250 000 CPUs; 10/2021 - 10/2025)
 
-<br>
-    PL-Grid Infrastructure, Poland
-<br>
-    CPU: 1 000 000 + 250 000 hours + 250 000 hours
-<br>
-    Date: X 2021 - X 2022, X 2022 - X 2023, X 2023 - X 2024
-
+* "Development and applications of quantum chemistry embedding methods."
+    * PL-Grid Infrastructure, Poland (1 095 000 +  1 000 000 CPUs; 03/2020 - 03/2021, 10/2020 - 10/2021)
 
 
