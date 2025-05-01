@@ -15,6 +15,14 @@ Book chapters:
   [link to publisher site](https://www.sciencedirect.com/science/article/abs/pii/B9780128219782000994?via%3Dihub)
 
 
+Papers in preparation:
+
+* 2025
+  *BondMatcher: H-Bond Stability Analysis in Molecular Systems*,
+  T. Daniel, M. Olejniczak, J. Tierny:
+  [arXiv](https://arxiv.org/abs/2504.03205)
+
+
 Papers in refereed journals:
 
 * 2024
