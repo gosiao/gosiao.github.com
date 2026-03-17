@@ -8,6 +8,13 @@ author_profile: false
 
 ## Academic publishing
 
+In preparation:
+
+* 2026
+  *Topological Data Analysis for Quantum Chemistry Practices*, M. Olejniczak, J. Tierny:
+  a book, to be published by John Wiley & Sons, Inc., Hoboken, New Jersey.
+
+
 Book chapters:
 
 * 2024
@@ -16,16 +23,16 @@ Book chapters:
   Comprehensive Computational Chemistry, Volume 3, 129--154 (2024),
   [link to publisher site](https://www.sciencedirect.com/science/article/abs/pii/B9780128219782000994?via%3Dihub)
 
-
-Papers in preparation:
+Papers in refereed journals:
 
 * 2025
   *BondMatcher: H-Bond Stability Analysis in Molecular Systems*,
   T. Daniel, M. Olejniczak, J. Tierny:
   [arXiv](https://arxiv.org/abs/2504.03205)
+  [IEEE TVCG](https://ieeexplore.ieee.org/document/11298486)
+  [code](https://github.com/thom-dani/BondMatcher)
+  [data - availability and description](https://github.com/thom-dani/BondMatcher?tab=readme-ov-file#downloading-the-database)
 
-
-Papers in refereed journals:
 
 * 2024
   *Interoperable Workflows by Exchanging Grid-Based Data between Quantum-Chemical Program Packages*,
@@ -57,6 +64,7 @@ Papers in refereed journals:
   [arXiv](https://arxiv.org/abs/2002.06121), 
   [J. Chem. Phys.](https://aip.scitation.org/doi/full/10.1063/5.0004844) 
 
+* 2020
   *Investigating solvent effects on the magnetic properties of molybdate ions (MoO2-4) with relativistic embedding*, 
   L. Halbert, M. Olejniczak, V. Vallet, A. Severo Pereira Gomes: 
   Int. J. Quantum Chem. 120 (21), e26207 (2020),
@@ -112,11 +120,13 @@ Papers in refereed journals:
   J. Phys. Chem. A, 115, 10617 (2011), 
   [J. Phys. Chem. A](https://pubs.acs.org/doi/abs/10.1021/jp2052739)
 
+* 2011 
   *4-Component relativistic magnetically induced current density using London atomic orbitals*, 
   D. Sulzer, M. Olejniczak, R. Bast, T. Saue: 
   Phys. Chem. Chem. Phys. 13, 20682 (2011), 
   [Phys. Chem. Chem. Phys.](https://pubs.rsc.org/en/content/articlelanding/2011/cp/c1cp22457c/unauth#!divAbstract)
 
+* 2011 
   *Ab initio study of NMR shielding constants and spin-rotation constants in N, P and As diatomic molecules*, 
   A. Antušek, M. Jaszuński, M. Olejniczak: 
   Comput. Theor. Chem. 970, 54 (2011), 
